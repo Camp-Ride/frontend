@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: DefaultTextStyle(
                   style: GoogleFonts.getFont(
                     'ABeeZee',
-                    color: const Color(0x7A000000),
+                    color: Colors.black,
                     fontSize: 40.sp,
                     height: 1.5,
                   ),
@@ -61,6 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       children: [
                         Text(
                           "CAMPRIDE",
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 40.h,
