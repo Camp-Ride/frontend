@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:campride/login.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -7,23 +6,26 @@ import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    });
+    // Timer(const Duration(seconds: 3), () {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => const MyHomePage(
+    //               title: "hello",
+    //             )),
+    //   );
+    // });
   }
 
   @override
@@ -48,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: GoogleFonts.getFont(
                     'ABeeZee',
                     color: Colors.black,
-                    fontSize: 40.sp,
+                    fontSize: 35.sp,
                     height: 1.5,
                   ),
                   child: Container(
@@ -64,8 +66,23 @@ class _SplashScreenState extends State<SplashScreen> {
                         SizedBox(
                           height: 40.h,
                         ),
-                        CircularProgressIndicator(
-                          color: Color(0xFF29435C),
+                        SizedBox(
+                          width: 200.w,
+                          child: IconButton(
+                              onPressed: () => {},
+                              icon: Image.asset("assets/images/google.png")),
+                        ),
+                        SizedBox(
+                          width: 200.w,
+                          child: IconButton(
+                              onPressed: () => {},
+                              icon: Image.asset("assets/images/kakao.png")),
+                        ),
+                        SizedBox(
+                          width: 200.w,
+                          child: IconButton(
+                              onPressed: () => {},
+                              icon: Image.asset("assets/images/naver.png")),
                         ),
                       ],
                     ),
