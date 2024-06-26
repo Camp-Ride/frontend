@@ -69,13 +69,12 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {},
-                              icon: Image.asset("assets/images/google.png")),
-                        ),
-                        SizedBox(
-                          width: 200.w,
-                          child: IconButton(
-                              onPressed: () => {},
+                              onPressed: () => {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => MainPage()))
+                                  },
                               icon: Image.asset("assets/images/kakao.png")),
                         ),
                         SizedBox(
@@ -83,6 +82,12 @@ class _LoginPageState extends State<LoginPage> {
                           child: IconButton(
                               onPressed: () => {},
                               icon: Image.asset("assets/images/naver.png")),
+                        ),
+                        SizedBox(
+                          width: 200.w,
+                          child: IconButton(
+                              onPressed: () => {},
+                              icon: Image.asset("assets/images/google.png")),
                         ),
                       ],
                     ),
