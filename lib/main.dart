@@ -1,4 +1,5 @@
 import 'package:campride/main_list.dart';
+import 'package:campride/mypage.dart';
 import 'package:campride/room.dart';
 import 'package:campride/splash.dart';
 import 'package:flutter/foundation.dart';
@@ -59,7 +60,7 @@ class _MainPageState extends State<MainPage> {
   static List<Widget> _widgetOptions = <Widget>[
     Text('채팅'),
     CampRiderPage(),
-    Text('마이페이지'),
+    MyPage(),
   ];
 
   void _onItemTapped(int index) {
