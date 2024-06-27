@@ -178,7 +178,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 5.0).w,
                                   child: SizedBox(
-                                    width: 220.w,
+                                    width: 215.w,
                                     height: 50.h,
                                     child: TextField(
                                       style: TextStyle(color: Colors.white),
@@ -237,7 +237,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 5.0).w,
                                   child: SizedBox(
-                                    width: 220.w,
+                                    width: 215.w,
                                     height: 50.h,
                                     child: TextField(
                                       style: TextStyle(color: Colors.white),
@@ -398,7 +398,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         left: 8.0)
                                                     .w,
                                                 child: SizedBox(
-                                                  width: 220.w,
+                                                  width: 210.w,
                                                   child: Column(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
@@ -428,7 +428,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               ),
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                        left: 8.0)
+                                                        left: 0.0)
                                                     .w,
                                                 child: SizedBox(
                                                   width: 35.w,
@@ -450,10 +450,14 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                   ),
                                                 ),
                                               ),
-                                              IconButton(
-                                                  onPressed: null,
-                                                  icon: Icon(
-                                                      Icons.arrow_circle_left))
+                                              SizedBox(
+                                                width: 40.w,
+                                                height: 40.h,
+                                                child: IconButton(
+                                                    onPressed: null,
+                                                    icon: Icon(Icons
+                                                        .arrow_circle_left)),
+                                              )
                                             ],
                                           ),
                                         )
