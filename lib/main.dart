@@ -1,3 +1,4 @@
+import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
 import 'package:campride/room.dart';
@@ -55,10 +56,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   static List<Widget> _widgetOptions = <Widget>[
-    Text('채팅'),
+    ChatRoomsPage(),
     CampRiderPage(),
     MyPage(),
   ];
