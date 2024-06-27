@@ -101,7 +101,7 @@ class _MainPageState extends State<MainPage> {
         onTap: _onItemTapped,
       ),
 
-      floatingActionButton: SizedBox(
+      floatingActionButton: _selectedIndex == 1 ? SizedBox(
         width: 95.w,
         height: 40.h,
         child: FloatingActionButton(
@@ -123,7 +123,7 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
