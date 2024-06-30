@@ -6,12 +6,18 @@ import 'package:campride/splash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 
 void main() async {
   await ScreenUtil.ensureScreenSize();
+  await dotenv.load(fileName: "assets/env/.env");
+  var key = await dotenv.env['APP_KEY'];
+  AuthRepository.initialize(appKey: key!);
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -69,6 +75,19 @@ class _MainPageState extends State<MainPage> {
       _selectedIndex = index;
     });
   }
+
+  var room = Room(
+    id: 1,
+    name: "준행행님",
+    date: "2024-07-25 07:00",
+    durationMinutes: 30,
+    title: "상록 예비군 출발하실 분 구해요",
+    rideType: "왕복",
+    departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
+    arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
+    currentParticipants: 4,
+    maxParticipants: 4,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -130,42 +149,176 @@ class _MainPageState extends State<MainPage> {
                                       ),
                                     ],
                                   ),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '준행행님',
-                                        style: TextStyle(
-                                            fontSize: 12.sp,
-                                            color: Colors.black54),
-                                      )
-                                    ],
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0).h,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '준행행님',
+                                          style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.black54),
+                                        ),
+                                        SizedBox(
+                                          width: 50.w,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                  "${room.currentParticipants}/${room.maxParticipants}"),
+                                            ],
+                                          ),
+                                        ),
+                                        "편도" == "편도"
+                                            ? Container(
+                                                width: 50.w, // 컨테이너 크기
+                                                height: 20.h, // 컨테이너 높이
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xff48ADE5),
+                                                        Color(0xff76CB68)
+                                                      ]), // 컨테이너 색상
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  "편도",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              )
+                                            : Container(
+                                                width: 50.w, // 컨테이너 크기
+                                                height: 20.h, // 컨테이너 높이
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xffDCCB37),
+                                                        Color(0xff44EB29)
+                                                      ]), // 컨테이너 색상
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Text(
+                                                  "왕복",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                      ],
+                                    ),
                                   ),
                                   Expanded(
                                     flex: 1,
-                                    child: Container(
-                                      decoration:
-                                          BoxDecoration(color: Colors.orange),
-                                      height: 400.h,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.only(top: 10.0).h,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.orange,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     flex: 1,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                          color: Colors.blueAccent),
-                                      height: 400.h,
+                                          color: Colors.transparent),
+                                      child: Expanded(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 40.h,
+                                            ),
+                                            Text(
+                                              room.date + " 출발",
+                                              style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  color: Colors.blue,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            SizedBox(
+                                              height: 10.h,
+                                            ),
+                                            Text(
+                                              "약" +
+                                                  room.durationMinutes
+                                                      .toString() +
+                                                  "분 소요",
+                                              style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  color: Colors.orange,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            SizedBox(
+                                              height: 30.h,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: [
+                                                SizedBox(
+                                                  width: 13.33.w,
+                                                  height: 46.4.h,
+                                                  child: Image.asset(
+                                                    "assets/images/start_end.png",
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 240.w,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          room
+                                                              .departureLocation,
+                                                          style: TextStyle(
+                                                              fontSize: 13.sp,
+                                                              color: Colors
+                                                                  .black54)),
+                                                      Text(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          room.arrivalLocation,
+                                                          style: TextStyle(
+                                                              fontSize: 13.sp,
+                                                              color: Colors
+                                                                  .black54)),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      TextButton(
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color(0xFF355A50)),
                                         onPressed: () {},
-                                        child: Text('참여'),
+                                        child: Text('참여',
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ),
-                                      TextButton(
+                                      SizedBox(
+                                        width: 10.w,
+                                      ),
+                                      ElevatedButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
