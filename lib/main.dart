@@ -102,29 +102,106 @@ class _MainPageState extends State<MainPage> {
         onTap: _onItemTapped,
       ),
 
-      floatingActionButton: _selectedIndex == 1 ? SizedBox(
-        width: 95.w,
-        height: 40.h,
-        child: FloatingActionButton(
-          onPressed: null,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0).r,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  "방만들기",
-                  style: TextStyle(fontSize: 15.sp, color: Colors.black54),
+      floatingActionButton: _selectedIndex == 1
+          ? SizedBox(
+              width: 95.w,
+              height: 40.h,
+              child: FloatingActionButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: ((context) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: Dialog(
+                          child: Padding(
+                            padding: const EdgeInsets.all(25.0).r,
+                            child: Container(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '4/14일 상록 예비군 출발하실 분 구해요',
+                                        style: TextStyle(fontSize: 15.sp),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '준행행님',
+                                        style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: Colors.black54),
+                                      )
+                                    ],
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      decoration:
+                                          BoxDecoration(color: Colors.orange),
+                                      height: 400.h,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.blueAccent),
+                                      height: 400.h,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Text('참여'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('닫기'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0).r,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "방만들기",
+                        style:
+                            TextStyle(fontSize: 15.sp, color: Colors.black54),
+                      ),
+                      Icon(
+                        Icons.add,
+                        color: Colors.black54,
+                      ),
+                    ],
+                  ),
                 ),
-                Icon(
-                  Icons.add,
-                  color: Colors.black54,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
+              ),
+            )
+          : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
