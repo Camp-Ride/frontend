@@ -284,66 +284,67 @@ class _MainPageState extends State<MainPage> {
                                                       fit: BoxFit.fill,
                                                     )),
                                               ),
-                                              SizedBox(
-                                                width: 163.w,
-                                                height: 50.h,
-                                                child: TextButton(
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Scaffold(
-                                                            appBar: AppBar(
-                                                              title:
-                                                                  Text("주소 검색"),
-                                                              backgroundColor:
-                                                                  Colors.white,
-                                                            ),
-                                                            body:
-                                                                DaumPostcodeView(
-                                                              onComplete:
-                                                                  (model) {
-                                                                setState(() {
-                                                                  startAddress =
-                                                                      model
-                                                                          .address;
-                                                                });
+                                              Expanded(
+                                                child: SizedBox(
+                                                  height: 50.h,
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                Scaffold(
+                                                              appBar: AppBar(
+                                                                title:
+                                                                    Text("주소 검색"),
+                                                                backgroundColor:
+                                                                    Colors.white,
+                                                              ),
+                                                              body:
+                                                                  DaumPostcodeView(
+                                                                onComplete:
+                                                                    (model) {
+                                                                  setState(() {
+                                                                    startAddress =
+                                                                        model
+                                                                            .address;
+                                                                  });
 
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(model);
-                                                              },
-                                                              options:
-                                                                  const DaumPostcodeOptions(
-                                                                animation: true,
-                                                                hideEngBtn:
-                                                                    true,
-                                                                themeType:
-                                                                    DaumPostcodeThemeType
-                                                                        .defaultTheme,
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(model);
+                                                                },
+                                                                options:
+                                                                    const DaumPostcodeOptions(
+                                                                  animation: true,
+                                                                  hideEngBtn:
+                                                                      true,
+                                                                  themeType:
+                                                                      DaumPostcodeThemeType
+                                                                          .defaultTheme,
+                                                                ),
                                                               ),
                                                             ),
-                                                          ),
-                                                        ));
-                                                  },
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all<Color>(Colors
-                                                                .transparent),
-                                                    overlayColor:
-                                                        MaterialStateProperty
-                                                            .all<Color>(Colors
-                                                                .transparent),
-                                                  ),
-                                                  child: Text(
-                                                    startAddress == ""
-                                                        ? "Where do you start?"
-                                                        : startAddress,
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 13.sp,
+                                                          ));
+                                                    },
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          MaterialStateProperty
+                                                              .all<Color>(Colors
+                                                                  .transparent),
+                                                      overlayColor:
+                                                          MaterialStateProperty
+                                                              .all<Color>(Colors
+                                                                  .transparent),
+                                                    ),
+                                                    child: Text(
+                                                      startAddress == ""
+                                                          ? "Where do you start?"
+                                                          : startAddress,
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13.sp,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -427,70 +428,71 @@ class _MainPageState extends State<MainPage> {
                                                 padding: const EdgeInsets.only(
                                                         left: 0.0)
                                                     .w,
-                                                child: SizedBox(
-                                                  width: 163.w,
-                                                  height: 50.h,
-                                                  child: TextButton(
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    Scaffold(
-                                                              appBar: AppBar(
-                                                                title: Text(
-                                                                    "주소 검색"),
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                              ),
-                                                              body:
-                                                                  DaumPostcodeView(
-                                                                onComplete:
-                                                                    (model) {
-                                                                  setState(() {
-                                                                    arriveAddress =
-                                                                        model
-                                                                            .address;
-                                                                  });
-
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          model);
-                                                                },
-                                                                options:
-                                                                    const DaumPostcodeOptions(
-                                                                  animation:
-                                                                      true,
-                                                                  hideEngBtn:
-                                                                      true,
-                                                                  themeType:
-                                                                      DaumPostcodeThemeType
-                                                                          .defaultTheme,
+                                                child: Expanded(
+                                                  child: SizedBox(
+                                                    height: 50.h,
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      Scaffold(
+                                                                appBar: AppBar(
+                                                                  title: Text(
+                                                                      "주소 검색"),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                                body:
+                                                                    DaumPostcodeView(
+                                                                  onComplete:
+                                                                      (model) {
+                                                                    setState(() {
+                                                                      arriveAddress =
+                                                                          model
+                                                                              .address;
+                                                                    });
+                                                  
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            model);
+                                                                  },
+                                                                  options:
+                                                                      const DaumPostcodeOptions(
+                                                                    animation:
+                                                                        true,
+                                                                    hideEngBtn:
+                                                                        true,
+                                                                    themeType:
+                                                                        DaumPostcodeThemeType
+                                                                            .defaultTheme,
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ));
-                                                    },
-                                                    style: ButtonStyle(
-                                                      backgroundColor:
-                                                          MaterialStateProperty
-                                                              .all<Color>(Colors
-                                                                  .transparent),
-                                                      overlayColor:
-                                                          MaterialStateProperty
-                                                              .all<Color>(Colors
-                                                                  .transparent),
-                                                    ),
-                                                    child: Text(
-                                                      arriveAddress == ""
-                                                          ? "Where are you going?"
-                                                          : arriveAddress,
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 13.sp,
+                                                            ));
+                                                      },
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(Colors
+                                                                    .transparent),
+                                                        overlayColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(Colors
+                                                                    .transparent),
+                                                      ),
+                                                      child: Text(
+                                                        arriveAddress == ""
+                                                            ? "Where are you going?"
+                                                            : arriveAddress,
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 13.sp,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
