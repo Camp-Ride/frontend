@@ -68,6 +68,7 @@ class _MainPageState extends State<MainPage> {
     ChatRoomsPage(),
     CampRiderPage(),
     MyPage(),
+    MyPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -109,15 +110,17 @@ class _MainPageState extends State<MainPage> {
             label: '캠프라이더',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.library_books_outlined),
+            label: '커뮤니티',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: '마이페이지',
           ),
         ],
         currentIndex: _selectedIndex,
-        backgroundColor: Colors.white,
-        selectedIconTheme: IconThemeData(color: Color(0xFF365B51)),
-        selectedLabelStyle: TextStyle(color: Color(0xFF365B51)),
-        unselectedIconTheme: IconThemeData(color: Colors.black54),
+        selectedItemColor: Color(0xFF365B51),
+        unselectedItemColor: Colors.black54,
         onTap: _onItemTapped,
       ),
 
