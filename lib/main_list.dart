@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:campride/login.dart';
 import 'package:campride/room.dart';
+import 'package:daum_postcode_view/daum_postcode_view.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -22,6 +23,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
     super.initState();
   }
 
+
+  String mainStartAddress = "";
+  String mainArriveAddress = "";
   List<Room> rooms = [
     Room(
       id: 1,
@@ -178,24 +182,59 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         fit: BoxFit.fill,
                                       )),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 5.0).w,
+                                Expanded(
                                   child: SizedBox(
                                     width: 215.w,
                                     height: 50.h,
-                                    child: TextField(
-                                      style: TextStyle(color: Colors.white),
-                                      decoration: InputDecoration(
-                                          enabledBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.transparent)),
-                                          focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.transparent)),
-                                          hintText: "Where do you start?",
-                                          hintStyle: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  255, 255, 255, 100))),
+                                    child: TextButton(
+                                      onPressed: () async {
+                                        var model = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Scaffold(
+                                                appBar: AppBar(
+                                                  title: Text("주소 검색"),
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                body: DaumPostcodeView(
+                                                  onComplete: (model) {
+                                                    Navigator.of(context)
+                                                        .pop(model);
+                                                  },
+                                                  options:
+                                                      const DaumPostcodeOptions(
+                                                    animation: true,
+                                                    hideEngBtn: true,
+                                                    themeType:
+                                                        DaumPostcodeThemeType
+                                                            .defaultTheme,
+                                                  ),
+                                                ),
+                                              ),
+                                            ));
+                                  
+                                        setState(() {
+                                          mainStartAddress = model.address;
+                                        });
+                                  
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.transparent),
+                                        overlayColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.transparent),
+                                      ),
+                                      child: Text(
+                                        mainStartAddress == ""
+                                            ? "Where do you start?"
+                                            : mainStartAddress,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.sp,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -206,7 +245,22 @@ class _CampRiderPageState extends State<CampRiderPage> {
                             width: 40.w,
                             height: 40.h,
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                if (mainStartAddress != "" &&
+                                    mainArriveAddress != "") {
+                                  String tempAddress = "";
+
+                                  setState(() => {
+                                    tempAddress =
+                                        mainStartAddress,
+                                    mainStartAddress =
+                                        mainArriveAddress,
+                                    mainArriveAddress =
+                                        tempAddress,
+                                  });
+                                }
+
+                              },
                               icon: Image.asset("assets/images/change.png",
                                   fit: BoxFit.fill),
                             ),
@@ -237,24 +291,58 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         fit: BoxFit.fill,
                                       )),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 5.0).w,
+                                Expanded(
                                   child: SizedBox(
                                     width: 215.w,
                                     height: 50.h,
-                                    child: TextField(
-                                      style: TextStyle(color: Colors.white),
-                                      decoration: InputDecoration(
-                                          enabledBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.transparent)),
-                                          focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.transparent)),
-                                          hintText: "Where are you going?",
-                                          hintStyle: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  255, 255, 255, 100))),
+                                    child: TextButton(
+                                      onPressed: () async {
+                                        var model = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Scaffold(
+                                                appBar: AppBar(
+                                                  title: Text("주소 검색"),
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                body: DaumPostcodeView(
+                                                  onComplete: (model) {
+                                                    Navigator.of(context)
+                                                        .pop(model);
+                                                  },
+                                                  options:
+                                                      const DaumPostcodeOptions(
+                                                    animation: true,
+                                                    hideEngBtn: true,
+                                                    themeType:
+                                                        DaumPostcodeThemeType
+                                                            .defaultTheme,
+                                                  ),
+                                                ),
+                                              ),
+                                            ));
+                                        setState(() {
+                                          mainArriveAddress = model.address;
+                                        });
+                                  
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.transparent),
+                                        overlayColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.transparent),
+                                      ),
+                                      child: Text(
+                                        mainArriveAddress == ""
+                                            ? "Where are you going?"
+                                            : mainArriveAddress,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.sp,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
