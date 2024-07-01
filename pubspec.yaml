@@ -41,6 +41,9 @@ dependencies:
   responsive_framework: ^1.4.0
   kakao_map_plugin: ^0.3.1
   flutter_dotenv: ^5.1.0
+  flutter_datetime_picker_plus: ^2.2.0
+  intl: ^0.19.0
+  daum_postcode_view: ^0.1.2
 
 dev_dependencies:
   flutter_test:
