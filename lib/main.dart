@@ -95,6 +95,7 @@ class _MainPageState extends State<MainPage> {
     arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
     currentParticipants: 4,
     maxParticipants: 4,
+    unreadMessages:129,
   );
 
   var selectedDate = "";

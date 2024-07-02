@@ -23,7 +23,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
     super.initState();
   }
 
-
   String mainStartAddress = "";
   String mainArriveAddress = "";
   List<Room> rooms = [
@@ -38,6 +37,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
       currentParticipants: 4,
       maxParticipants: 4,
+      unreadMessages: 129,
     ),
     Room(
       id: 1,
@@ -50,6 +50,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
       currentParticipants: 4,
       maxParticipants: 4,
+      unreadMessages: 129,
     ),
     Room(
       id: 1,
@@ -62,6 +63,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
       currentParticipants: 4,
       maxParticipants: 4,
+      unreadMessages: 129,
     ),
     Room(
       id: 1,
@@ -74,18 +76,21 @@ class _CampRiderPageState extends State<CampRiderPage> {
       arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
       currentParticipants: 4,
       maxParticipants: 4,
+      unreadMessages: 129,
     ),
     Room(
-        id: 2,
-        name: "민준님",
-        date: "2024-07-20 09:00",
-        durationMinutes: 45,
-        title: "인천 공항 가실 분",
-        rideType: "편도",
-        departureLocation: "서울 역삼동 강남구 도복로 103호길",
-        arrivalLocation: "인천 국제공항 강남구 도복로 103호길 비행장 123호",
-        currentParticipants: 2,
-        maxParticipants: 4),
+      id: 2,
+      name: "민준님",
+      date: "2024-07-20 09:00",
+      durationMinutes: 45,
+      title: "인천 공항 가실 분",
+      rideType: "편도",
+      departureLocation: "서울 역삼동 강남구 도복로 103호길",
+      arrivalLocation: "인천 국제공항 강남구 도복로 103호길 비행장 123호",
+      currentParticipants: 2,
+      maxParticipants: 4,
+      unreadMessages: 129,
+    ),
     // 추가 Room 객체를 여기에 선언할 수 있습니다.
   ];
 
@@ -212,11 +217,10 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                 ),
                                               ),
                                             ));
-                                  
+
                                         setState(() {
                                           mainStartAddress = model.address;
                                         });
-                                  
                                       },
                                       style: ButtonStyle(
                                         backgroundColor:
@@ -251,15 +255,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                   String tempAddress = "";
 
                                   setState(() => {
-                                    tempAddress =
-                                        mainStartAddress,
-                                    mainStartAddress =
-                                        mainArriveAddress,
-                                    mainArriveAddress =
-                                        tempAddress,
-                                  });
+                                        tempAddress = mainStartAddress,
+                                        mainStartAddress = mainArriveAddress,
+                                        mainArriveAddress = tempAddress,
+                                      });
                                 }
-
                               },
                               icon: Image.asset("assets/images/change.png",
                                   fit: BoxFit.fill),
@@ -324,7 +324,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         setState(() {
                                           mainArriveAddress = model.address;
                                         });
-                                  
                                       },
                                       style: ButtonStyle(
                                         backgroundColor:

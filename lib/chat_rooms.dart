@@ -33,55 +33,21 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
       arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
       currentParticipants: 4,
       maxParticipants: 4,
+      unreadMessages: 129,
     ),
     Room(
-      id: 1,
-      name: "준행행님",
-      date: "2024-07-25 07:00",
-      durationMinutes: 30,
-      title: "상록 예비군 출발하실 분 구해요",
-      rideType: "왕복",
-      departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
-      arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
-      currentParticipants: 4,
+      id: 2,
+      name: "민준님",
+      date: "2024-07-20 09:00",
+      durationMinutes: 45,
+      title: "인천 공항 가실 분",
+      rideType: "편도",
+      departureLocation: "서울 역삼동 강남구 도복로 103호길",
+      arrivalLocation: "인천 국제공항 강남구 도복로 103호길 비행장 123호",
+      currentParticipants: 2,
       maxParticipants: 4,
+      unreadMessages: 0,
     ),
-    Room(
-      id: 1,
-      name: "준행행님",
-      date: "2024-07-25 07:00",
-      durationMinutes: 30,
-      title: "상록 예비군 출발하실 분 구해요",
-      rideType: "왕복",
-      departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
-      arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
-      currentParticipants: 4,
-      maxParticipants: 4,
-    ),
-    Room(
-      id: 1,
-      name: "준행행님",
-      date: "2024-07-25 07:00",
-      durationMinutes: 30,
-      title: "상록 예비군 출발하실 분 구해요",
-      rideType: "왕복",
-      departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
-      arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
-      currentParticipants: 4,
-      maxParticipants: 4,
-    ),
-    Room(
-        id: 2,
-        name: "민준님",
-        date: "2024-07-20 09:00",
-        durationMinutes: 45,
-        title: "인천 공항 가실 분",
-        rideType: "편도",
-        departureLocation: "서울 역삼동 강남구 도복로 103호길",
-        arrivalLocation: "인천 국제공항 강남구 도복로 103호길 비행장 123호",
-        currentParticipants: 2,
-        maxParticipants: 4),
-    // 추가 Room 객체를 여기에 선언할 수 있습니다.
   ];
 
   @override
@@ -116,7 +82,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           width: screenWidth,
-                          height: 150.h,
+                          height: 140.h,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
@@ -125,16 +91,15 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                 color: Colors.grey.withOpacity(0.5),
                                 spreadRadius: 5,
                                 blurRadius: 7,
-                                offset: Offset(
-                                    0, 3), // changes position of shadow
+                                offset:
+                                    Offset(0, 3), // changes position of shadow
                               ),
                             ],
                           ),
                           child: Padding(
                               padding: const EdgeInsets.all(13.0).r,
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     mainAxisAlignment:
@@ -147,20 +112,14 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             color: Colors.black54),
                                       ),
                                       Text(
-                                        rooms[index].date + " 출발",
+                                        "최근 대화 오후 5:33",
                                         style: TextStyle(
                                             fontSize: 11.sp,
-                                            color: Colors.blue),
+                                            color: Colors.black54),
                                       ),
-                                      Text(
-                                        "약" +
-                                            rooms[index]
-                                                .durationMinutes
-                                                .toString() +
-                                            "분 소요",
-                                        style: TextStyle(
-                                            fontSize: 11.sp,
-                                            color: Colors.orange),
+                                      Icon(
+                                        Icons.close,
+                                        size: 14.r,
                                       ),
                                     ],
                                   ),
@@ -170,132 +129,113 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-    // 자식들 사이에 최대 공간 배치
+                                    // 자식들 사이에 최대 공간 배치
                                     children: [
-                                      Text(
-                                        overflow: TextOverflow.ellipsis,
-                                        rooms[index].title,
+                                      Flexible(
+                                        flex: 1,
+                                        child: Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          rooms[index].title,
+                                        ),
                                       ),
-    // 왼쪽 텍스트
-
-                                      rooms[index].rideType == "편도"
-                                          ? Container(
-                                              width: 60.w, // 컨테이너 크기
-                                              height: 20.h, // 컨테이너 높이
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xff48ADE5),
-                                                      Color(0xff76CB68)
-                                                    ]), // 컨테이너 색상
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        10),
-                                              ),
-                                              child: Text(
-                                                "편도",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            )
-                                          : Container(
-                                              width: 60.w, // 컨테이너 크기
-                                              height: 20.h, // 컨테이너 높이
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xffDCCB37),
-                                                      Color(0xff44EB29)
-                                                    ]), // 컨테이너 색상
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        10),
-                                              ),
-                                              child: Text(
-                                                "왕복",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.people),
+                                          SizedBox(
+                                            width: 8.w,
+                                          ),
+                                          Text(
+                                              "${rooms[index].currentParticipants}/${rooms[index].maxParticipants}"),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                   Expanded(
+                                    flex: 3,
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        SizedBox(
-                                          width: 13.33.w,
-                                          height: 46.4.h,
-                                          child: Image.asset(
-                                            "assets/images/start_end.png",
-                                            fit: BoxFit.fill,
-                                          ),
+                                        Flexible(
+                                          flex: 1,
+                                          child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              "준행행님님 : 안녕하세요 레전드네",
+                                              style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  color: Colors.black54)),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                                  left: 8.0)
-                                              .w,
-                                          child: SizedBox(
-                                            width: 210.w,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
-                                                    rooms[index]
-                                                        .departureLocation,
-                                                    style: TextStyle(
-                                                        fontSize: 13.sp,
-                                                        color: Colors
-                                                            .black54)),
-                                                Text(
-                                                    overflow: TextOverflow
-                                                        .ellipsis,
-                                                    rooms[index]
-                                                        .arrivalLocation,
-                                                    style: TextStyle(
-                                                        fontSize: 13.sp,
-                                                        color: Colors
-                                                            .black54)),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                                  left: 0.0)
-                                              .w,
-                                          child: SizedBox(
-                                            width: 35.w,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.people,
-                                                  color: Colors.black,
-                                                  size: 24.0,
-                                                  semanticLabel:
-                                                      'Text to announce in accessibility modes',
-                                                ),
-                                                Text(
-                                                    "${rooms[index].currentParticipants}/${rooms[index].maxParticipants}"),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
+                                        Container(
                                           width: 40.w,
-                                          height: 40.h,
-                                          child: IconButton(
-                                              onPressed: null,
-                                              icon: Icon(
-                                                  Icons.arrow_circle_left)),
+                                          height: 25.h,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color:
+                                                rooms[index].unreadMessages == 0
+                                                    ? Colors.white
+                                                    : Colors.redAccent,
+                                          ),
+                                          child: Center(
+                                              child: Text(
+                                            rooms[index]
+                                                .unreadMessages
+                                                .toString(),
+                                            style: TextStyle(
+                                                fontSize: 13.sp,
+                                                color: Colors.white),
+                                          )),
                                         )
                                       ],
                                     ),
-                                  )
+                                  ),
+                                  Expanded(
+                                      flex: 2,
+                                      child: Row(
+                                        children: [
+                                          rooms[index].rideType == "편도"
+                                              ? Container(
+                                                  width: 50.w,
+                                                  // 컨테이너 크기
+                                                  height: 20.h,
+                                                  // 컨테이너 높이
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                        colors: [
+                                                          Color(0xff48ADE5),
+                                                          Color(0xff76CB68)
+                                                        ]), // 컨테이너 색상
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: Text(
+                                                    "편도",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                )
+                                              : Container(
+                                                  width: 50.w,
+                                                  // 컨테이너 크기
+                                                  height: 20.h,
+                                                  // 컨테이너 높이
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                        colors: [
+                                                          Color(0xffDCCB37),
+                                                          Color(0xff44EB29)
+                                                        ]), // 컨테이너 색상
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: Text(
+                                                    "왕복",
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                        ],
+                                      ))
                                 ],
                               )),
                         ),

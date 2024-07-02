@@ -9,6 +9,7 @@ class Room {
   final String arrivalLocation;
   final int currentParticipants;
   final int maxParticipants;
+  final int unreadMessages;
 
   Room({
     required this.id,
@@ -21,6 +22,7 @@ class Room {
     required this.arrivalLocation,
     required this.currentParticipants,
     required this.maxParticipants,
+    required this.unreadMessages,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class Room {
       arrivalLocation: json['arrivalLocation'],
       currentParticipants: json['currentPeople'],
       maxParticipants: json['maxParticipants'],
+      unreadMessages: json['unreadMessages'],
     );
   }
 }
