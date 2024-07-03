@@ -196,7 +196,32 @@ class _CommunityPageState extends State<CommunityPage> {
             ],
           ),
         ),
-        floatingActionButton: null,
+        floatingActionButton: Container(
+          child: SizedBox(
+            width: 95.w,
+            height: 40.h,
+            child: FloatingActionButton(
+              backgroundColor: Color(0xff154236),
+              onPressed: () {},
+              child: Padding(
+                padding: const EdgeInsets.all(8.0).r,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      "글쓰기",
+                      style: TextStyle(fontSize: 15.sp, color: Colors.white),
+                    ),
+                    Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

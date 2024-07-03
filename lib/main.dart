@@ -24,7 +24,6 @@ void main() async {
   await dotenv.load(fileName: "assets/env/.env");
   var key = await dotenv.env['APP_KEY'];
 
-
   AuthRepository.initialize(appKey: key!);
 
   runApp(
@@ -186,6 +185,7 @@ class _MainPageState extends State<MainPage> {
               width: 95.w,
               height: 40.h,
               child: FloatingActionButton(
+                backgroundColor: Color(0xff154236),
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -701,12 +701,11 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       Text(
                         "방만들기",
-                        style:
-                            TextStyle(fontSize: 15.sp, color: Colors.black54),
+                        style: TextStyle(fontSize: 15.sp, color: Colors.white),
                       ),
                       Icon(
                         Icons.add,
-                        color: Colors.black54,
+                        color: Colors.white,
                       ),
                     ],
                   ),
