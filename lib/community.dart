@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
+import 'package:campride/posting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -34,6 +35,33 @@ class _CommunityPageState extends State<CommunityPage> {
             "예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요",
         commentCount: 5,
         likeCount: 0),
+    Post(
+        id: 1,
+        name: "준행행님",
+        date: "2024/7/25",
+        title: "끝나고 같이 버스 타고 걸어가자",
+        contents:
+            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        commentCount: 5,
+        likeCount: 190),
+    Post(
+        id: 1,
+        name: "준행행님",
+        date: "2024/7/25",
+        title: "끝나고 같이 버스 타고 걸어가자",
+        contents:
+            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        commentCount: 5,
+        likeCount: 190),
+    Post(
+        id: 1,
+        name: "준행행님",
+        date: "2024/7/25",
+        title: "끝나고 같이 버스 타고 걸어가자",
+        contents:
+            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        commentCount: 5,
+        likeCount: 190),
     Post(
         id: 1,
         name: "준행행님",
@@ -211,7 +239,10 @@ class _CommunityPageState extends State<CommunityPage> {
             height: 40.h,
             child: FloatingActionButton(
               backgroundColor: Color(0xff154236),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PostingPage()));
+              },
               child: Padding(
                 padding: const EdgeInsets.all(8.0).r,
                 child: Row(
