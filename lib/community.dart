@@ -76,91 +76,77 @@ class _CommunityPageState extends State<CommunityPage> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: TabBar(
-                  indicator: UnderlineTabIndicator(
-                    borderSide: BorderSide(color: Colors.green, width: 3.0),
-                    insets: EdgeInsets.symmetric(
-                        horizontal: 30.0.w), // 밑줄 길이를 늘리기 위한 인셋 조정
+                child: Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    indicator: UnderlineTabIndicator(
+                      borderSide: BorderSide(color: Colors.green, width: 3.0),
+                      insets: EdgeInsets.symmetric(
+                          horizontal: 30.0.w), // 밑줄 길이를 늘리기 위한 인셋 조정
+                    ),
+                    tabAlignment: TabAlignment.start,
+                    indicatorPadding: EdgeInsets.zero,
+                    isScrollable: true,
+                    tabs: [
+                      Tab(text: '최근'),
+                      Tab(text: '인기'),
+                    ],
                   ),
-                  tabAlignment: TabAlignment.start,
-                  indicatorPadding: EdgeInsets.zero,
-                  isScrollable: true,
-                  tabs: [
-                    Tab(text: '최근'),
-                    Tab(text: '인기'),
-                  ],
                 ),
               ),
               Expanded(
-                child: TabBarView(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          child: ListView.builder(
-                              itemCount: posts.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Container(
-                                  height: 150.h,
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Colors.black54, // 밑부분 테두리 색상
-                                        width: 0.5, // 밑부분 테두리 두께
+                child: Container(
+                  color: Colors.white,
+                  child: TabBarView(
+                    children: [
+                      Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                                itemCount: posts.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Container(
+                                    height: 150.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.black54, // 밑부분 테두리 색상
+                                          width: 0.5, // 밑부분 테두리 두께
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                            left: 8.0, top: 8.0)
-                                        .r,
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            posts[index].name,
-                                            style: TextStyle(
-                                                fontSize: 12.sp,
-                                                color: Colors.black54),
-                                          ),
-                                          Expanded(
-                                              flex: 1,
-                                              child: Text(posts[index].title)),
-                                          Expanded(
-                                              flex: 3,
-                                              child: Text(
-                                                  style: TextStyle(
-                                                      height: 16 / 11,
-                                                      fontSize: 13.sp,
-                                                      color: Colors.black54),
-                                                  posts[index].contents)),
-                                          Expanded(
-                                              flex: 2,
-                                              child: Row(
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                    right: 5.0)
-                                                                .w,
-                                                        child:
-                                                            Icon(Icons.comment),
-                                                      ),
-                                                      Text(posts[index]
-                                                          .commentCount
-                                                          .toString()),
-                                                    ],
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                                left: 8.0)
-                                                            .w,
-                                                    child: Row(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                              left: 8.0, top: 8.0)
+                                          .r,
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              posts[index].name,
+                                              style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.black54),
+                                            ),
+                                            Expanded(
+                                                flex: 1,
+                                                child:
+                                                    Text(posts[index].title)),
+                                            Expanded(
+                                                flex: 3,
+                                                child: Text(
+                                                    style: TextStyle(
+                                                        height: 16 / 11,
+                                                        fontSize: 13.sp,
+                                                        color: Colors.black54),
+                                                    posts[index].contents)),
+                                            Expanded(
+                                                flex: 2,
+                                                child: Row(
+                                                  children: [
+                                                    Row(
                                                       children: [
                                                         Padding(
                                                           padding:
@@ -169,28 +155,51 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                       right:
                                                                           5.0)
                                                                   .w,
-                                                          child: Icon(Icons
-                                                              .favorite_border),
+                                                          child: Icon(
+                                                              Icons.comment),
                                                         ),
                                                         Text(posts[index]
-                                                            .likeCount
+                                                            .commentCount
                                                             .toString()),
                                                       ],
                                                     ),
-                                                  ),
-                                                ],
-                                              ))
-                                        ]),
-                                  ),
-                                );
-                              }),
-                        )
-                      ],
-                    ),
-                    Column(
-                      children: [Text("인기 콘텐츠")],
-                    ),
-                  ],
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                                  left: 8.0)
+                                                              .w,
+                                                      child: Row(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                        right:
+                                                                            5.0)
+                                                                    .w,
+                                                            child: Icon(Icons
+                                                                .favorite_border),
+                                                          ),
+                                                          Text(posts[index]
+                                                              .likeCount
+                                                              .toString()),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ))
+                                          ]),
+                                    ),
+                                  );
+                                }),
+                          )
+                        ],
+                      ),
+                      Column(
+                        children: [Text("인기 콘텐츠")],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
