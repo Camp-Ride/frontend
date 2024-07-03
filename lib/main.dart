@@ -15,10 +15,14 @@ import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   await ScreenUtil.ensureScreenSize();
   await dotenv.load(fileName: "assets/env/.env");
   var key = await dotenv.env['APP_KEY'];
+
+
   AuthRepository.initialize(appKey: key!);
 
   runApp(
@@ -41,6 +45,7 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           home: SplashScreen(),
         );
       },
@@ -71,7 +76,7 @@ class _MainPageState extends State<MainPage> {
   String startAddress = "";
   String arriveAddress = "";
 
-  static List<Widget> _widgetOptions = <Widget>[
+  List<Widget> _widgetOptions = <Widget>[
     ChatRoomsPage(),
     CampRiderPage(),
     MyPage(),
@@ -95,7 +100,7 @@ class _MainPageState extends State<MainPage> {
     arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
     currentParticipants: 4,
     maxParticipants: 4,
-    unreadMessages:129,
+    unreadMessages: 129,
   );
 
   var selectedDate = "";
@@ -166,10 +171,11 @@ class _MainPageState extends State<MainPage> {
             label: '마이페이지',
           ),
         ],
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
         currentIndex: _selectedIndex,
         selectedItemColor: Color(0xFF365B51),
         unselectedItemColor: Colors.black54,
-        backgroundColor: Colors.white,
         onTap: _onItemTapped,
       ),
 
@@ -293,13 +299,15 @@ class _MainPageState extends State<MainPage> {
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                Scaffold(
+                                                            builder:
+                                                                (context) =>
+                                                                    Scaffold(
                                                               appBar: AppBar(
-                                                                title:
-                                                                    Text("주소 검색"),
+                                                                title: Text(
+                                                                    "주소 검색"),
                                                                 backgroundColor:
-                                                                    Colors.white,
+                                                                    Colors
+                                                                        .white,
                                                               ),
                                                               body:
                                                                   DaumPostcodeView(
@@ -313,11 +321,13 @@ class _MainPageState extends State<MainPage> {
 
                                                                   Navigator.of(
                                                                           context)
-                                                                      .pop(model);
+                                                                      .pop(
+                                                                          model);
                                                                 },
                                                                 options:
                                                                     const DaumPostcodeOptions(
-                                                                  animation: true,
+                                                                  animation:
+                                                                      true,
                                                                   hideEngBtn:
                                                                       true,
                                                                   themeType:
@@ -451,12 +461,13 @@ class _MainPageState extends State<MainPage> {
                                                                     DaumPostcodeView(
                                                                   onComplete:
                                                                       (model) {
-                                                                    setState(() {
+                                                                    setState(
+                                                                        () {
                                                                       arriveAddress =
                                                                           model
                                                                               .address;
                                                                     });
-                                                  
+
                                                                     Navigator.of(
                                                                             context)
                                                                         .pop(

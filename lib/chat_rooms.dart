@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'package:campride/chat_room.dart';
 import 'package:campride/login.dart';
+import 'package:campride/main.dart';
 import 'package:campride/room.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:chatview/chatview.dart';
 
 class ChatRoomsPage extends StatefulWidget {
   const ChatRoomsPage({super.key});
@@ -16,11 +17,6 @@ class ChatRoomsPage extends StatefulWidget {
 }
 
 class _ChatRoomsPageState extends State<ChatRoomsPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   List<Room> rooms = [
     Room(
       id: 1,
@@ -51,32 +47,42 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              "나의 채팅 목록",
-              style: TextStyle(color: Colors.white),
-            ),
-            flexibleSpace: new Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF355A50), Color(0xFF154135)],
-                ),
+        appBar: AppBar(
+          title: Text(
+            "나의 채팅 목록",
+            style: TextStyle(color: Colors.white),
+          ),
+          flexibleSpace: new Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
             ),
           ),
-          body: Container(
-            alignment: Alignment.topCenter,
-            color: Colors.white,
-            child: ListView.builder(
-                itemCount: rooms.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Column(
+        ),
+        body: Container(
+          alignment: Alignment.topCenter,
+          color: Colors.white,
+          child: ListView.builder(
+              itemCount: rooms.length,
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () => {
+                    navigatorKey.currentState?.push(MaterialPageRoute(
+                        builder: (context) => ChatRoomPage(room: rooms[index])))
+                  },
+                  child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -241,9 +247,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                         ),
                       ),
                     ],
-                  );
-                }),
-          )),
+                  ),
+                );
+              }),
+        ),
+        floatingActionButton: null,
+      ),
     );
   }
 }
