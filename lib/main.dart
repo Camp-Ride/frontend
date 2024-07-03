@@ -15,6 +15,8 @@ import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 
+import 'community.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
@@ -79,7 +81,7 @@ class _MainPageState extends State<MainPage> {
   List<Widget> _widgetOptions = <Widget>[
     ChatRoomsPage(),
     CampRiderPage(),
-    MyPage(),
+    CommunityPage(),
     MyPage(),
   ];
 
