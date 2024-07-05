@@ -40,8 +40,7 @@ class _CommunityPageState extends State<CommunityPage> {
         name: "준행행님",
         date: "2024/7/25",
         title: "끝나고 같이 버스 타고 걸어가자",
-        contents:
-            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
         commentCount: 5,
         likeCount: 190),
     Post(
@@ -49,8 +48,7 @@ class _CommunityPageState extends State<CommunityPage> {
         name: "준행행님",
         date: "2024/7/25",
         title: "끝나고 같이 버스 타고 걸어가자",
-        contents:
-            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
         commentCount: 5,
         likeCount: 190),
     Post(
@@ -58,8 +56,7 @@ class _CommunityPageState extends State<CommunityPage> {
         name: "준행행님",
         date: "2024/7/25",
         title: "끝나고 같이 버스 타고 걸어가자",
-        contents:
-            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
         commentCount: 5,
         likeCount: 190),
     Post(
@@ -67,8 +64,7 @@ class _CommunityPageState extends State<CommunityPage> {
         name: "준행행님",
         date: "2024/7/25",
         title: "끝나고 같이 버스 타고 걸어가자",
-        contents:
-            "나는 나라를 지키는 준형이 나는 리치 준형이다. 나는 자르반 할아버지다 나는 나라를 지키는 퉁퉁이 준형이 나는 리치 준형이다.  나는 나는 자르",
+        contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
         commentCount: 5,
         likeCount: 190)
   ];

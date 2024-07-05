@@ -6,6 +6,9 @@ import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class PostingPage extends StatefulWidget {
   const PostingPage({super.key});
@@ -15,6 +18,25 @@ class PostingPage extends StatefulWidget {
 }
 
 class _PostingPageState extends State<PostingPage> {
+  List<File> images = [];
+  final picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null && images.length < 3) {
+      setState(() {
+        images.add(File(pickedFile.path));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      images.removeAt(index);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +63,7 @@ class _PostingPageState extends State<PostingPage> {
             "글 쓰기",
             style: TextStyle(color: Colors.white),
           ),
-          flexibleSpace: new Container(
+          flexibleSpace: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
@@ -52,7 +74,7 @@ class _PostingPageState extends State<PostingPage> {
         body: Column(
           children: [
             Container(
-              height: 50.h,
+              height: 50,
               color: Colors.white,
               child: Column(
                 children: [
@@ -80,62 +102,76 @@ class _PostingPageState extends State<PostingPage> {
                   maxLines: null,
                   textAlign: TextAlign.start,
                   decoration: InputDecoration(
-                      hintText: '내용을 입력하세요.',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none),
+                    hintText: '내용을 입력하세요.',
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: InputBorder.none,
+                  ),
                 ),
               ),
             ),
             Expanded(
-                flex: 3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.black54,
-                      ),
-                      bottom: BorderSide(
-                        color: Colors.black54,
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black54,
+                    ),
+                    bottom: BorderSide(
+                      color: Colors.black54,
+                    ),
+                  ),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: List.generate(images.length, (index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 85,
+                                  height: 85,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                      image: FileImage(images[index]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: () => _removeImage(index),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                       ),
                     ),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Container(
-                              width: 85.w,
-                              height: 85.h,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Container(
-                              width: 85.w,
-                              height: 85.h,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Container(
-                              width: 85.w,
-                              height: 85.h,
-                              color: Colors.orange,
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+                  ],
+                ),
+              ),
+            ),
             SafeArea(
               child: Container(
                 decoration: BoxDecoration(
@@ -146,48 +182,61 @@ class _PostingPageState extends State<PostingPage> {
                   ),
                   color: Colors.white,
                 ),
-                height: 50.h,
+                height: 50,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
                         SizedBox(
-                          width: 10.w,
+                          width: 10,
                         ),
-                        Icon(Icons.camera_alt_outlined),
+                        IconButton(
+                          icon: Icon(Icons.camera_alt_outlined),
+                          onPressed: () {
+                            _pickImage(ImageSource.camera);
+                          },
+                        ),
                         SizedBox(
-                          width: 10.w,
+                          width: 10,
                         ),
-                        Icon(Icons.image_outlined)
+                        IconButton(
+                          icon: Icon(Icons.image_outlined),
+                          onPressed: () {
+                            _pickImage(ImageSource.gallery);
+                          },
+                        ),
                       ],
                     ),
                     Row(
                       children: [
                         Container(
-                          width: 40.w,
-                          height: 25.h,
+                          width: 40,
+                          height: 25,
                           decoration: BoxDecoration(
-                              color: Color(0xFF154135),
-                              borderRadius: BorderRadius.circular(20).r),
+                            color: Color(0xFF154135),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           child: Center(
                             child: Text(
-                              textAlign: TextAlign.center,
                               "완료",
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.white, fontSize: 12.sp),
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
                         SizedBox(
-                          width: 10.w,
+                          width: 10,
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
         floatingActionButton: null,

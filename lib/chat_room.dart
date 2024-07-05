@@ -1,9 +1,12 @@
-import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:campride/room.dart';
-import 'package:chatview/chatview.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
+import 'package:flutter/rendering.dart';
+
+import 'package:chatview/chatview.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final Room room;
@@ -60,49 +63,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
-  // void onSendTap(
-  //     String message, ReplyMessage replyMessage, MessageType messageType) {
-  //   final message = Message(
-  //     id: '3',
-  //     message: "How are you",
-  //     createdAt: DateTime.now(),
-  //     sentBy: "2",
-  //     replyMessage: replyMessage,
-  //     messageType: messageType,
-  //   );
-  //   chatController.addMessage(message);
-  // }
-  //
-  // final chatController = ChatController(
-  //   initialMessageList: [
-  //     Message(
-  //       id: '1',
-  //       message: "Hi",
-  //       createdAt: DateTime.now(),
-  //       sentBy: '1',
-  //     ),
-  //     Message(
-  //       id: '2',
-  //       message: "Hello",
-  //       createdAt: DateTime.now(),
-  //       sentBy: '2',
-  //     ),
-  //   ],
-  //   scrollController: ScrollController(),
-  //   currentUser: ChatUser(id: '1', name: '준행행님'),
-  //   otherUsers: [ChatUser(id: '2', name: '리치준형')],
-  // );
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    final now = new DateTime.now();
+    receiveMessage();
 
     return Scaffold(
       appBar: AppBar(
@@ -142,44 +107,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           loadingWidgetConfig: ChatViewStateWidgetConfiguration(),
           onReloadButtonTap: () {},
         ),
-        appBar: ChatViewAppBar(
-          chatTitle: "Chat view",
-          chatTitleTextStyle: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            letterSpacing: 0.25,
-          ),
-          userStatus: "online",
-          userStatusTextStyle: const TextStyle(color: Colors.grey),
-          actions: [
-            IconButton(
-              onPressed: _onThemeIconTap,
-              icon: Icon(
-                isDarkTheme
-                    ? Icons.brightness_4_outlined
-                    : Icons.dark_mode_outlined,
-              ),
-            ),
-            IconButton(
-              tooltip: 'Toggle TypingIndicator',
-              onPressed: _showHideTypingIndicator,
-              icon: Icon(
-                Icons.keyboard,
-              ),
-            ),
-            IconButton(
-              tooltip: 'Simulate Message receive',
-              onPressed: receiveMessage,
-              icon: Icon(
-                Icons.supervised_user_circle,
-              ),
-            ),
-          ],
-        ),
         chatBackgroundConfig: ChatBackgroundConfiguration(
           backgroundColor: Colors.white10,
           messageTimeIconColor: Color(0xffF0F0F3),
           defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
+            chatSeparatorDatePattern: 'MMM dd, yyyy HH:mm',
             textStyle: TextStyle(
               color: Colors.grey,
               fontSize: 17,
@@ -187,7 +119,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           ),
         ),
         sendMessageConfig: SendMessageConfiguration(
-          allowRecordingVoice: false, // 녹음(음성메시지) 제거
+          allowRecordingVoice: false,
           textFieldConfig: TextFieldConfiguration(
             textStyle: TextStyle(color: Colors.black54),
             onMessageTyping: (status) {
@@ -246,30 +178,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         ),
       ),
     );
-    // body: ChatView(
-    //   messageConfig: MessageConfiguration(
-    //     messageReactionConfig: MessageReactionConfiguration(
-    //       reactionsBottomSheetConfig: ReactionsBottomSheetConfiguration(
-    //         reactedUserCallback: (reactedUser, reaction) {
-    //           debugPrint(reaction);
-    //         },
-    //       ),
-    //     ),
-    //   ),
-    //   chatBackgroundConfig: ChatBackgroundConfiguration(
-    //     defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
-    //         chatSeparatorDatePattern: 'MMM dd, yyyy'),
-    //   ),
-    //   featureActiveConfig: FeatureActiveConfig(
-    //     enableSwipeToReply: true,
-    //   ),
-    //   chatController: chatController,
-    //   onSendTap: onSendTap,
-    //   chatViewState:
-    //       ChatViewState.hasMessages, // Add this state once data is available.
-    // ),
-    //   floatingActionButton: null,
-    // );
   }
 
   void _onSendTap(
