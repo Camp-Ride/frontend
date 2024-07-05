@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
+import 'package:campride/post_detail.dart';
 import 'package:campride/posting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,7 +27,8 @@ class _CommunityPageState extends State<CommunityPage> {
       name: "준행행님",
       date: "2024/7/25",
       title: "08/11일 상록 예비군 출발하실 분 있나요?",
-      contents: "상록수역에 모여서 출발해요 여기로 와주세요",
+      contents:
+          "상록수역에 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요",
       commentCount: 5,
       likeCount: 0,
       images: [
@@ -152,123 +154,110 @@ class _CommunityPageState extends State<CommunityPage> {
                             child: ListView.builder(
                                 itemCount: posts.length,
                                 itemBuilder: (BuildContext context, int index) {
-                                  return Container(
-                                    height: 150.h,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Colors.black54, // 밑부분 테두리 색상
-                                          width: 0.5, // 밑부분 테두리 두께
+                                  return InkWell(
+                                    onTap: () => {
+                                      navigatorKey.currentState?.push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PostDetailPage(
+                                                      post: posts[index])))
+                                    },
+                                    child: Container(
+                                      height: 150.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: Colors.black54, // 밑부분 테두리 색상
+                                            width: 0.5, // 밑부분 테두리 두께
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                              left: 8.0, top: 8.0)
-                                          .r,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              posts[index].name,
-                                              style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.black54),
-                                            ),
-                                            Expanded(
-                                                flex: 1,
-                                                child:
-                                                    Text(posts[index].title)),
-                                            Expanded(
-                                                flex: 3,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Text(
-                                                          style: TextStyle(
-                                                              height: 16 / 11,
-                                                              fontSize: 13.sp,
-                                                              color: Colors
-                                                                  .black54),
-                                                          posts[index]
-                                                              .contents),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10.w,
-                                                    ),
-                                                    Container(
-                                                      width: 65.w,
-                                                      height: 65.h,
-                                                      decoration: BoxDecoration(
-                                                        color: posts[index]
-                                                                    .images
-                                                                    .length ==
-                                                                0
-                                                            ? Colors.transparent
-                                                            : Colors.black12,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                    .circular(
-                                                                        10)
-                                                                .r,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                                left: 8.0, top: 8.0)
+                                            .r,
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                posts[index].name,
+                                                style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.black54),
+                                              ),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                      style: TextStyle(
+                                                        fontSize: 15.sp,
                                                       ),
-                                                      child: posts[index]
-                                                                  .images
-                                                                  .length !=
-                                                              0
-                                                          ? ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                          .circular(
-                                                                              10)
-                                                                      .r,
-                                                              child:
-                                                                  Image.network(
-                                                                posts[index]
-                                                                    .images[0],
-                                                                fit: BoxFit
-                                                                    .cover, // BoxFit.fill 대신 BoxFit.cover를 사용하여 컨테이너에 꽉 차게 설정
-                                                              ),
-                                                            )
-                                                          : null,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10.w,
-                                                    ),
-                                                  ],
-                                                )),
-                                            Expanded(
-                                                flex: 2,
-                                                child: Row(
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                      right:
-                                                                          5.0)
-                                                                  .w,
-                                                          child: Icon(
-                                                              Icons.comment),
+                                                      posts[index].title)),
+                                              Expanded(
+                                                  flex: 3,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                            style: TextStyle(
+                                                                height: 16 / 11,
+                                                                fontSize: 13.sp,
+                                                                color: Colors
+                                                                    .black54),
+                                                            posts[index]
+                                                                .contents),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10.w,
+                                                      ),
+                                                      Container(
+                                                        width: 65.w,
+                                                        height: 65.h,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: posts[index]
+                                                                      .images
+                                                                      .length ==
+                                                                  0
+                                                              ? Colors
+                                                                  .transparent
+                                                              : Colors.black12,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                      .circular(
+                                                                          10)
+                                                                  .r,
                                                         ),
-                                                        Text(  style: TextStyle(
-                                                            fontSize: 12.sp,
-                                                            color: Colors.black54),
-                                                         posts[index]
-                                                            .commentCount
-                                                            .toString()),
-                                                      ],
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                                  left: 8.0)
-                                                              .w,
-                                                      child: Row(
+                                                        child: posts[index]
+                                                                    .images
+                                                                    .length !=
+                                                                0
+                                                            ? ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                            .circular(10)
+                                                                        .r,
+                                                                child: Image
+                                                                    .network(
+                                                                  posts[index]
+                                                                      .images[0],
+                                                                  fit: BoxFit
+                                                                      .cover, // BoxFit.fill 대신 BoxFit.cover를 사용하여 컨테이너에 꽉 차게 설정
+                                                                ),
+                                                              )
+                                                            : null,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10.w,
+                                                      ),
+                                                    ],
+                                                  )),
+                                              Expanded(
+                                                  flex: 2,
+                                                  child: Row(
+                                                    children: [
+                                                      Row(
                                                         children: [
                                                           Padding(
                                                             padding:
@@ -277,8 +266,8 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                         right:
                                                                             5.0)
                                                                     .w,
-                                                            child: Icon(Icons
-                                                                .favorite_border),
+                                                            child: Icon(
+                                                                Icons.comment),
                                                           ),
                                                           Text(
                                                               style: TextStyle(
@@ -287,26 +276,57 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                   color: Colors
                                                                       .black54),
                                                               posts[index]
-                                                                  .likeCount
+                                                                  .commentCount
                                                                   .toString()),
                                                         ],
                                                       ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                                  left: 8.0)
-                                                              .w,
-                                                      child: Text(
-                                                          style: TextStyle(
-                                                              fontSize: 12.sp,
-                                                              color: Colors
-                                                                  .black54),
-                                                          posts[index].date),
-                                                    ),
-                                                  ],
-                                                ))
-                                          ]),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                    left: 8.0)
+                                                                .w,
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                          right:
+                                                                              5.0)
+                                                                      .w,
+                                                              child: Icon(Icons
+                                                                  .favorite_border),
+                                                            ),
+                                                            Text(
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    color: Colors
+                                                                        .black54),
+                                                                posts[index]
+                                                                    .likeCount
+                                                                    .toString()),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                    left: 8.0)
+                                                                .w,
+                                                        child: Text(
+                                                            style: TextStyle(
+                                                                fontSize: 12.sp,
+                                                                color: Colors
+                                                                    .black54),
+                                                            posts[index].date),
+                                                      ),
+                                                    ],
+                                                  ))
+                                            ]),
+                                      ),
                                     ),
                                   );
                                 }),
