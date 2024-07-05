@@ -160,12 +160,38 @@ class _CommunityPageState extends State<CommunityPage> {
                                                     Text(posts[index].title)),
                                             Expanded(
                                                 flex: 3,
-                                                child: Text(
-                                                    style: TextStyle(
-                                                        height: 16 / 11,
-                                                        fontSize: 13.sp,
-                                                        color: Colors.black54),
-                                                    posts[index].contents)),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                          style: TextStyle(
+                                                              height: 16 / 11,
+                                                              fontSize: 13.sp,
+                                                              color: Colors
+                                                                  .black54),
+                                                          posts[index]
+                                                              .contents),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10.w,
+                                                    ),
+                                                    Container(
+                                                      width: 65.w,
+                                                      height: 65.h,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black12,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                    .circular(
+                                                                        10)
+                                                                .r,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10.w,
+                                                    ),
+                                                  ],
+                                                )),
                                             Expanded(
                                                 flex: 2,
                                                 child: Row(

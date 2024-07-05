@@ -130,15 +130,15 @@ class _PostingPageState extends State<PostingPage> {
                       child: Row(
                         children: List.generate(images.length, (index) {
                           return Padding(
-                            padding: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(10.0).r,
                             child: Stack(
                               children: [
                                 Container(
-                                  width: 85,
-                                  height: 85,
+                                  width: 85.w,
+                                  height: 85.h,
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(10).r,
                                     image: DecorationImage(
                                       image: FileImage(images[index]),
                                       fit: BoxFit.cover,
