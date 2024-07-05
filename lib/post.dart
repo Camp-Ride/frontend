@@ -1,3 +1,4 @@
+import 'dart:io';
 
 class Post {
   final int id;
@@ -7,6 +8,7 @@ class Post {
   final String contents;
   final int commentCount;
   final int likeCount;
+  final List<String> images;
 
   Post({
     required this.id,
@@ -16,6 +18,7 @@ class Post {
     required this.contents,
     required this.commentCount,
     required this.likeCount,
+    required this.images,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -27,6 +30,7 @@ class Post {
       contents: json['contents'],
       commentCount: json['commentCount'],
       likeCount: json['likeCount'],
+      images: json['images'],
     );
   }
 }
