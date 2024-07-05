@@ -172,68 +172,67 @@ class _PostingPageState extends State<PostingPage> {
                 ),
               ),
             ),
-            SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.black54,
-                    ),
+            Container(
+              color: Colors.white,
+              child: SafeArea(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(),
+                    color: Colors.white,
                   ),
-                  color: Colors.white,
-                ),
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 10,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.camera_alt_outlined),
-                          onPressed: () {
-                            _pickImage(ImageSource.camera);
-                          },
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.image_outlined),
-                          onPressed: () {
-                            _pickImage(ImageSource.gallery);
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            color: Color(0xFF154135),
-                            borderRadius: BorderRadius.circular(20),
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 10,
                           ),
-                          child: Center(
-                            child: Text(
-                              "완료",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                          IconButton(
+                            icon: Icon(Icons.camera_alt_outlined),
+                            onPressed: () {
+                              _pickImage(ImageSource.camera);
+                            },
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.image_outlined),
+                            onPressed: () {
+                              _pickImage(ImageSource.gallery);
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF154135),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "완료",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                      ],
-                    ),
-                  ],
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
