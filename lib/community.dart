@@ -44,9 +44,7 @@ class _CommunityPageState extends State<CommunityPage> {
           "예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요",
       commentCount: 5,
       likeCount: 0,
-      images: [
-        'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fe61243619b73dfcced018a0362a6132e9000e6f8%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8_%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%82%E1%85%B3%E1%86%AB_%E1%84%8B%E1%85%A1%E1%84%90%E1%85%B3%E1%84%8B%E1%85%AF%E1%84%8F%E1%85%B3%202%201.png?alt=media&token=c873dda4-fdbb-41e0-9e14-0302ff6e4521',
-      ],
+      images: [],
     ),
     Post(
       id: 1,
@@ -257,7 +255,10 @@ class _CommunityPageState extends State<CommunityPage> {
                                                           child: Icon(
                                                               Icons.comment),
                                                         ),
-                                                        Text(posts[index]
+                                                        Text(  style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            color: Colors.black54),
+                                                         posts[index]
                                                             .commentCount
                                                             .toString()),
                                                       ],
@@ -279,11 +280,29 @@ class _CommunityPageState extends State<CommunityPage> {
                                                             child: Icon(Icons
                                                                 .favorite_border),
                                                           ),
-                                                          Text(posts[index]
-                                                              .likeCount
-                                                              .toString()),
+                                                          Text(
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      12.sp,
+                                                                  color: Colors
+                                                                      .black54),
+                                                              posts[index]
+                                                                  .likeCount
+                                                                  .toString()),
                                                         ],
                                                       ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                                  left: 8.0)
+                                                              .w,
+                                                      child: Text(
+                                                          style: TextStyle(
+                                                              fontSize: 12.sp,
+                                                              color: Colors
+                                                                  .black54),
+                                                          posts[index].date),
                                                     ),
                                                   ],
                                                 ))
