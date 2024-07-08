@@ -5,6 +5,8 @@ import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_web_auth/flutter_web_auth.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,6 +28,46 @@ class _LoginPageState extends State<LoginPage> {
     //             )),
     //   );
     // });
+  }
+
+
+  Future<void> signIn(provider) async {
+    // final url = Uri.parse('http://localhost:8080/oauth2/authorize/google');
+    // final url =
+    //     Uri.parse('http://localhost:8080/oauth2/authorize/$APP_REDIRECT_URI');
+    final url = Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
+    late String _status;
+
+    print(url.toString());
+
+    try {
+      final result = await FlutterWebAuth.authenticate(
+          url: url.toString(), callbackUrlScheme: "campride");
+
+      print("callback result : " + result);
+
+      // // 백엔드에서 redirect한 callback 데이터 파싱
+      // final accessToken = Uri.parse(result).queryParameters['access-token'];
+      // final refreshToken = Uri.parse(result).queryParameters['refresh-token'];
+
+      // print(accessToken);
+      // print(refreshToken);
+
+      setState(() {
+        _status = 'Got result: $result';
+      });
+      print(_status);
+    } catch (e) {
+      setState(() {
+        _status = 'Got error: $e';
+      });
+      print(_status);
+    }
+
+    // . . .
+    // FlutterSecureStorage 또는 SharedPreferences 를 통한
+    // Token 저장 및 관리
+    // . . .
   }
 
   @override
@@ -70,23 +112,27 @@ class _LoginPageState extends State<LoginPage> {
                           width: 200.w,
                           child: IconButton(
                               onPressed: () => {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => MainPage()))
+                              signIn("kakao")
+
+                              // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) => MainPage()))
                                   },
                               icon: Image.asset("assets/images/kakao.png")),
                         ),
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {},
+                              onPressed: () => {                              signIn("naver")
+                              },
                               icon: Image.asset("assets/images/naver.png")),
                         ),
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {},
+                              onPressed: () => {                              signIn("google")
+                              },
                               icon: Image.asset("assets/images/google.png")),
                         ),
                       ],

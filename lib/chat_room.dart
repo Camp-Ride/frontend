@@ -67,7 +67,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    receiveMessage();
+    // receiveMessage();
 
     return Scaffold(
       appBar: AppBar(

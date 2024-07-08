@@ -50,6 +50,7 @@ dependencies:
   open_filex: ^4.4.0
   uuid: ^4.4.0
   chatview: ^2.0.0
+  flutter_web_auth: ^0.5.0
 
 
 dependency_overrides:

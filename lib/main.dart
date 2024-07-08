@@ -25,14 +25,14 @@ void main() async {
   var key = await dotenv.env['APP_KEY'];
 
   AuthRepository.initialize(appKey: key!);
-
-  runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => MyApp(), // Wrap your app
-    ),
-  );
-  // runApp(MyApp());
+  //
+  // runApp(
+  //   DevicePreview(
+  //     enabled: !kReleaseMode,
+  //     builder: (context) => MyApp(), // Wrap your app
+  //   ),
+  // );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
