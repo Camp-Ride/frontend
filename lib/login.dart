@@ -7,7 +7,6 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -19,23 +18,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    // Timer(const Duration(seconds: 3), () {
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) => const MyHomePage(
-    //               title: "hello",
-    //             )),
-    //   );
-    // });
   }
 
-
   Future<void> signIn(provider) async {
-    // final url = Uri.parse('http://localhost:8080/oauth2/authorize/google');
-    // final url =
-    //     Uri.parse('http://localhost:8080/oauth2/authorize/$APP_REDIRECT_URI');
-    final url = Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
+    final url =
+        Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
     late String _status;
 
     print(url.toString());
@@ -46,17 +33,13 @@ class _LoginPageState extends State<LoginPage> {
 
       print("callback result : " + result);
 
-      // // 백엔드에서 redirect한 callback 데이터 파싱
-      // final accessToken = Uri.parse(result).queryParameters['access-token'];
-      // final refreshToken = Uri.parse(result).queryParameters['refresh-token'];
-
-      // print(accessToken);
-      // print(refreshToken);
-
       setState(() {
         _status = 'Got result: $result';
       });
       print(_status);
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MainPage()));
     } catch (e) {
       setState(() {
         _status = 'Got error: $e';
@@ -112,9 +95,9 @@ class _LoginPageState extends State<LoginPage> {
                           width: 200.w,
                           child: IconButton(
                               onPressed: () => {
-                              signIn("kakao")
+                                    signIn("kakao")
 
-                              // Navigator.push(
+                                    // Navigator.push(
                                     //     context,
                                     //     MaterialPageRoute(
                                     //         builder: (context) => MainPage()))
@@ -124,15 +107,13 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {                              signIn("naver")
-                              },
+                              onPressed: () => {signIn("naver")},
                               icon: Image.asset("assets/images/naver.png")),
                         ),
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {                              signIn("google")
-                              },
+                              onPressed: () => {signIn("google")},
                               icon: Image.asset("assets/images/google.png")),
                         ),
                       ],
