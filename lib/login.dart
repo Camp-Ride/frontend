@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'env_config.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,8 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn(provider) async {
-    final url =
-        Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
+    final url = Uri.parse('${await EnvConfig().prodUrl}/oauth2/authorization/$provider');
     late String _status;
 
     print(url.toString());

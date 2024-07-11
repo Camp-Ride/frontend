@@ -16,13 +16,18 @@ import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 
 import 'community.dart';
+import 'env_config.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+
+
 
 void main() async {
   await ScreenUtil.ensureScreenSize();
   await dotenv.load(fileName: "assets/env/.env");
   var key = await dotenv.env['APP_KEY'];
+  await EnvConfig().loadEnv();
 
   AuthRepository.initialize(appKey: key!);
   //
@@ -459,8 +464,7 @@ class _MainPageState extends State<MainPage> {
                                                                   DaumPostcodeView(
                                                                 onComplete:
                                                                     (model) {
-                                                                  setState(
-                                                                      () {
+                                                                  setState(() {
                                                                     arriveAddress =
                                                                         model
                                                                             .address;
