@@ -24,14 +24,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn(provider) async {
-    final url = Uri.parse('${await EnvConfig().prodUrl}/oauth2/authorization/$provider');
+    final prod_url = Uri.parse(
+        '${await EnvConfig().prodUrl}/oauth2/authorization/$provider');
+
+    final local_url =
+        Uri.parse('localhost:8080/oauth2/authorization/$provider');
     late String _status;
 
-    print(url.toString());
+    print(prod_url.toString());
+
+    print(local_url.toString());
 
     try {
       final result = await FlutterWebAuth.authenticate(
-          url: url.toString(), callbackUrlScheme: "campride");
+          url: prod_url.toString(), callbackUrlScheme: "campride");
 
       print("callback result : " + result);
 
