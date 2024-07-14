@@ -105,6 +105,29 @@ class ChatRoomPage extends ConsumerWidget {
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
 
+    void addMessage(String text) {
+      // final String id;
+      // final String text;
+      // final String imageUrl;
+      // final DateTime timestamp;
+      // final bool isSender;
+      // final MessageType messageType;
+      // final Map<String, List<String>> reactions;
+      // final bool isReply;
+      // final String replyingMessage;
+      Message message = new Message(
+          id: "test1",
+          text: text,
+          timestamp: now,
+          isSender: true,
+          messageType: MessageType.text,
+          reactions: {},
+          isReply: false,
+          replyingMessage: "",
+          imageUrl: '');
+      ref.read(messagesProvider.notifier).addMessage(message);
+    }
+
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
       ref.read(replyingMessageProvider.notifier).startReplying(message.text);
@@ -370,7 +393,7 @@ class ChatRoomPage extends ConsumerWidget {
             replying: isReplying,
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
-            onSend: (_) => print(_),
+            onSend: (String text) => addMessage(text),
             actions: [
               InkWell(
                 child: Icon(
