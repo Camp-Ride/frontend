@@ -1,73 +1,300 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
+import 'package:campride/rooms_provider.dart';
+import 'package:chat_bubbles/bubbles/bubble_normal.dart';
+import 'package:chat_bubbles/bubbles/bubble_normal_audio.dart';
+import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
+import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
+import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
+import 'package:chat_bubbles/bubbles/bubble_special_two.dart';
+import 'package:chat_bubbles/date_chips/date_chip.dart';
+import 'package:chat_bubbles/message_bars/message_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:chatview/chatview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
-class ChatRoomPage extends StatefulWidget {
-  final Room room;
+class ChatRoomPage extends ConsumerWidget {
+  Duration duration = new Duration();
+  Duration position = new Duration();
+  bool isPlaying = false;
+  bool isLoading = false;
+  bool isPause = false;
 
-  const ChatRoomPage({Key? key, required this.room}) : super(key: key);
+  String userName = "junTest";
 
-  @override
-  _ChatRoomPageState createState() => _ChatRoomPageState();
-}
-
-class _ChatRoomPageState extends State<ChatRoomPage> {
-  bool isDarkTheme = false;
-  final _chatController = ChatController(
-    initialMessageList: [],
-    scrollController: ScrollController(),
-    currentUser: ChatUser(
-      id: '1',
-      name: 'Flutter',
-    ),
-    otherUsers: [
-      ChatUser(
-        id: '2',
-        name: 'Simform',
-      ),
-      ChatUser(
-        id: '3',
-        name: 'Jhon',
-      ),
-      ChatUser(
-        id: '4',
-        name: 'Mike',
-      ),
-      ChatUser(
-        id: '5',
-        name: 'Rich',
-      ),
-    ],
-  );
-
-  void _showHideTypingIndicator() {
-    _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
+  Row? getReactionIcon(String reaction, int reactionCount) {
+    if (reaction == ('like')) {
+      return Row(
+        children: [
+          Icon(
+            Icons.favorite,
+            color: Colors.red,
+            size: 15.r,
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+          Text(
+            reactionCount.toString(),
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+        ],
+      );
+    } else if (reaction == ('hate')) {
+      return Row(
+        children: [
+          Icon(
+            Icons.close,
+            size: 15.r,
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+          Text(
+            reactionCount.toString(),
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+        ],
+      );
+    } else if (reaction == ('check')) {
+      return Row(
+        children: [
+          Icon(
+            Icons.check,
+            color: Colors.green,
+            size: 15.r,
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+          Text(
+            reactionCount.toString(),
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
+          SizedBox(
+            width: 3.w,
+          ),
+        ],
+      );
+    } else {
+      return null;
+    }
   }
 
-  void receiveMessage() async {
-    _chatController.addMessage(
-      Message(
-        id: DateTime.now().toString(),
-        message: 'I will schedule the meeting.',
-        createdAt: DateTime.now(),
-        sentBy: '2',
-      ),
-    );
-
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
-
   @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    // receiveMessage();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = new DateTime.now();
+    final rooms = ref.watch(roomsProvider);
+    final messages = ref.watch(messagesProvider);
+
+    void _onReply(var index, Message message) {
+      // Handle reply action
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Reply to: ${message.text}')),
+      );
+    }
+
+    void _onReact(
+        var index, Message message, String reaction, String userName) {
+      final notifier = ref.read(messagesProvider.notifier);
+
+      notifier.reactToMessage(index, reaction, userName);
+    }
+
+    void _showPopupMenu(
+        BuildContext context, Message message, var index, Offset offset) {
+      final RenderBox overlay =
+          Overlay.of(context).context.findRenderObject() as RenderBox;
+      showMenu(
+        color: Colors.white70,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0).r),
+        context: context,
+        position: RelativeRect.fromLTRB(
+          offset.dx,
+          offset.dy,
+          overlay.size.width - offset.dx,
+          overlay.size.height - offset.dy,
+        ),
+        items: [
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.reply),
+              title: Text('답장'),
+              onTap: () {
+                Navigator.pop(context);
+                _onReply(index, message);
+              },
+            ),
+          ),
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text('좋아요'),
+              onTap: () {
+                Navigator.pop(context);
+                _onReact(index, message, 'like', userName);
+              },
+            ),
+          ),
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.check),
+              title: Text('확인'),
+              onTap: () {
+                Navigator.pop(context);
+                _onReact(index, message, 'check', userName);
+              },
+            ),
+          ),
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.close),
+              title: Text('싫어요'),
+              onTap: () {
+                Navigator.pop(context);
+                _onReact(index, message, 'hate', userName);
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget buildMessageWidget(Message message) {
+      final time = DateFormat('h:mm a').format(message.timestamp);
+      final alignment =
+          message.isSender ? MainAxisAlignment.end : MainAxisAlignment.start;
+      final textColor = message.isSender ? Colors.white : Colors.black;
+
+      final reactionsWidget = Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: message.reactions.keys.map((reaction) {
+              return message.reactions[reaction]!.length == 0
+                  ? Container()
+                  : Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      child: getReactionIcon(
+                          reaction, message.reactions[reaction]!.length),
+                    );
+            }).toList(),
+          ),
+        ),
+      );
+
+      final timeWidget = Text(
+        time,
+        style: TextStyle(color: Colors.black54, fontSize: 12.sp),
+      );
+
+      final reactionAndTime = message.isSender
+          ? Row(
+              mainAxisAlignment: alignment,
+              children: [
+                reactionsWidget,
+                SizedBox(width: 8.0),
+                timeWidget,
+              ],
+            )
+          : Row(
+              mainAxisAlignment: alignment,
+              children: [
+                timeWidget,
+                SizedBox(width: 8.0),
+                reactionsWidget,
+              ],
+            );
+
+      switch (message.messageType) {
+        case MessageType.text:
+          return Column(
+            crossAxisAlignment: message.isSender
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: [
+              BubbleSpecialThree(
+                text: message.text,
+                color: message.isSender ? Color(0xFF1B97F3) : Color(0xFFE8E8EE),
+                tail: false,
+                textStyle: TextStyle(color: textColor, fontSize: 16),
+                isSender: message.isSender,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 26.0, right: 26.0, top: 6.0).r,
+                child: reactionAndTime,
+              ),
+            ],
+          );
+        case MessageType.image:
+          return Column(
+            crossAxisAlignment: message.isSender
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: [
+              BubbleNormalImage(
+                id: message.id,
+                image: _image(message.imageUrl),
+                color: Colors.white,
+                tail: true,
+                isSender: message.isSender,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 26.0, right: 26.0).w,
+                child: reactionAndTime,
+              ),
+            ],
+          );
+        default:
+          return Container();
+      }
+    }
+
+    Widget buildMessageList(List<Message> messages) {
+      List<Widget> messageWidgets = [];
+      DateTime? lastDate;
+
+      for (var i = 0; i < messages.length; i++) {
+        if (lastDate == null || !isSameDay(lastDate, messages[i].timestamp)) {
+          messageWidgets.add(DateChip(date: messages[i].timestamp));
+          lastDate = messages[i].timestamp;
+        }
+        messageWidgets.add(
+          GestureDetector(
+            onLongPressStart: (details) {
+              _showPopupMenu(context, messages[i], i, details.globalPosition);
+            },
+            child: buildMessageWidget(messages[i]),
+          ),
+        );
+      }
+
+      return ListView(
+        children: messageWidgets,
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -81,138 +308,110 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           },
         ),
         title: Text(
-          widget.room.title,
-          style: TextStyle(color: Colors.white),
+          rooms[0].title,
+          style: const TextStyle(color: Colors.white),
         ),
-        flexibleSpace: new Container(
-          decoration: BoxDecoration(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Color(0xFF355A50), Color(0xFF154135)],
             ),
           ),
         ),
       ),
-      body: ChatView(
-        chatController: _chatController,
-        onSendTap: _onSendTap,
-        featureActiveConfig: const FeatureActiveConfig(
-          lastSeenAgoBuilderVisibility: true,
-          receiptsBuilderVisibility: true,
-          enableChatSeparator: true,
-          enableSwipeToSeeTime: true,
-          enableOtherUserName: true,
-        ),
-        chatViewState: ChatViewState.hasMessages,
-        chatViewStateConfig: ChatViewStateConfiguration(
-          loadingWidgetConfig: ChatViewStateWidgetConfiguration(),
-          onReloadButtonTap: () {},
-        ),
-        chatBackgroundConfig: ChatBackgroundConfiguration(
-          backgroundColor: Colors.white10,
-          messageTimeIconColor: Color(0xffF0F0F3),
-          defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
-            chatSeparatorDatePattern: 'MMM dd, yyyy HH:mm',
-            textStyle: TextStyle(
-              color: Colors.grey,
-              fontSize: 17,
-            ),
-          ),
-        ),
-        sendMessageConfig: SendMessageConfiguration(
-          allowRecordingVoice: false,
-          textFieldConfig: TextFieldConfiguration(
-            textStyle: TextStyle(color: Colors.black54),
-            onMessageTyping: (status) {
-              /// Do with status
-              debugPrint(status.toString());
-            },
-            compositionThresholdTime: const Duration(seconds: 1),
-          ),
-        ),
-        chatBubbleConfig: ChatBubbleConfiguration(
-          outgoingChatBubbleConfig: ChatBubble(
-            // 내가 보낸 채팅
-            textStyle: TextStyle(color: Colors.white),
-            linkPreviewConfig: const LinkPreviewConfiguration(
-              backgroundColor: Color(0xff272336),
-              bodyStyle: TextStyle(color: Colors.white),
-              titleStyle: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blueAccent,
-          ),
-          inComingChatBubbleConfig: ChatBubble(
-              // 상대방 채팅
-              linkPreviewConfig: const LinkPreviewConfiguration(
-                backgroundColor: Color(0xff9f85ff),
-                bodyStyle: TextStyle(color: Colors.black),
-                titleStyle: TextStyle(color: Colors.black),
+      body: Column(
+        children: [
+          Expanded(child: buildMessageList(messages)),
+          MessageBar(
+            onSend: (_) => print(_),
+            actions: [
+              InkWell(
+                child: Icon(
+                  Icons.image,
+                  color: Colors.lightBlueAccent,
+                  size: 24,
+                ),
+                onTap: () {},
               ),
-              textStyle: TextStyle(color: Colors.black),
-              senderNameTextStyle: const TextStyle(color: Colors.black),
-              color: Colors.white),
-        ),
-        replyPopupConfig: ReplyPopupConfiguration(),
-        reactionPopupConfig: ReactionPopupConfiguration(
-          shadow: BoxShadow(
-            color: isDarkTheme ? Colors.black54 : Colors.grey.shade400,
-            blurRadius: 20,
+              Padding(
+                padding: EdgeInsets.only(left: 8, right: 8),
+                child: InkWell(
+                  child: Icon(
+                    Icons.camera_alt,
+                    color: Colors.lightGreen,
+                    size: 24,
+                  ),
+                  onTap: () {},
+                ),
+              ),
+            ],
           ),
-        ),
-        messageConfig: MessageConfiguration(
-          imageMessageConfig: ImageMessageConfiguration(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-            shareIconConfig: ShareIconConfiguration(),
-          ),
-        ),
-        repliedMessageConfig: RepliedMessageConfiguration(
-          repliedMsgAutoScrollConfig: RepliedMsgAutoScrollConfig(
-            enableHighlightRepliedMsg: true,
-            highlightColor: Colors.pinkAccent.shade100,
-            highlightScale: 1.1,
-          ),
-          textStyle: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.25,
-          ),
-        ),
+        ],
       ),
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
-  void _onSendTap(
-    String message,
-    ReplyMessage replyMessage,
-    MessageType messageType,
-  ) {
-    _chatController.addMessage(
-      Message(
-        id: DateTime.now().toString(),
-        createdAt: DateTime.now(),
-        message: message,
-        sentBy: _chatController.currentUser.id,
-        replyMessage: replyMessage,
-        messageType: messageType,
-      ),
-    );
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _chatController.initialMessageList.last.setStatus =
-          MessageStatus.undelivered;
-    });
-    Future.delayed(const Duration(seconds: 1), () {
-      _chatController.initialMessageList.last.setStatus = MessageStatus.read;
-    });
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
-  void _onThemeIconTap() {
-    setState(() {
-      if (isDarkTheme) {
-        // theme = LightTheme();
-        isDarkTheme = false;
-      } else {
-        // theme = DarkTheme();
-        isDarkTheme = true;
-      }
-    });
+  Widget _image(String url) {
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 20.0,
+        minWidth: 20.0,
+      ),
+      child: CachedNetworkImage(
+        imageUrl: url,
+        progressIndicatorBuilder: (context, url, downloadProgress) =>
+            CircularProgressIndicator(value: downloadProgress.progress),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+      ),
+    );
   }
 }
+
+class Message {
+  final String id;
+  final String text;
+  final String imageUrl;
+  final DateTime timestamp;
+  final bool isSender;
+  final MessageType messageType;
+  final Map<String, List<String>> reactions;
+
+  Message({
+    required this.id,
+    required this.text,
+    required this.imageUrl,
+    required this.timestamp,
+    required this.isSender,
+    required this.messageType,
+    required this.reactions,
+  });
+
+  Message copyWith({
+    String? id,
+    String? text,
+    String? imageUrl,
+    DateTime? timestamp,
+    bool? isSender,
+    MessageType? messageType,
+    Map<String, List<String>>? reactions,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      imageUrl: imageUrl ?? this.imageUrl,
+      timestamp: timestamp ?? this.timestamp,
+      isSender: isSender ?? this.isSender,
+      messageType: messageType ?? this.messageType,
+      reactions: reactions ?? this.reactions,
+    );
+  }
+}
+
+enum MessageType { text, image }

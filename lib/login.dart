@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chatview/chatview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -28,16 +29,14 @@ class _LoginPageState extends State<LoginPage> {
         '${await EnvConfig().prodUrl}/oauth2/authorization/$provider');
 
     final local_url =
-        Uri.parse('localhost:8080/oauth2/authorization/$provider');
+        Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
     late String _status;
 
-    print(prod_url.toString());
-
-    print(local_url.toString());
+    print(local_url);
 
     try {
       final result = await FlutterWebAuth.authenticate(
-          url: prod_url.toString(), callbackUrlScheme: "campride");
+          url: local_url.toString(), callbackUrlScheme: "campride");
 
       print("callback result : " + result);
 
@@ -121,7 +120,13 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              onPressed: () => {signIn("google")},
+                              // onPressed: () => {signIn("google")},
+                              onPressed: () => {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => MainPage()))
+                                  },
                               icon: Image.asset("assets/images/google.png")),
                         ),
                       ],

@@ -8,12 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'community.dart';
 import 'env_config.dart';
@@ -30,29 +32,33 @@ void main() async {
   await EnvConfig().loadEnv();
 
   AuthRepository.initialize(appKey: key!);
-  //
-  // runApp(
-  //   DevicePreview(
-  //     enabled: !kReleaseMode,
-  //     builder: (context) => MyApp(), // Wrap your app
-  //   ),
-  // );
-  runApp(MyApp());
+
+  runApp(
+    ProviderScope(
+      child: DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => MyApp(), // Wrap your app
+      ),
+    ),
+  );
+  // runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ScreenUtilInit(
       designSize: const Size(393, 852),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          home: SplashScreen(),
+        return ProviderScope(
+          child: MaterialApp(
+            navigatorKey: navigatorKey,
+            home: SplashScreen(),
+          ),
         );
       },
     );

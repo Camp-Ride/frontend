@@ -78,8 +78,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () => {
-                    navigatorKey.currentState?.push(MaterialPageRoute(
-                        builder: (context) => ChatRoomPage(room: rooms[index])))
+                    navigatorKey.currentState?.push(
+                        MaterialPageRoute(builder: (context) => ChatRoomPage()))
                   },
                   child: Column(
                     children: [
