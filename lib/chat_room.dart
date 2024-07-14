@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/ReplyingState.dart';
 import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
 import 'package:campride/rooms_provider.dart';
@@ -101,12 +102,17 @@ class ChatRoomPage extends ConsumerWidget {
     final now = new DateTime.now();
     final rooms = ref.watch(roomsProvider);
     final messages = ref.watch(messagesProvider);
+    var isReplying = ref.watch(replyingProvider);
+    var replyingMessage = ref.watch(replyingMessageProvider);
 
     void _onReply(var index, Message message) {
-      // Handle reply action
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Reply to: ${message.text}')),
-      );
+      ref.read(replyingProvider.notifier).startReplying();
+      ref.read(replyingMessageProvider.notifier).startReplying(message.text);
+    }
+
+    void stopReply() {
+      ref.read(replyingProvider.notifier).stopReplying();
+      ref.read(replyingMessageProvider.notifier).stopReplying();
     }
 
     void _onReact(
@@ -182,6 +188,39 @@ class ChatRoomPage extends ConsumerWidget {
           message.isSender ? MainAxisAlignment.end : MainAxisAlignment.start;
       final textColor = message.isSender ? Colors.white : Colors.black;
 
+      Widget buildReplyWidget(String replyingMessage) {
+        return !replyingMessage.endsWith(".png")
+            ? Container(
+                padding: EdgeInsets.all(8.0).r,
+                margin: EdgeInsets.only(bottom: 4.0).r,
+                decoration: BoxDecoration(
+                  color: message.isSender ? Colors.blue[50] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8.0).r,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      replyingMessage,
+                      style: TextStyle(
+                        color: message.isSender ? Colors.blue : Colors.black,
+                      ),
+                    )
+
+                    // if (replyingMessage.imageUrl.isNotEmpty)
+                    //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
+                  ],
+                ),
+              )
+            : BubbleNormalImage(
+                id: message.id,
+                image: _image(replyingMessage),
+                color: Colors.white,
+                tail: true,
+                isSender: message.isSender,
+              );
+      }
+
       final reactionsWidget = Padding(
         padding: const EdgeInsets.only(left: 8.0),
         child: Container(
@@ -234,6 +273,8 @@ class ChatRoomPage extends ConsumerWidget {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
+              if (message.isReply && message.replyingMessage != null)
+                buildReplyWidget(message.replyingMessage!),
               BubbleSpecialThree(
                 text: message.text,
                 color: message.isSender ? Color(0xFF1B97F3) : Color(0xFFE8E8EE),
@@ -254,6 +295,8 @@ class ChatRoomPage extends ConsumerWidget {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
+              if (message.isReply && message.replyingMessage != null)
+                buildReplyWidget(message.replyingMessage!),
               BubbleNormalImage(
                 id: message.id,
                 image: _image(message.imageUrl),
@@ -281,6 +324,7 @@ class ChatRoomPage extends ConsumerWidget {
           messageWidgets.add(DateChip(date: messages[i].timestamp));
           lastDate = messages[i].timestamp;
         }
+
         messageWidgets.add(
           GestureDetector(
             onLongPressStart: (details) {
@@ -323,6 +367,9 @@ class ChatRoomPage extends ConsumerWidget {
         children: [
           Expanded(child: buildMessageList(messages)),
           MessageBar(
+            replying: isReplying,
+            replyingTo: replyingMessage,
+            onTapCloseReply: stopReply,
             onSend: (_) => print(_),
             actions: [
               InkWell(
@@ -382,6 +429,8 @@ class Message {
   final bool isSender;
   final MessageType messageType;
   final Map<String, List<String>> reactions;
+  final bool isReply;
+  final String replyingMessage;
 
   Message({
     required this.id,
@@ -391,6 +440,8 @@ class Message {
     required this.isSender,
     required this.messageType,
     required this.reactions,
+    required this.isReply,
+    required this.replyingMessage,
   });
 
   Message copyWith({
@@ -401,6 +452,8 @@ class Message {
     bool? isSender,
     MessageType? messageType,
     Map<String, List<String>>? reactions,
+    bool? isReply,
+    String? replyingMessage,
   }) {
     return Message(
       id: id ?? this.id,
@@ -410,6 +463,8 @@ class Message {
       isSender: isSender ?? this.isSender,
       messageType: messageType ?? this.messageType,
       reactions: reactions ?? this.reactions,
+      isReply: isReply ?? this.isReply,
+      replyingMessage: replyingMessage ?? this.replyingMessage,
     );
   }
 }
