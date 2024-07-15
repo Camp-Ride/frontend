@@ -106,15 +106,6 @@ class ChatRoomPage extends ConsumerWidget {
     var replyingMessage = ref.watch(replyingMessageProvider);
 
     void addMessage(String text) {
-      // final String id;
-      // final String text;
-      // final String imageUrl;
-      // final DateTime timestamp;
-      // final bool isSender;
-      // final MessageType messageType;
-      // final Map<String, List<String>> reactions;
-      // final bool isReply;
-      // final String replyingMessage;
       Message message = new Message(
           id: "test1",
           text: text,
@@ -213,43 +204,99 @@ class ChatRoomPage extends ConsumerWidget {
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
-            ? Container(
-                padding: EdgeInsets.all(8.0).r,
-                margin: EdgeInsets.only(bottom: 4.0).r,
-                decoration: BoxDecoration(
-                  color: message.isSender ? Colors.blue[50] : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8.0).r,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      replyingMessage,
-                      style: TextStyle(
-                        color: message.isSender ? Colors.blue : Colors.black,
-                      ),
-                    )
+            ? Column(
+                crossAxisAlignment: message.isSender
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.0).r,
+                    margin: EdgeInsets.only(bottom: 4.0).r,
+                    decoration: BoxDecoration(
+                      color:
+                          message.isSender ? Colors.blue[50] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8.0).r,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          replyingMessage,
+                          style: TextStyle(
+                            color:
+                                message.isSender ? Colors.blue : Colors.black,
+                          ),
+                        )
 
-                    // if (replyingMessage.imageUrl.isNotEmpty)
-                    //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
-                  ],
-                ),
+                        // if (replyingMessage.imageUrl.isNotEmpty)
+                        //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
+                      ],
+                    ),
+                  ),
+                  message.isSender
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 10.0).w,
+                          child: Transform.flip(
+                              flipY: true,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 10.0).w,
+                          child: Transform.rotate(
+                              angle: 3.14,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                ],
               )
-            : BubbleNormalImage(
-                id: message.id,
-                image: _image(replyingMessage),
-                color: Colors.white,
-                tail: true,
-                isSender: message.isSender,
+            : Column(
+                crossAxisAlignment: message.isSender
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    child: BubbleNormalImage(
+                      id: message.id,
+                      image: _image(replyingMessage),
+                      color: Colors.white,
+                      tail: true,
+                      isSender: message.isSender,
+                    ),
+                  ),
+                  message.isSender
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20.0).w,
+                          child: Transform.flip(
+                              flipY: true,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 20.0).w,
+                          child: Transform.rotate(
+                              angle: 3.14,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                ],
               );
       }
 
       final reactionsWidget = Padding(
-        padding: const EdgeInsets.only(left: 8.0),
+        padding: const EdgeInsets.only(left: 8.0).w,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(12.0).r,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -276,7 +323,7 @@ class ChatRoomPage extends ConsumerWidget {
               mainAxisAlignment: alignment,
               children: [
                 reactionsWidget,
-                SizedBox(width: 8.0),
+                SizedBox(width: 8.0).w,
                 timeWidget,
               ],
             )
@@ -284,7 +331,7 @@ class ChatRoomPage extends ConsumerWidget {
               mainAxisAlignment: alignment,
               children: [
                 timeWidget,
-                SizedBox(width: 8.0),
+                SizedBox(width: 8.0).w,
                 reactionsWidget,
               ],
             );
