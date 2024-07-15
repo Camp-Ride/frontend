@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:campride/login.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -15,9 +18,45 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  TextEditingController _controller = TextEditingController();
+  bool _isEditing = false;
+  String _nickname = "User5555";
+  String _token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjEwNTIzMzksImV4cCI6MTcyMTA1NDEzOX0.Pw6nk_VNI3LFLwwEgNtUM42jXt0ajDUhdGRrmg0OVO4";
   @override
   void initState() {
     super.initState();
+    _controller.text = _nickname;
+  }
+
+  void _toggleEdit() {
+    setState(() {
+      if (_isEditing) {
+        // Save the nickname and call the API to update it
+        _nickname = _controller.text;
+        _updateNicknameApi(_nickname);
+      }
+      _isEditing = !_isEditing;
+    });
+  }
+
+  Future<void> _updateNicknameApi(String nickname) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/user');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $_token',
+    };
+    final body = jsonEncode({'nickname': nickname});
+
+    try {
+      final response = await http.put(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print("Nickname updated to: $nickname");
+      } else {
+        print("Failed to update nickname: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 
   @override
@@ -61,23 +100,56 @@ class _MyPageState extends State<MyPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "준행행님님",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20.sp),
-                                  ),
-                                  Text(
-                                    " 환영합니다!",
-                                    style: TextStyle(fontSize: 14.sp),
-                                  ),
-                                ],
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: TextField(
+                                        controller: _controller,
+                                        enabled: _isEditing,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(10),
+                                        ],
+                                        decoration: InputDecoration(
+                                          hintText: _nickname,
+                                          hintStyle:
+                                              TextStyle(color: Colors.black),
+                                          enabled: _isEditing,
+                                          border: UnderlineInputBorder(),
+                                          enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.black),
+                                          ),
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.black),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: IconButton(
+                                        icon: Icon(_isEditing
+                                            ? Icons.check
+                                            : Icons.edit),
+                                        onPressed: _toggleEdit,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        " 환영합니다!",
+                                        style: TextStyle(fontSize: 14.sp),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Text(
                                 "CAMPRIDE",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15.sp),
                               )
                             ],
                           ),

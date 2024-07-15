@@ -23,6 +23,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
+import 'package:image_picker/image_picker.dart';
+
+import 'Image_provider.dart';
+
 class ChatRoomPage extends ConsumerWidget {
   Duration duration = new Duration();
   Duration position = new Duration();
@@ -31,6 +35,8 @@ class ChatRoomPage extends ConsumerWidget {
   bool isPause = false;
 
   String userName = "junTest";
+
+  final ImagePicker _picker = ImagePicker();
 
   Row? getReactionIcon(String reaction, int reactionCount) {
     if (reaction == ('like')) {
@@ -104,6 +110,7 @@ class ChatRoomPage extends ConsumerWidget {
     final messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
+    final image = ref.watch(imageProvider);
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -122,13 +129,14 @@ class ChatRoomPage extends ConsumerWidget {
       notifier.reactToMessage(index, reaction, userName);
     }
 
-    void addMessage(String text, bool isReplying, String replyingMessage) {
+    void addMessage(String text, bool isReplying, String replyingMessage,
+        MessageType messageType) {
       Message message = new Message(
           id: "test1",
           text: text,
           timestamp: now,
           isSender: true,
-          messageType: MessageType.text,
+          messageType: messageType,
           reactions: {},
           isReply: isReplying,
           replyingMessage: replyingMessage,
@@ -137,6 +145,11 @@ class ChatRoomPage extends ConsumerWidget {
       if (isReplying) {
         stopReply();
       }
+    }
+
+    void sendImage() async {
+      await ref.read(imageProvider.notifier).pickImageFromGallery();
+      addMessage("imagetest1", false, "", MessageType.image);
     }
 
     void _showPopupMenu(
@@ -439,7 +452,7 @@ class ChatRoomPage extends ConsumerWidget {
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
             onSend: (String text) =>
-                addMessage(text, isReplying, replyingMessage),
+                addMessage(text, isReplying, replyingMessage, MessageType.text),
             actions: [
               InkWell(
                 child: Icon(
@@ -447,7 +460,9 @@ class ChatRoomPage extends ConsumerWidget {
                   color: Colors.lightBlueAccent,
                   size: 24,
                 ),
-                onTap: () {},
+                onTap: () {
+                  sendImage();
+                },
               ),
               Padding(
                 padding: EdgeInsets.only(left: 8, right: 8),
@@ -457,7 +472,9 @@ class ChatRoomPage extends ConsumerWidget {
                     color: Colors.lightGreen,
                     size: 24,
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    ref.read(imageProvider.notifier).captureImageWithCamera();
+                  },
                 ),
               ),
             ],
