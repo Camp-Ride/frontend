@@ -72,7 +72,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   late Future<List<Comment>> futureComments;
   String comment = "";
   late TextEditingController _controller;
-
+  String currentNickname = "김준형9560";
 
   @override
   void initState() {
@@ -99,7 +99,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       List<dynamic> commentsJson = data['commentResponses'];
-      return commentsJson.map((json) => Comment.fromJson(json)).toList();
+      return commentsJson
+          .map((json) => Comment.fromJson(json, currentNickname))
+          .toList();
     } else {
       throw Exception('Failed to load comments');
     }
@@ -178,6 +180,59 @@ class _PostDetailPageState extends State<PostDetailPage> {
       setState(() {
         post.isLiked = false;
         post.likeCount -= 1;
+      });
+    } else {
+      print('Failed to unlike post: ${response.statusCode}');
+    }
+  }
+
+  Future<void> likeComment(Comment comment, String type) async {
+    int id = comment.id;
+    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Post liked successfully');
+
+      setState(() {
+        comment.isLiked = true;
+        comment.likeCount += 1;
+      });
+    } else {
+      print('Failed to like post: ${response.statusCode}');
+    }
+  }
+
+  Future<void> unLikeComment(Comment comment, String type) async {
+    int id = comment.id;
+    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final request = http.Request('DELETE', url)
+      ..headers.addAll(headers)
+      ..body = body;
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Post unliked successfully');
+      setState(() {
+        comment.isLiked = false;
+        comment.likeCount -= 1;
       });
     } else {
       print('Failed to unlike post: ${response.statusCode}');
@@ -452,9 +507,27 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                       const EdgeInsets.only(
                                                               right: 5.0)
                                                           .w,
-                                                  child: Icon(
-                                                    Icons.favorite_border,
-                                                    size: 14.r,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      if (comments[index]
+                                                          .isLiked) {
+                                                        unLikeComment(
+                                                            comments[index],
+                                                            "COMMENT");
+                                                      } else {
+                                                        likeComment(
+                                                            comments[index],
+                                                            "COMMENT");
+                                                      }
+                                                    },
+                                                    child: Icon(
+                                                      comments[index].isLiked
+                                                          ? Icons.favorite
+                                                          : Icons
+                                                              .favorite_border,
+                                                      color: Colors.red,
+                                                      size: 14.r,
+                                                    ),
                                                   ),
                                                 ),
                                                 Text(
