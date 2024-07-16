@@ -6,10 +6,10 @@ class Post {
   final String date;
   final String title;
   final String contents;
-  final int commentCount;
-   int likeCount;
+  int commentCount;
+  int likeCount;
   final List<String> images;
-   bool isLiked;
+  bool isLiked;
 
   Post({
     required this.id,

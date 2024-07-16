@@ -126,6 +126,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       setState(() {
         futureComments = fetchComments(widget.post.id);
         comment = "";
+        widget.post.commentCount++;
       });
     } else {
       print('Failed to post comment: ${response.statusCode}');
