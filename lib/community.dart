@@ -25,7 +25,7 @@ class CommunityPage extends StatefulWidget {
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzUzMDgsImV4cCI6MTcyMTEzNzEwOH0.bVA4XeLA6sUBpGMLGhI9ukIgA-0ZaPcNNUmE0dWmFsg";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDA5MjAsImV4cCI6MTcyMTE0MjcyMH0.kqiH16xLySpu3DF5jsDRxHYvzJkQVHJkDOgW59rsBfE";
 
   // List<Post> posts = [
   //   Post(

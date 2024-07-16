@@ -68,8 +68,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
   // ];
 
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzUzMDgsImV4cCI6MTcyMTEzNzEwOH0.bVA4XeLA6sUBpGMLGhI9ukIgA-0ZaPcNNUmE0dWmFsg";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDA5MjAsImV4cCI6MTcyMTE0MjcyMH0.kqiH16xLySpu3DF5jsDRxHYvzJkQVHJkDOgW59rsBfE";
   late Future<List<Comment>> futureComments;
+  String comment="";
+
 
   @override
   void initState() {
@@ -95,10 +97,38 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  Future<void> postComment(int postId, String content) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/comment');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'postId': postId,
+      'content': content,
+    });
+
+    print(postId);
+    print(content);
+
+
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Comment posted successfully');
+    } else {
+      print('Failed to post comment: ${response.statusCode}');
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
 
     return MaterialApp(
       home: Scaffold(
@@ -402,6 +432,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     Expanded(
                       child: TextField(
                         style: TextStyle(color: Colors.white),
+                        onChanged: (text){
+                          setState(() {
+                            comment = text;
+                          });
+                        },
                         cursorColor: Colors.white,
                         decoration: InputDecoration(
                           hintText: '댓글을 입력하세요.',
@@ -416,7 +451,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     IconButton(
                       icon: Icon(Icons.comment, color: Colors.white),
                       onPressed: () {
-                        // 댓글 전송 버튼의 동작
+                        postComment(widget.post.id, comment);
                       },
                     ),
                   ],
