@@ -18,10 +18,13 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  TextEditingController _controller = TextEditingController();
   bool _isEditing = false;
   String _nickname = "User5555";
-  String _token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjEwNTIzMzksImV4cCI6MTcyMTA1NDEzOX0.Pw6nk_VNI3LFLwwEgNtUM42jXt0ajDUhdGRrmg0OVO4";
+  String _token =
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjEwNTIzMzksImV4cCI6MTcyMTA1NDEzOX0.Pw6nk_VNI3LFLwwEgNtUM42jXt0ajDUhdGRrmg0OVO4";
+
+  TextEditingController _controller = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +66,7 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    String _tempNickname = _nickname;
 
     return MaterialApp(
       home: Scaffold(
@@ -100,50 +104,57 @@ class _MyPageState extends State<MyPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 4,
-                                      child: TextField(
-                                        controller: _controller,
-                                        enabled: _isEditing,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(10),
-                                        ],
-                                        decoration: InputDecoration(
-                                          hintText: _nickname,
-                                          hintStyle:
-                                              TextStyle(color: Colors.black),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "환영합니다!",
+                                    style: TextStyle(fontSize: 14.sp),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: _nickname.length * 13.0,
+                                        height: 50.h,
+                                        child: TextField(
                                           enabled: _isEditing,
-                                          border: UnderlineInputBorder(),
-                                          enabledBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black),
+                                          controller: _controller,
+                                          cursorColor: Colors.transparent,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(
+                                                10),
+                                          ],
+                                          style: TextStyle(
+                                            color: Color(0xFF333333),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Apple SD Gothic Neo',
                                           ),
-                                          focusedBorder: UnderlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.black),
+                                          decoration: InputDecoration(
+                                            hintText: _nickname,
+                                            border: InputBorder.none,
+                                            enabledBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.black),
+                                            ),
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.black),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: IconButton(
+                                      IconButton(
                                         icon: Icon(_isEditing
                                             ? Icons.check
                                             : Icons.edit),
                                         onPressed: _toggleEdit,
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        " 환영합니다!",
-                                        style: TextStyle(fontSize: 14.sp),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
+                                ],
                               ),
                               Text(
                                 "CAMPRIDE",
