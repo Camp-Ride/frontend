@@ -25,7 +25,7 @@ class CommunityPage extends StatefulWidget {
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDU3NTAsImV4cCI6MTcyMTE0NzU1MH0.BUsCcfDvJv_ssLPwhWCX4RhKJbAd67c0bh1iejEU7Js";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDY1MTIsImV4cCI6MTcyMTE0ODMxMn0.udasSkmlfs8SKicBjWbnZM0LdMg1HKKb6h6HWkOxUjo";
   String currentNickname = "김준형9560";
 
   // List<Post> posts = [

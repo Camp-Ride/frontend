@@ -68,10 +68,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
   // ];
 
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDA5MjAsImV4cCI6MTcyMTE0MjcyMH0.kqiH16xLySpu3DF5jsDRxHYvzJkQVHJkDOgW59rsBfE";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDY1MTIsImV4cCI6MTcyMTE0ODMxMn0.udasSkmlfs8SKicBjWbnZM0LdMg1HKKb6h6HWkOxUjo";
   late Future<List<Comment>> futureComments;
-  String comment="";
-
+  String comment = "";
 
   @override
   void initState() {
@@ -111,8 +110,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
     print(postId);
     print(content);
 
-
-
     final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
@@ -122,13 +119,62 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  Future<void> like(int id, String type, Post post) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Post liked successfully');
+
+      setState(() {
+        post.isLiked = true;
+        post.likeCount += 1;
+      });
+    } else {
+      print('Failed to like post: ${response.statusCode}');
+    }
+  }
+
+  Future<void> unLike(int id, String type, Post post) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final request = http.Request('DELETE', url)
+      ..headers.addAll(headers)
+      ..body = body;
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Post unliked successfully');
+      setState(() {
+        post.isLiked = false;
+        post.likeCount -= 1;
+      });
+    } else {
+      print('Failed to unlike post: ${response.statusCode}');
+    }
+  }
 
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
 
     return MaterialApp(
       home: Scaffold(
@@ -278,8 +324,26 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                           padding:
                                               const EdgeInsets.only(right: 5.0)
                                                   .w,
-                                          child: Icon(
-                                            Icons.favorite_border,
+                                          child: InkWell(
+                                            onTap: (){
+                                              if (widget.post
+                                                  .isLiked) {
+                                                unLike(
+                                                    widget.post.id,
+                                                    "POST",
+                                                    widget.post);
+                                              } else {
+                                                like(
+                                                    widget.post.id,
+                                                    "POST",
+                                                    widget.post);
+                                              }
+                                            },
+                                            child: Icon(
+                                                widget.post.isLiked
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color: Colors.red),
                                           ),
                                         ),
                                         Text(
@@ -432,7 +496,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     Expanded(
                       child: TextField(
                         style: TextStyle(color: Colors.white),
-                        onChanged: (text){
+                        onChanged: (text) {
                           setState(() {
                             comment = text;
                           });
