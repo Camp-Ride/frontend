@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
 import 'package:flutter/rendering.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'comment.dart';
 
@@ -23,48 +25,71 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  List<Comment> comments = [
-    Comment(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      comment:
-          "08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?",
-      likeCount: 25,
-    ),
-    Comment(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-      likeCount: 12,
-    ),
-    Comment(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-      likeCount: 12,
-    ),
-    Comment(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-      likeCount: 12,
-    ),
-    Comment(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-      likeCount: 12,
-    ),
-  ];
+  // List<Comment> comments = [
+  //   Comment(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     comment:
+  //         "08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?",
+  //     likeCount: 25,
+  //   ),
+  //   Comment(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
+  //     likeCount: 12,
+  //   ),
+  //   Comment(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
+  //     likeCount: 12,
+  //   ),
+  //   Comment(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
+  //     likeCount: 12,
+  //   ),
+  //   Comment(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
+  //     likeCount: 12,
+  //   ),
+  // ];
+
+  String jwt =
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzMzNjIsImV4cCI6MTcyMTEzNTE2Mn0.S9Rhpb9eDt_GqSsOcl-f9izUVlmOiDvVtr82dGGZ38k";
+  late Future<List<Comment>> futureComments;
 
   @override
   void initState() {
     super.initState();
+    futureComments = fetchComments(widget.post.id);
+  }
+
+  Future<List<Comment>> fetchComments(int postId) async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/v1/post/$postId'),
+      headers: {
+        'Authorization': 'Bearer $jwt',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      List<dynamic> commentsJson = data['commentResponses'];
+      return commentsJson.map((json) => Comment.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load comments');
+    }
   }
 
   @override
@@ -200,94 +225,118 @@ class _PostDetailPageState extends State<PostDetailPage> {
                             ]),
                       ),
                     ),
-                    ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: comments.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return IntrinsicHeight(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.black54, // 밑부분 테두리 색상
-                                    width: 0.5, // 밑부분 테두리 두께
+                    FutureBuilder<List<Comment>>(
+                      future: futureComments,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(child: Text('작성된 댓글이 없습니다.'));
+                        } else {
+                          List<Comment> comments = snapshot.data!;
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: comments.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return IntrinsicHeight(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.black54, // 밑부분 테두리 색상
+                                        width: 0.5, // 밑부분 테두리 두께
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8.0, top: 8.0)
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                            left: 8.0, top: 8.0)
                                         .r,
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            comments[index].name,
-                                            style: TextStyle(
-                                                fontSize: 12.sp,
-                                                color: Colors.black54),
-                                          ),
-                                          Icon(
-                                            Icons.more_vert,
-                                            size: 15.r,
-                                          )
-                                        ],
-                                      ),
-                                      Text(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              comments[index].name,
+                                              style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.black54),
+                                            ),
+                                            Icon(
+                                              Icons.more_vert,
+                                              size: 15.r,
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          comments[index].comment,
                                           style: TextStyle(
-                                              height: 16 / 11,
-                                              fontSize: 13.sp,
-                                              color: Colors.black),
-                                          comments[index].comment),
-                                      SizedBox(
-                                        height: 5.h,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                        right: 5.0)
-                                                    .w,
-                                                child: Icon(
-                                                  Icons.favorite_border,
-                                                  size: 14.r,
+                                            height: 16 / 11,
+                                            fontSize: 13.sp,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5.h),
+                                        Row(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                              right: 5.0)
+                                                          .w,
+                                                  child: Icon(
+                                                    Icons.favorite_border,
+                                                    size: 14.r,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Colors.black54),
+                                                Text(
                                                   comments[index]
                                                       .likeCount
-                                                      .toString()),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 8.0)
-                                                    .w,
-                                            child: Text(
-                                                style: TextStyle(
+                                                      .toString(),
+                                                  style: TextStyle(
                                                     fontSize: 12.sp,
-                                                    color: Colors.black54),
-                                                comments[index].date),
-                                          ),
-                                        ],
-                                      )
-                                    ]),
-                              ),
-                            ),
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                      left: 8.0)
+                                                  .w,
+                                              child: Text(
+                                                comments[index].date,
+                                                style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           );
-                        }),
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),

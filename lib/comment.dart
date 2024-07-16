@@ -14,12 +14,16 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
+    List<int> dateParts = List<int>.from(json['createdAt']);
+    String formattedDate =
+        "${dateParts[0]}/${dateParts[1]}/${dateParts[2]} ${dateParts[3]}:${dateParts[4]}:${dateParts[5]}";
+
     return Comment(
       id: json['id'],
-      name: json['name'],
-      date: json['date'],
-      comment: json['comment'],
-      likeCount: json['likeCount'],
+      name: json['nickname'],
+      date: formattedDate,
+      comment: json['content'],
+      likeCount: json['likeResponses']?.length ?? 0,
     );
   }
 }
