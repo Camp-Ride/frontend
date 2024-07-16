@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:campride/env_config.dart';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
@@ -10,6 +12,7 @@ import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -20,84 +23,107 @@ class CommunityPage extends StatefulWidget {
 
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
-  String jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMTQyNDYsImV4cCI6MTcyMTExNjA0Nn0.Fkj_luHCC4CmYyxKGnu5OPsWVlVgMU17uvargSSUb_I";
+  String jwt =
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzMzNjIsImV4cCI6MTcyMTEzNTE2Mn0.S9Rhpb9eDt_GqSsOcl-f9izUVlmOiDvVtr82dGGZ38k";
 
-  List<Post> posts = [
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "08/11일 상록 예비군 출발하실 분 있나요?",
-      contents:
-          "상록수역에 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요",
-      commentCount: 5,
-      likeCount: 0,
-      images: [
-        'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fe61243619b73dfcced018a0362a6132e9000e6f8%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8_%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%82%E1%85%B3%E1%86%AB_%E1%84%8B%E1%85%A1%E1%84%90%E1%85%B3%E1%84%8B%E1%85%AF%E1%84%8F%E1%85%B3%202%201.png?alt=media&token=c873dda4-fdbb-41e0-9e14-0302ff6e4521',
-        "https://via.placeholder.com/200",
-        "https://via.placeholder.com/250",
-      ],
-    ),
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "예비군복 어디서 빌리는지 아시는 분 계세요?",
-      contents:
-          "예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요",
-      commentCount: 5,
-      likeCount: 0,
-      images: [],
-    ),
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "끝나고 같이 버스 타고 걸어가자",
-      contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-      commentCount: 5,
-      likeCount: 190,
-      images: [
-        'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fb28a79dab4363dd4ab15f5cc05af1602c5de3b49507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=fb86246f-b478-4333-bc88-b9e145ff23ea',
-      ],
-    ),
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "끝나고 같이 버스 타고 걸어가자",
-      contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-      commentCount: 5,
-      likeCount: 190,
-      images: [
-        'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2F32173d2313520f135a7405471b998dfbdc9ee611507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=340a77cf-453f-4b92-90bf-221f8c0140f1',
-      ],
-    ),
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "끝나고 같이 버스 타고 걸어가자",
-      contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-      commentCount: 5,
-      likeCount: 190,
-      images: [],
-    ),
-    Post(
-      id: 1,
-      name: "준행행님",
-      date: "2024/7/25",
-      title: "끝나고 같이 버스 타고 걸어가자",
-      contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-      commentCount: 5,
-      likeCount: 190,
-      images: [],
-    )
-  ];
+  // List<Post> posts = [
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "08/11일 상록 예비군 출발하실 분 있나요?",
+  //     contents:
+  //         "상록수역에 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요",
+  //     commentCount: 5,
+  //     likeCount: 0,
+  //     images: [
+  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fe61243619b73dfcced018a0362a6132e9000e6f8%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8_%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%82%E1%85%B3%E1%86%AB_%E1%84%8B%E1%85%A1%E1%84%90%E1%85%B3%E1%84%8B%E1%85%AF%E1%84%8F%E1%85%B3%202%201.png?alt=media&token=c873dda4-fdbb-41e0-9e14-0302ff6e4521',
+  //       "https://via.placeholder.com/200",
+  //       "https://via.placeholder.com/250",
+  //     ],
+  //   ),
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "예비군복 어디서 빌리는지 아시는 분 계세요?",
+  //     contents:
+  //         "예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요",
+  //     commentCount: 5,
+  //     likeCount: 0,
+  //     images: [],
+  //   ),
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "끝나고 같이 버스 타고 걸어가자",
+  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
+  //     commentCount: 5,
+  //     likeCount: 190,
+  //     images: [
+  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fb28a79dab4363dd4ab15f5cc05af1602c5de3b49507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=fb86246f-b478-4333-bc88-b9e145ff23ea',
+  //     ],
+  //   ),
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "끝나고 같이 버스 타고 걸어가자",
+  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
+  //     commentCount: 5,
+  //     likeCount: 190,
+  //     images: [
+  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2F32173d2313520f135a7405471b998dfbdc9ee611507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=340a77cf-453f-4b92-90bf-221f8c0140f1',
+  //     ],
+  //   ),
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "끝나고 같이 버스 타고 걸어가자",
+  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
+  //     commentCount: 5,
+  //     likeCount: 190,
+  //     images: [],
+  //   ),
+  //   Post(
+  //     id: 1,
+  //     name: "준행행님",
+  //     date: "2024/7/25",
+  //     title: "끝나고 같이 버스 타고 걸어가자",
+  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
+  //     commentCount: 5,
+  //     likeCount: 190,
+  //     images: [],
+  //   )
+  // ];
+
+  late Future<List<Post>> futurePosts;
 
   @override
   void initState() {
     super.initState();
+    futurePosts = fetchPosts();
+  }
+
+  Future<List<Post>> fetchPosts() async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/v1/post/paging?page=0&size=13'),
+      headers: {
+        'Authorization': 'Bearer $jwt',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      List<dynamic> content = data['content'];
+
+      return content.map((json) => Post.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load posts');
+    }
   }
 
   @override
@@ -152,62 +178,83 @@ class _CommunityPageState extends State<CommunityPage> {
                       Column(
                         children: [
                           Expanded(
-                            child: ListView.builder(
-                                itemCount: posts.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return InkWell(
-                                    onTap: () => {
-                                      navigatorKey.currentState?.push(
-                                          MaterialPageRoute(
+                            child: FutureBuilder<List<Post>>(
+                              future: futurePosts,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return Center(child: Text('No posts found.'));
+                                } else {
+                                  List<Post> posts = snapshot.data!;
+                                  return ListView.builder(
+                                    itemCount: posts.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return InkWell(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
                                               builder: (context) =>
                                                   PostDetailPage(
-                                                      post: posts[index])))
-                                    },
-                                    child: Container(
-                                      height: 150.h,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: Colors.black54, // 밑부분 테두리 색상
-                                            width: 0.5, // 밑부분 테두리 두께
+                                                      post: posts[index]),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                                left: 8.0, top: 8.0)
-                                            .r,
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                posts[index].name,
-                                                style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: Colors.black54),
+                                        },
+                                        child: Container(
+                                          height: 150.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: Colors.black54,
+                                                width: 0.5,
                                               ),
-                                              Expanded(
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                    left: 8.0, top: 8.0)
+                                                .r,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  posts[index].name,
+                                                  style: TextStyle(
+                                                      fontSize: 12.sp,
+                                                      color: Colors.black54),
+                                                ),
+                                                Expanded(
                                                   flex: 1,
                                                   child: Text(
-                                                      style: TextStyle(
-                                                        fontSize: 15.sp,
-                                                      ),
-                                                      posts[index].title)),
-                                              Expanded(
+                                                    style: TextStyle(
+                                                        fontSize: 15.sp),
+                                                    posts[index].title,
+                                                  ),
+                                                ),
+                                                Expanded(
                                                   flex: 3,
                                                   child: Row(
                                                     children: [
                                                       Expanded(
                                                         child: Text(
-                                                            style: TextStyle(
-                                                                height: 16 / 11,
-                                                                fontSize: 13.sp,
-                                                                color: Colors
-                                                                    .black54),
-                                                            posts[index]
-                                                                .contents),
+                                                          style: TextStyle(
+                                                            height: 16 / 11,
+                                                            fontSize: 13.sp,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                          posts[index].contents,
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                         width: 10.w,
@@ -218,9 +265,8 @@ class _CommunityPageState extends State<CommunityPage> {
                                                         decoration:
                                                             BoxDecoration(
                                                           color: posts[index]
-                                                                      .images
-                                                                      .length ==
-                                                                  0
+                                                                  .images
+                                                                  .isEmpty
                                                               ? Colors
                                                                   .transparent
                                                               : Colors.black12,
@@ -230,31 +276,32 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                           10)
                                                                   .r,
                                                         ),
-                                                        child: posts[index]
+                                                        child:
+                                                            posts[index]
                                                                     .images
-                                                                    .length !=
-                                                                0
-                                                            ? ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                            .circular(10)
-                                                                        .r,
-                                                                child: Image
-                                                                    .network(
-                                                                  posts[index]
-                                                                      .images[0],
-                                                                  fit: BoxFit
-                                                                      .cover, // BoxFit.fill 대신 BoxFit.cover를 사용하여 컨테이너에 꽉 차게 설정
-                                                                ),
-                                                              )
-                                                            : null,
+                                                                    .isNotEmpty
+                                                                ? ClipRRect(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(10)
+                                                                            .r,
+                                                                    child: Image
+                                                                        .network(
+                                                                      ('${EnvConfig().s3Url}' +
+                                                                          posts[index]
+                                                                              .images[0]),
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
+                                                                  )
+                                                                : null,
                                                       ),
                                                       SizedBox(
                                                         width: 10.w,
                                                       ),
                                                     ],
-                                                  )),
-                                              Expanded(
+                                                  ),
+                                                ),
+                                                Expanded(
                                                   flex: 2,
                                                   child: Row(
                                                     children: [
@@ -271,14 +318,15 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                 Icons.comment),
                                                           ),
                                                           Text(
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  color: Colors
-                                                                      .black54),
-                                                              posts[index]
-                                                                  .commentCount
-                                                                  .toString()),
+                                                            style: TextStyle(
+                                                              fontSize: 12.sp,
+                                                              color: Colors
+                                                                  .black54,
+                                                            ),
+                                                            posts[index]
+                                                                .commentCount
+                                                                .toString(),
+                                                          ),
                                                         ],
                                                       ),
                                                       Padding(
@@ -300,14 +348,15 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                   .favorite_border),
                                                             ),
                                                             Text(
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    color: Colors
-                                                                        .black54),
-                                                                posts[index]
-                                                                    .likeCount
-                                                                    .toString()),
+                                                              style: TextStyle(
+                                                                fontSize: 12.sp,
+                                                                color: Colors
+                                                                    .black54,
+                                                              ),
+                                                              posts[index]
+                                                                  .likeCount
+                                                                  .toString(),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
@@ -318,19 +367,27 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                     left: 8.0)
                                                                 .w,
                                                         child: Text(
-                                                            style: TextStyle(
-                                                                fontSize: 12.sp,
-                                                                color: Colors
-                                                                    .black54),
-                                                            posts[index].date),
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                          posts[index].date,
+                                                        ),
                                                       ),
                                                     ],
-                                                  ))
-                                            ]),
-                                      ),
-                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   );
-                                }),
+                                }
+                              },
+                            ),
                           )
                         ],
                       ),

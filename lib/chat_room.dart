@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campride/ReplyingState.dart';
+import 'package:campride/reply_provider.dart';
 import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
 import 'package:campride/rooms_provider.dart';

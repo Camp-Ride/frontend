@@ -22,15 +22,19 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    // Parsing the date from JSON array to string
+    List<int> dateParts = List<int>.from(json['createdAt']);
+    String formattedDate = "${dateParts[0]}-${dateParts[1].toString().padLeft(2, '0')}-${dateParts[2].toString().padLeft(2, '0')}";
+
     return Post(
       id: json['id'],
       name: json['name'],
-      date: json['date'],
+      date: formattedDate,
       title: json['title'],
-      contents: json['contents'],
-      commentCount: json['commentCount'],
-      likeCount: json['likeCount'],
-      images: json['images'],
+      contents: json['contents'] ?? '',
+      commentCount: json['commentResponses']?.length ?? 0,
+      likeCount: json['likeResponses']?.length ?? 0,
+      images: List<String>.from(json['imageNames']),
     );
   }
 }
