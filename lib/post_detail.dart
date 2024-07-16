@@ -71,11 +71,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
       "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
   late Future<List<Comment>> futureComments;
   String comment = "";
+  late TextEditingController _controller;
+
 
   @override
   void initState() {
     super.initState();
     futureComments = fetchComments(widget.post.id);
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<List<Comment>> fetchComments(int postId) async {
@@ -116,6 +125,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       print('Comment posted successfully');
       setState(() {
         futureComments = fetchComments(widget.post.id);
+        comment = "";
       });
     } else {
       print('Failed to post comment: ${response.statusCode}');
@@ -497,6 +507,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: _controller,
                         style: TextStyle(color: Colors.white),
                         onChanged: (text) {
                           setState(() {
@@ -517,6 +528,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     IconButton(
                       icon: Icon(Icons.comment, color: Colors.white),
                       onPressed: () {
+                        _controller.clear();
                         postComment(widget.post.id, comment);
                       },
                     ),
