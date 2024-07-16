@@ -68,7 +68,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   // ];
 
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDY1MTIsImV4cCI6MTcyMTE0ODMxMn0.udasSkmlfs8SKicBjWbnZM0LdMg1HKKb6h6HWkOxUjo";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
   late Future<List<Comment>> futureComments;
   String comment = "";
 
@@ -114,6 +114,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
     if (response.statusCode == 200) {
       print('Comment posted successfully');
+      setState(() {
+        futureComments = fetchComments(widget.post.id);
+      });
     } else {
       print('Failed to post comment: ${response.statusCode}');
     }
@@ -169,7 +172,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
       print('Failed to unlike post: ${response.statusCode}');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -325,17 +327,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               const EdgeInsets.only(right: 5.0)
                                                   .w,
                                           child: InkWell(
-                                            onTap: (){
-                                              if (widget.post
-                                                  .isLiked) {
-                                                unLike(
-                                                    widget.post.id,
-                                                    "POST",
+                                            onTap: () {
+                                              if (widget.post.isLiked) {
+                                                unLike(widget.post.id, "POST",
                                                     widget.post);
                                               } else {
-                                                like(
-                                                    widget.post.id,
-                                                    "POST",
+                                                like(widget.post.id, "POST",
                                                     widget.post);
                                               }
                                             },
@@ -378,7 +375,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               child: Text('Error: ${snapshot.error}'));
                         } else if (!snapshot.hasData ||
                             snapshot.data!.isEmpty) {
-                          return Center(child: Text('작성된 댓글이 없습니다.'));
+                          return Center(
+                              child: Text(
+                            '작성된 댓글이 없습니다.',
+                            style: TextStyle(
+                                fontSize: 13.sp, color: Colors.black54),
+                          ));
                         } else {
                           List<Comment> comments = snapshot.data!;
                           return ListView.builder(
