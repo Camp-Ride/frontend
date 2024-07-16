@@ -25,7 +25,8 @@ class CommunityPage extends StatefulWidget {
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDA5MjAsImV4cCI6MTcyMTE0MjcyMH0.kqiH16xLySpu3DF5jsDRxHYvzJkQVHJkDOgW59rsBfE";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDU3NTAsImV4cCI6MTcyMTE0NzU1MH0.BUsCcfDvJv_ssLPwhWCX4RhKJbAd67c0bh1iejEU7Js";
+  String currentNickname = "김준형9560";
 
   // List<Post> posts = [
   //   Post(
@@ -121,9 +122,62 @@ class _CommunityPageState extends State<CommunityPage> {
       Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       List<dynamic> content = data['content'];
 
-      return content.map((json) => Post.fromJson(json)).toList();
+      return content
+          .map((json) => Post.fromJson(json, currentNickname))
+          .toList();
     } else {
       throw Exception('Failed to load posts');
+    }
+  }
+
+  Future<void> like(int id, String type, Post post) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Post liked successfully');
+
+      setState(() {
+        post.isLiked = true;
+        post.likeCount += 1;
+      });
+    } else {
+      print('Failed to like post: ${response.statusCode}');
+    }
+  }
+
+  Future<void> unLike(int id, String type, Post post) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    final body = jsonEncode({
+      'likeType': type,
+    });
+
+    final request = http.Request('DELETE', url)
+      ..headers.addAll(headers)
+      ..body = body;
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Post unliked successfully');
+      setState(() {
+        post.isLiked = false;
+        post.likeCount -= 1;
+      });
+    } else {
+      print('Failed to unlike post: ${response.statusCode}');
     }
   }
 
@@ -355,8 +409,36 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                           right:
                                                                               5.0)
                                                                       .w,
-                                                              child: Icon(Icons
-                                                                  .favorite_border),
+                                                              child: InkWell(
+                                                                onTap: () {
+                                                                  if (posts[
+                                                                          index]
+                                                                      .isLiked) {
+                                                                    unLike(
+                                                                        posts[index]
+                                                                            .id,
+                                                                        "POST",
+                                                                        posts[
+                                                                            index]);
+                                                                  } else {
+                                                                    like(
+                                                                        posts[index]
+                                                                            .id,
+                                                                        "POST",
+                                                                        posts[
+                                                                            index]);
+                                                                  }
+                                                                },
+                                                                child: Icon(
+                                                                    posts[index]
+                                                                            .isLiked
+                                                                        ? Icons
+                                                                            .favorite
+                                                                        : Icons
+                                                                            .favorite_border,
+                                                                    color: Colors
+                                                                        .red),
+                                                              ),
                                                             ),
                                                             Text(
                                                               style: TextStyle(
