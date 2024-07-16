@@ -25,7 +25,7 @@ class _PostingPageState extends State<PostingPage> {
   List<File> images = [];
   final picker = ImagePicker();
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMTYyMTQsImV4cCI6MTcyMTExODAxNH0.bs2ATlcxJZaf1mun4K71fZM-JIyfQuctsxan4PQIcVo";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzUzMDgsImV4cCI6MTcyMTEzNzEwOH0.bVA4XeLA6sUBpGMLGhI9ukIgA-0ZaPcNNUmE0dWmFsg";
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);

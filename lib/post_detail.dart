@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
 import 'package:flutter/rendering.dart';
@@ -14,6 +15,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'comment.dart';
+import 'env_config.dart';
+import 'image_detail.dart';
 
 class PostDetailPage extends StatefulWidget {
   final Post post;
@@ -65,7 +68,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   // ];
 
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzMzNjIsImV4cCI6MTcyMTEzNTE2Mn0.S9Rhpb9eDt_GqSsOcl-f9izUVlmOiDvVtr82dGGZ38k";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzUzMDgsImV4cCI6MTcyMTEzNzEwOH0.bVA4XeLA6sUBpGMLGhI9ukIgA-0ZaPcNNUmE0dWmFsg";
   late Future<List<Comment>> futureComments;
 
   @override
@@ -176,6 +179,51 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               SizedBox(
                                 height: 10.h,
                               ),
+                              Container(
+                                height: 100.h,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: widget.post.images.length,
+                                  itemBuilder:
+                                      (BuildContext context, int imgIndex) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(right: 8.0.w),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          navigatorKey.currentState?.push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ImageDetailPage(
+                                                        imageUrl:
+                                                            ('${EnvConfig().s3Url}' +
+                                                                widget.post
+                                                                        .images[
+                                                                    imgIndex]),
+                                                      )));
+                                        },
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10).r,
+                                          child: CachedNetworkImage(
+                                            fit: BoxFit.cover,
+                                            imageUrl: ('${EnvConfig().s3Url}' +
+                                                widget.post.images[imgIndex]),
+                                            progressIndicatorBuilder: (context,
+                                                    url, downloadProgress) =>
+                                                CircularProgressIndicator(
+                                                    value: downloadProgress
+                                                        .progress),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 5.h),
                               Row(
                                 children: [
                                   Row(

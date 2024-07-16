@@ -25,7 +25,7 @@ class CommunityPage extends StatefulWidget {
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
   String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzMzNjIsImV4cCI6MTcyMTEzNTE2Mn0.S9Rhpb9eDt_GqSsOcl-f9izUVlmOiDvVtr82dGGZ38k";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMzUzMDgsImV4cCI6MTcyMTEzNzEwOH0.bVA4XeLA6sUBpGMLGhI9ukIgA-0ZaPcNNUmE0dWmFsg";
 
   // List<Post> posts = [
   //   Post(
@@ -191,7 +191,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return Center(child: Text('No posts found.'));
+                                  return Center(child: Text('작성된 글이 없습니다.'));
                                 } else {
                                   List<Post> posts = snapshot.data!;
                                   return ListView.builder(
