@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:campride/login.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class PostingPage extends StatefulWidget {
   const PostingPage({super.key});
@@ -18,8 +20,12 @@ class PostingPage extends StatefulWidget {
 }
 
 class _PostingPageState extends State<PostingPage> {
+  String title = "";
+  String contents = "";
   List<File> images = [];
   final picker = ImagePicker();
+  String jwt =
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExMTYyMTQsImV4cCI6MTcyMTExODAxNH0.bs2ATlcxJZaf1mun4K71fZM-JIyfQuctsxan4PQIcVo";
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -35,6 +41,43 @@ class _PostingPageState extends State<PostingPage> {
     setState(() {
       images.removeAt(index);
     });
+  }
+
+  Future<void> post(String title, String contents, List<File> images) async {
+    if (title.isEmpty || contents.isEmpty) {
+      print("글을 작성하려면 글 제목이나 내용이 빠지면 안됩니다.");
+      return;
+    }
+
+    var uri = Uri.parse('http://localhost:8080/api/v1/post');
+    var request = http.MultipartRequest('POST', uri);
+
+    for (var image in images) {
+      var stream = http.ByteStream(image.openRead());
+      var length = await image.length();
+      var multipartFile = http.MultipartFile(
+        'images',
+        stream,
+        length,
+        filename: image.path,
+      );
+      request.files.add(multipartFile);
+    }
+
+    request.fields['postRequest'] = jsonEncode({
+      "title": title,
+      "contents": contents,
+    });
+
+    request.headers['Authorization'] = 'Bearer $jwt';
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      print('Uploaded successfully!');
+      Navigator.pop(context);
+    } else {
+      print('Upload failed with status: ${response.statusCode}');
+    }
   }
 
   @override
@@ -79,6 +122,11 @@ class _PostingPageState extends State<PostingPage> {
               child: Column(
                 children: [
                   TextField(
+                    onChanged: (text) {
+                      setState(() {
+                        title = text;
+                      });
+                    },
                     textAlign: TextAlign.start,
                     decoration: InputDecoration(
                       hintText: '제목을 입력해 주세요.',
@@ -99,6 +147,11 @@ class _PostingPageState extends State<PostingPage> {
               child: Container(
                 color: Colors.white,
                 child: TextField(
+                  onChanged: (text) {
+                    setState(() {
+                      contents = text;
+                    });
+                  },
                   maxLines: null,
                   textAlign: TextAlign.start,
                   decoration: InputDecoration(
@@ -208,20 +261,25 @@ class _PostingPageState extends State<PostingPage> {
                       ),
                       Row(
                         children: [
-                          Container(
-                            width: 40,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF154135),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "완료",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                          InkWell(
+                            onTap: () {
+                              post(title, contents, images);
+                            },
+                            child: Container(
+                              width: 40,
+                              height: 25,
+                              decoration: BoxDecoration(
+                                color: Color(0xFF154135),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "완료",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ),
