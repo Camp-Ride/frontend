@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:campride/chat_room.dart';
 import 'package:campride/login.dart';
 import 'package:campride/room.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -10,7 +11,9 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final SecureStroageService secureStroageService;
+
+  const SplashScreen({super.key, required this.secureStroageService});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -39,7 +42,10 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(
+            builder: (context) => LoginPage(
+                  secureStroageService: widget.secureStroageService,
+                )),
       );
     });
   }

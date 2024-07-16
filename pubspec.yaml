@@ -55,6 +55,7 @@ dependencies:
   riverpod_annotation: ^2.3.5
   chat_bubbles: ^1.6.0
   cached_network_image: ^3.3.1
+  flutter_secure_storage: ^4.2.1
 
 
 dependency_overrides:

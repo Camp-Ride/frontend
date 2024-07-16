@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:campride/secure_storage.dart';
 import 'package:chatview/chatview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,11 +10,14 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 import 'env_config.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final SecureStroageService secureStroageService;
+
+  const LoginPage({super.key, required this.secureStroageService});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -22,6 +27,42 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<String> getUserNicknameFromToken(String accessToken) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/user');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      return data['nickname'];
+    } else {
+      throw Exception('Failed to load user info');
+    }
+  }
+
+  Future<void> _extractAndSaveTokens(String url) async {
+    Uri uri = Uri.parse(url);
+    String? accessToken = uri.queryParameters['accesstoken'];
+    String? refreshToken = uri.queryParameters['refreshtoken'];
+
+    if (accessToken != null && refreshToken != null) {
+      await widget.secureStroageService.saveTokens(accessToken, refreshToken);
+      await widget.secureStroageService
+          .saveNickname(await getUserNicknameFromToken(accessToken));
+
+      String? nickname = await widget.secureStroageService.readNickname();
+
+      print('Access Token: $accessToken');
+      print('Refresh Token: $refreshToken');
+      print('nickname: $nickname');
+    }
   }
 
   Future<void> signIn(provider) async {
@@ -43,7 +84,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _status = 'Got result: $result';
       });
-      print(_status);
+
+      _extractAndSaveTokens(result);
 
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => MainPage()));

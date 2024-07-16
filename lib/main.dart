@@ -2,6 +2,7 @@ import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
 import 'package:campride/room.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:campride/splash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ void main() async {
   await dotenv.load(fileName: "assets/env/.env");
   var key = await dotenv.env['APP_KEY'];
   await EnvConfig().loadEnv();
+  final secureStroageService = SecureStroageService();
+
 
   AuthRepository.initialize(appKey: key!);
 
@@ -37,7 +40,7 @@ void main() async {
     ProviderScope(
       child: DevicePreview(
         enabled: !kReleaseMode,
-        builder: (context) => MyApp(), // Wrap your app
+        builder: (context) => MyApp(secureStroageService), // Wrap your app
       ),
     ),
   );
@@ -45,7 +48,9 @@ void main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  final SecureStroageService secureStroageService;
+
+  const MyApp(this.secureStroageService, {super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,7 +62,7 @@ class MyApp extends ConsumerWidget {
         return ProviderScope(
           child: MaterialApp(
             navigatorKey: navigatorKey,
-            home: SplashScreen(),
+            home: SplashScreen(secureStroageService: secureStroageService,),
           ),
         );
       },
