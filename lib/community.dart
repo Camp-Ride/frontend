@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/env_config.dart';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
@@ -284,13 +285,23 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                     borderRadius:
                                                                         BorderRadius.circular(10)
                                                                             .r,
-                                                                    child: Image
-                                                                        .network(
-                                                                      ('${EnvConfig().s3Url}' +
-                                                                          posts[index]
-                                                                              .images[0]),
+                                                                    child:
+                                                                        CachedNetworkImage(
                                                                       fit: BoxFit
                                                                           .cover,
+                                                                      imageUrl:
+                                                                          ('${EnvConfig().s3Url}' +
+                                                                              posts[index].images[0]),
+                                                                      progressIndicatorBuilder: (context,
+                                                                              url,
+                                                                              downloadProgress) =>
+                                                                          CircularProgressIndicator(
+                                                                              value: downloadProgress.progress),
+                                                                      errorWidget: (context,
+                                                                              url,
+                                                                              error) =>
+                                                                          const Icon(
+                                                                              Icons.error),
                                                                     ),
                                                                   )
                                                                 : null,
