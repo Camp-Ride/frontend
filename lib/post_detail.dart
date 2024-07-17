@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/community_type.dart';
 import 'package:campride/login.dart';
-import 'package:campride/more_options_button.dart';
+import 'package:campride/more_options_post_button.dart';
 import 'package:campride/post.dart';
+import 'package:campride/post_modify.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,7 @@ import 'package:http/http.dart' as http;
 import 'comment.dart';
 import 'env_config.dart';
 import 'image_detail.dart';
+import 'more_options_comment_button.dart';
 
 class PostDetailPage extends StatefulWidget {
   final Post post;
@@ -31,47 +33,9 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  // List<Comment> comments = [
-  //   Comment(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     comment:
-  //         "08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?08/11일 상록 예비군 출발하실 분 있나요?",
-  //     likeCount: 25,
-  //   ),
-  //   Comment(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-  //     likeCount: 12,
-  //   ),
-  //   Comment(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-  //     likeCount: 12,
-  //   ),
-  //   Comment(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-  //     likeCount: 12,
-  //   ),
-  //   Comment(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     comment: "08/11일 상록 예비군 출발하실 분 있나요?",
-  //     likeCount: 12,
-  //   ),
-  // ];
-
-  String jwt ="";
+  String jwt = "";
   late Future<List<Comment>> futureComments;
+  late Future<Post> futurePost;
   String comment = "";
   late TextEditingController _controller;
   String currentNickname = "";
@@ -93,6 +57,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.initState();
     getUserInfo();
     futureComments = fetchComments(widget.post.id);
+    futurePost = fetchPost();
     _controller = TextEditingController();
   }
 
@@ -100,6 +65,28 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<Post> fetchPost() async {
+    int id = widget.post.id;
+    jwt = (await SecureStroageService.readAccessToken())!;
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/v1/post/$id'),
+      headers: {
+        'Authorization': 'Bearer $jwt',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      String currentUserNickname = (await SecureStroageService.readNickname())!;
+      Map<String, dynamic> jsonDataMap =
+          json.decode(utf8.decode(response.bodyBytes));
+      Post post = Post.fromJson(jsonDataMap, currentUserNickname);
+
+      return post;
+    } else {
+      throw Exception('Failed to load post');
+    }
   }
 
   Future<List<Comment>> fetchComments(int postId) async {
@@ -296,157 +283,217 @@ class _PostDetailPageState extends State<PostDetailPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, top: 8.0).r,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black54, // 밑부분 테두리 색상
-                              width: 0.5, // 밑부분 테두리 두께
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    widget.post.name,
-                                    style: TextStyle(
-                                        fontSize: 12.sp, color: Colors.black54),
+                    FutureBuilder<Post>(
+                      future: futurePost,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData) {
+                          return Center(child: Text('No data available'));
+                        } else {
+                          var post = snapshot.data!;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.black54, // 밑부분 테두리 색상
+                                    width: 0.5, // 밑부분 테두리 두께
                                   ),
-                                  MoreOptionsButton(CommunityType.POST),
-                                ],
-                              ),
-                              Text(
-                                widget.post.title,
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  color: Colors.black,
                                 ),
                               ),
-                              SizedBox(
-                                height: 10.h,
-                              ),
-                              Text(
-                                  style: TextStyle(
-                                      height: 16 / 11,
-                                      fontSize: 13.sp,
-                                      color: Colors.black),
-                                  widget.post.contents),
-                              SizedBox(
-                                height: 10.h,
-                              ),
-                              Container(
-                                height: 100.h,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: widget.post.images.length,
-                                  itemBuilder:
-                                      (BuildContext context, int imgIndex) {
-                                    return Padding(
-                                      padding: EdgeInsets.only(right: 8.0.w),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          navigatorKey.currentState?.push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ImageDetailPage(
-                                                        imageUrl:
-                                                            ('${EnvConfig().s3Url}' +
-                                                                widget.post
-                                                                        .images[
-                                                                    imgIndex]),
-                                                      )));
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10).r,
-                                          child: CachedNetworkImage(
-                                            fit: BoxFit.cover,
-                                            imageUrl: ('${EnvConfig().s3Url}' +
-                                                widget.post.images[imgIndex]),
-                                            progressIndicatorBuilder: (context,
-                                                    url, downloadProgress) =>
-                                                CircularProgressIndicator(
-                                                    value: downloadProgress
-                                                        .progress),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    const Icon(Icons.error),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 5.h),
-                              Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 5.0).w,
-                                        child: Icon(Icons.comment),
-                                      ),
                                       Text(
-                                          style: TextStyle(
-                                              fontSize: 12.sp,
-                                              color: Colors.black54),
-                                          widget.post.commentCount.toString()),
+                                        post.name,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54),
+                                      ),
+                                      PopupMenuButton<int>(
+                                        padding: EdgeInsets.zero,
+                                        color: Colors.white,
+                                        child: Icon(Icons.more_vert, size: 15),
+                                        onSelected: (value) {
+                                          switch (value) {
+                                            case 0:
+                                              print("Edit selected");
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PostModifyPage(
+                                                    id: post.id,
+                                                    title: post.title,
+                                                    contents: post.contents,
+                                                    imageNames: post.images,
+                                                  ),
+                                                ),
+                                              ).then((value) => setState(() {
+                                                    futurePost = fetchPost();
+                                                  }));
+                                              break;
+                                            case 1:
+                                              print("Delete selected");
+                                              // Handle delete action
+                                              break;
+                                            case 2:
+                                              print("Report selected");
+                                              // Handle report action
+                                              break;
+                                          }
+                                        },
+                                        itemBuilder: (BuildContext context) {
+                                          return [
+                                            PopupMenuItem<int>(
+                                              value: 0,
+                                              child: Text('수정'),
+                                            ),
+                                            PopupMenuItem<int>(
+                                              value: 1,
+                                              child: Text('삭제'),
+                                            ),
+                                            PopupMenuItem<int>(
+                                              value: 2,
+                                              child: Text('신고'),
+                                            ),
+                                          ];
+                                        },
+                                      ),
                                     ],
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0).w,
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 5.0)
-                                                  .w,
-                                          child: InkWell(
+                                  Text(
+                                    post.title,
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.black),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    post.contents,
+                                    style: TextStyle(
+                                        fontSize: 13, color: Colors.black),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    height: 100,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: post.images.length,
+                                      itemBuilder:
+                                          (BuildContext context, int imgIndex) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(right: 8.0),
+                                          child: GestureDetector(
                                             onTap: () {
-                                              if (widget.post.isLiked) {
-                                                unLike(widget.post.id, "POST",
-                                                    widget.post);
-                                              } else {
-                                                like(widget.post.id, "POST",
-                                                    widget.post);
-                                              }
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ImageDetailPage(
+                                                    imageUrl:
+                                                        '${EnvConfig().s3Url}${post.images[imgIndex]}',
+                                                  ),
+                                                ),
+                                              );
                                             },
-                                            child: Icon(
-                                                widget.post.isLiked
-                                                    ? Icons.favorite
-                                                    : Icons.favorite_border,
-                                                color: Colors.red),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: CachedNetworkImage(
+                                                fit: BoxFit.cover,
+                                                imageUrl:
+                                                    '${EnvConfig().s3Url}${post.images[imgIndex]}',
+                                                progressIndicatorBuilder:
+                                                    (context, url,
+                                                            downloadProgress) =>
+                                                        CircularProgressIndicator(
+                                                  value:
+                                                      downloadProgress.progress,
+                                                ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                            style: TextStyle(
-                                                fontSize: 12.sp,
-                                                color: Colors.black54),
-                                            widget.post.likeCount.toString()),
-                                      ],
+                                        );
+                                      },
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0).w,
-                                    child: Text(
-                                        style: TextStyle(
-                                            fontSize: 12.sp,
-                                            color: Colors.black54),
-                                        widget.post.date),
+                                  SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 5.0),
+                                            child: Icon(Icons.comment),
+                                          ),
+                                          Text(
+                                            post.commentCount.toString(),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 8.0),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 5.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  // Handle like/unlike functionality
+                                                },
+                                                child: Icon(
+                                                  Icons.favorite_border,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              post.likeCount.toString(),
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black54),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 8.0),
+                                        child: Text(
+                                          post.date,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ]),
-                      ),
+                            ),
+                          );
+                        }
+                      },
                     ),
                     FutureBuilder<List<Comment>>(
                       future: futureComments,
@@ -501,7 +548,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   fontSize: 12.sp,
                                                   color: Colors.black54),
                                             ),
-                                          MoreOptionsButton(CommunityType.COMMENT),
+                                            MoreOptionsCommentButton(),
                                           ],
                                         ),
                                         Text(

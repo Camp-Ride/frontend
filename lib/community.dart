@@ -5,9 +5,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/community_type.dart';
 import 'package:campride/env_config.dart';
 import 'package:campride/login.dart';
-import 'package:campride/more_options_button.dart';
+import 'package:campride/more_options_post_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
+import 'package:campride/post_modify.dart';
 import 'package:campride/posting.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
@@ -30,79 +31,6 @@ class _CommunityPageState extends State<CommunityPage> {
   String jwt =
       "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
   String currentNickname = "";
-
-  // List<Post> posts = [
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "08/11일 상록 예비군 출발하실 분 있나요?",
-  //     contents:
-  //         "상록수역에 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요상록수역에 모여서 출발해요 여기로 와주세요",
-  //     commentCount: 5,
-  //     likeCount: 0,
-  //     images: [
-  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fe61243619b73dfcced018a0362a6132e9000e6f8%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8_%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%82%E1%85%B3%E1%86%AB_%E1%84%8B%E1%85%A1%E1%84%90%E1%85%B3%E1%84%8B%E1%85%AF%E1%84%8F%E1%85%B3%202%201.png?alt=media&token=c873dda4-fdbb-41e0-9e14-0302ff6e4521',
-  //       "https://via.placeholder.com/200",
-  //       "https://via.placeholder.com/250",
-  //     ],
-  //   ),
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "예비군복 어디서 빌리는지 아시는 분 계세요?",
-  //     contents:
-  //         "예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는 어떻게 해야할지 모르겠어요예비군복이 없는데 빌려야하는데 어떻게 해야할지 모르겠어요",
-  //     commentCount: 5,
-  //     likeCount: 0,
-  //     images: [],
-  //   ),
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "끝나고 같이 버스 타고 걸어가자",
-  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-  //     commentCount: 5,
-  //     likeCount: 190,
-  //     images: [
-  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2Fb28a79dab4363dd4ab15f5cc05af1602c5de3b49507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=fb86246f-b478-4333-bc88-b9e145ff23ea',
-  //     ],
-  //   ),
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "끝나고 같이 버스 타고 걸어가자",
-  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-  //     commentCount: 5,
-  //     likeCount: 190,
-  //     images: [
-  //       'https://firebasestorage.googleapis.com/v0/b/codeless-app.appspot.com/o/projects%2F0RSohHNTfiYSSSIIg4yk%2F32173d2313520f135a7405471b998dfbdc9ee611507f6217ecb1355d4042624fa2f7e5f0-removebg-preview%201.png?alt=media&token=340a77cf-453f-4b92-90bf-221f8c0140f1',
-  //     ],
-  //   ),
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "끝나고 같이 버스 타고 걸어가자",
-  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-  //     commentCount: 5,
-  //     likeCount: 190,
-  //     images: [],
-  //   ),
-  //   Post(
-  //     id: 1,
-  //     name: "준행행님",
-  //     date: "2024/7/25",
-  //     title: "끝나고 같이 버스 타고 걸어가자",
-  //     contents: "안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요안녕하세요요요 안녕하세요요요안녕하세요요요안녕하세요요요",
-  //     commentCount: 5,
-  //     likeCount: 190,
-  //     images: [],
-  //   )
-  // ];
 
   late Future<List<Post>> futurePosts;
 
@@ -291,14 +219,81 @@ class _CommunityPageState extends State<CommunityPage> {
                                               children: [
                                                 Row(
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     Text(
                                                       posts[index].name,
                                                       style: TextStyle(
-                                                          fontSize: 12.sp, color: Colors.black54),
+                                                          fontSize: 12.sp,
+                                                          color:
+                                                              Colors.black54),
                                                     ),
-                                                    MoreOptionsButton(CommunityType.POST),
+                                                    PopupMenuButton<int>(
+                                                      padding: EdgeInsets.zero,
+                                                      color: Colors.white,
+                                                      child: Icon(
+                                                          Icons.more_vert,
+                                                          size: 15.r),
+                                                      onSelected: (value) {
+                                                        switch (value) {
+                                                          case 0:
+                                                            print(
+                                                                "Edit selected");
+
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (context) => PostModifyPage(
+                                                                        id: posts[index]
+                                                                            .id,
+                                                                        title: posts[index]
+                                                                            .title,
+                                                                        contents:
+                                                                            posts[index]
+                                                                                .contents,
+                                                                        imageNames:
+                                                                            posts[index].images))).then(
+                                                                (value) =>
+                                                                    setState(
+                                                                        () {futurePosts = fetchPosts();}));
+
+                                                            break;
+                                                          case 1:
+                                                            print(
+                                                                "Delete selected");
+                                                            // Handle delete action
+                                                            break;
+                                                          case 2:
+                                                            print(
+                                                                "Report selected");
+                                                            // Handle report action
+                                                            break;
+                                                        }
+                                                      },
+                                                      itemBuilder: (BuildContext
+                                                          context) {
+                                                        List<
+                                                                PopupMenuEntry<
+                                                                    int>>
+                                                            menuItems = [
+                                                          PopupMenuItem<int>(
+                                                            value: 1,
+                                                            child: Text('삭제'),
+                                                          ),
+                                                          PopupMenuItem<int>(
+                                                            value: 2,
+                                                            child: Text('신고'),
+                                                          ),
+                                                          PopupMenuItem<int>(
+                                                            value: 0,
+                                                            child: Text('수정'),
+                                                          ),
+                                                        ];
+
+                                                        return menuItems;
+                                                      },
+                                                    ),
                                                     // Icon(
                                                     //   Icons.more_vert,
                                                     //   size: 15.r,
