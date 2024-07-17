@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/login.dart';
+import 'package:campride/more_options_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
@@ -317,10 +318,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                     style: TextStyle(
                                         fontSize: 12.sp, color: Colors.black54),
                                   ),
-                                  Icon(
-                                    Icons.more_vert,
-                                    size: 15.r,
-                                  )
+                                  MoreOptionsButton(),
                                 ],
                               ),
                               Text(
@@ -502,10 +500,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   fontSize: 12.sp,
                                                   color: Colors.black54),
                                             ),
-                                            Icon(
-                                              Icons.more_vert,
-                                              size: 15.r,
-                                            ),
+                                          MoreOptionsButton(),
                                           ],
                                         ),
                                         Text(

@@ -6,8 +6,9 @@ class MoreOptionsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
+      padding: EdgeInsets.zero,
       color: Colors.white,
-      icon: Icon(Icons.more_vert, size: 15.r),
+      child: Icon(Icons.more_vert, size: 15.r),
       onSelected: (value) {
         switch (value) {
           case 0:
