@@ -442,7 +442,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                             child: Icon(Icons.comment),
                                           ),
                                           Text(
-                                            post.commentCount.toString(),
+                                            widget.post.commentCount.toString(),
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.black54),
@@ -459,16 +459,23 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   right: 5.0),
                                               child: InkWell(
                                                 onTap: () {
-                                                  // Handle like/unlike functionality
+                                                  if (widget.post.isLiked) {
+                                                    unLike(widget.post.id,
+                                                        "POST", widget.post);
+                                                  } else {
+                                                    like(widget.post.id, "POST",
+                                                        widget.post);
+                                                  }
                                                 },
                                                 child: Icon(
-                                                  Icons.favorite_border,
-                                                  color: Colors.red,
-                                                ),
+                                                    widget.post.isLiked
+                                                        ? Icons.favorite
+                                                        : Icons.favorite_border,
+                                                    color: Colors.red),
                                               ),
                                             ),
                                             Text(
-                                              post.likeCount.toString(),
+                                              widget.post.likeCount.toString(),
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.black54),
