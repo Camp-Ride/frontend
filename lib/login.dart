@@ -15,9 +15,8 @@ import 'package:http/http.dart' as http;
 import 'env_config.dart';
 
 class LoginPage extends StatefulWidget {
-  final SecureStroageService secureStroageService;
 
-  const LoginPage({super.key, required this.secureStroageService});
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -53,11 +52,10 @@ class _LoginPageState extends State<LoginPage> {
     String? refreshToken = uri.queryParameters['refreshtoken'];
 
     if (accessToken != null && refreshToken != null) {
-      await widget.secureStroageService.saveTokens(accessToken, refreshToken);
-      await widget.secureStroageService
-          .saveNickname(await getUserNicknameFromToken(accessToken));
+      await SecureStroageService.saveTokens(accessToken, refreshToken);
+      await SecureStroageService.saveNickname(await getUserNicknameFromToken(accessToken));
 
-      String? nickname = await widget.secureStroageService.readNickname();
+      String? nickname = await SecureStroageService.readNickname();
 
       print('Access Token: $accessToken');
       print('Refresh Token: $refreshToken');

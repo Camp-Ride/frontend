@@ -7,6 +7,7 @@ import 'package:campride/login.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
 import 'package:campride/posting.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -26,7 +27,8 @@ class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
   String jwt =
       "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
-  String currentNickname = "김준형9560";
+  String currentNickname = "";
+
 
   // List<Post> posts = [
   //   Post(
@@ -110,6 +112,10 @@ class _CommunityPageState extends State<CommunityPage> {
   }
 
   Future<List<Post>> fetchPosts() async {
+    currentNickname = (await SecureStroageService.readNickname())!;
+    jwt = (await SecureStroageService.readAccessToken())!;
+    print(jwt);
+    print(currentNickname);
     final response = await http.get(
       Uri.parse('http://localhost:8080/api/v1/post/paging?page=0&size=13'),
       headers: {

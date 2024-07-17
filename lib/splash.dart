@@ -42,10 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => LoginPage(
-                  secureStroageService: widget.secureStroageService,
-                )),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     });
   }

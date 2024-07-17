@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/login.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,15 +20,24 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   bool _isEditing = false;
-  String _nickname = "User5555";
-  String _token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjEwNTIzMzksImV4cCI6MTcyMTA1NDEzOX0.Pw6nk_VNI3LFLwwEgNtUM42jXt0ajDUhdGRrmg0OVO4";
+  String _nickname = "";
+  String _token = "";
 
   TextEditingController _controller = TextEditingController();
+
+  Future<void> getUserInfo() async {
+    String? nickname = await SecureStroageService.readNickname();
+    String? token = await SecureStroageService.readAccessToken();
+    setState(() {
+      _nickname = nickname!;
+      _token = token!;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    getUserInfo();
     _controller.text = _nickname;
   }
 

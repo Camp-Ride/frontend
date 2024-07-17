@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/login.dart';
 import 'package:campride/post.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -67,8 +68,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   //   ),
   // ];
 
-  String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
+  String jwt ="";
   late Future<List<Comment>> futureComments;
   String comment = "";
   late TextEditingController _controller;
@@ -88,6 +88,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<List<Comment>> fetchComments(int postId) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     final response = await http.get(
       Uri.parse('http://localhost:8080/api/v1/post/$postId'),
       headers: {
@@ -108,6 +109,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> postComment(int postId, String content) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     final url = Uri.parse('http://localhost:8080/api/v1/comment');
     final headers = {
       'Authorization': 'Bearer $jwt',
@@ -136,6 +138,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> like(int id, String type, Post post) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
     final headers = {
       'Authorization': 'Bearer $jwt',
@@ -160,6 +163,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> unLike(int id, String type, Post post) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
     final headers = {
       'Authorization': 'Bearer $jwt',
@@ -187,6 +191,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> likeComment(Comment comment, String type) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     int id = comment.id;
     final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
     final headers = {
@@ -212,6 +217,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> unLikeComment(Comment comment, String type) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
     int id = comment.id;
     final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
     final headers = {

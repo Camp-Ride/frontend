@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/login.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
@@ -24,8 +25,7 @@ class _PostingPageState extends State<PostingPage> {
   String contents = "";
   List<File> images = [];
   final picker = ImagePicker();
-  String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNDU3NTAsImV4cCI6MTcyMTE0NzU1MH0.BUsCcfDvJv_ssLPwhWCX4RhKJbAd67c0bh1iejEU7Js";
+  String jwt = "";
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
@@ -44,6 +44,8 @@ class _PostingPageState extends State<PostingPage> {
   }
 
   Future<void> post(String title, String contents, List<File> images) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
+
     if (title.isEmpty || contents.isEmpty) {
       print("글을 작성하려면 글 제목이나 내용이 빠지면 안됩니다.");
       return;
