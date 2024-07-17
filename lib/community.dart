@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/env_config.dart';
 import 'package:campride/login.dart';
+import 'package:campride/more_options_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
 import 'package:campride/posting.dart';
@@ -28,7 +29,6 @@ class _CommunityPageState extends State<CommunityPage> {
   String jwt =
       "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
   String currentNickname = "";
-
 
   // List<Post> posts = [
   //   Post(
@@ -267,7 +267,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                                   PostDetailPage(
                                                       post: posts[index]),
                                             ),
-                                          ),
+                                          ).then((value) => setState(() {})),
                                         },
                                         child: Container(
                                           height: 150.h,
@@ -288,11 +288,21 @@ class _CommunityPageState extends State<CommunityPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
-                                                  posts[index].name,
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Colors.black54),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      posts[index].name,
+                                                      style: TextStyle(
+                                                          fontSize: 12.sp, color: Colors.black54),
+                                                    ),
+                                                    MoreOptionsButton(),
+                                                    // Icon(
+                                                    //   Icons.more_vert,
+                                                    //   size: 15.r,
+                                                    // )
+                                                  ],
                                                 ),
                                                 Expanded(
                                                   flex: 1,
@@ -508,7 +518,10 @@ class _CommunityPageState extends State<CommunityPage> {
               backgroundColor: Color(0xff154236),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PostingPage()));
+                        MaterialPageRoute(builder: (context) => PostingPage()))
+                    .then((value) => setState(() {
+                          futurePosts = fetchPosts();
+                        }));
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0).r,
