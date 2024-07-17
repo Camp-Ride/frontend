@@ -196,7 +196,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                                   PostDetailPage(
                                                       post: posts[index]),
                                             ),
-                                          ).then((value) => setState(() {})),
+                                          ).then((value) => setState(() {futurePosts = fetchPosts();})),
                                         },
                                         child: Container(
                                           height: 150.h,
