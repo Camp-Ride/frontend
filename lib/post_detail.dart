@@ -72,11 +72,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
   late Future<List<Comment>> futureComments;
   String comment = "";
   late TextEditingController _controller;
-  String currentNickname = "김준형9560";
+  String currentNickname = "";
+
+  Future<void> getUserInfo() async {
+    String? nickname = await SecureStroageService.readNickname();
+    String? token = await SecureStroageService.readAccessToken();
+    setState(() {
+      currentNickname = nickname!;
+      jwt = token!;
+    });
+
+    print(currentNickname);
+    print(jwt);
+  }
 
   @override
   void initState() {
     super.initState();
+    getUserInfo();
     futureComments = fetchComments(widget.post.id);
     _controller = TextEditingController();
   }

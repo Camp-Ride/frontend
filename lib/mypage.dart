@@ -63,6 +63,7 @@ class _MyPageState extends State<MyPage> {
     try {
       final response = await http.put(url, headers: headers, body: body);
       if (response.statusCode == 200) {
+        SecureStroageService.saveNickname(nickname);
         print("Nickname updated to: $nickname");
       } else {
         print("Failed to update nickname: ${response.statusCode}");
