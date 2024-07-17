@@ -1,0 +1,1 @@
+enum CommunityType { POST, COMMENT }

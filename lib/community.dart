@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/community_type.dart';
 import 'package:campride/env_config.dart';
 import 'package:campride/login.dart';
 import 'package:campride/more_options_button.dart';
@@ -297,7 +298,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                                       style: TextStyle(
                                                           fontSize: 12.sp, color: Colors.black54),
                                                     ),
-                                                    MoreOptionsButton(),
+                                                    MoreOptionsButton(CommunityType.POST),
                                                     // Icon(
                                                     //   Icons.more_vert,
                                                     //   size: 15.r,
