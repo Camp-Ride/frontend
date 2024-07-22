@@ -27,16 +27,31 @@ class CommunityPage extends StatefulWidget {
   _CommunityPageState createState() => _CommunityPageState();
 }
 
-class _CommunityPageState extends State<CommunityPage> {
+class _CommunityPageState extends State<CommunityPage>
+    with SingleTickerProviderStateMixin {
   List<File> images = [];
   String jwt = "";
   String currentNickname = "";
   late Future<List<Post>> futurePosts;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
     futurePosts = fetchPosts();
+
+    _tabController = TabController(length: 2, vsync: this);
+
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        print('Selected tab index: ${_tabController.index}');
+
+        setState(() {
+          futurePosts = fetchPosts();
+        });
+      }
+    });
   }
 
   Future<void> deletePost(
@@ -73,8 +88,10 @@ class _CommunityPageState extends State<CommunityPage> {
     jwt = (await SecureStroageService.readAccessToken())!;
     print(jwt);
     print(currentNickname);
+
     final response = await http.get(
-      Uri.parse('http://localhost:8080/api/v1/post/paging?page=0&size=13'),
+      Uri.parse(
+          'http://localhost:8080/api/v1/post/paging?page=0&size=13${_tabController.index == 1 ? '&sortType=like' : null}'),
       headers: {
         'Authorization': 'Bearer $jwt',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -173,6 +190,7 @@ class _CommunityPageState extends State<CommunityPage> {
                 child: Container(
                   color: Colors.white,
                   child: TabBar(
+                    controller: _tabController,
                     indicator: UnderlineTabIndicator(
                       borderSide: BorderSide(color: Colors.green, width: 3.0),
                       insets: EdgeInsets.symmetric(
@@ -545,7 +563,355 @@ class _CommunityPageState extends State<CommunityPage> {
                         ],
                       ),
                       Column(
-                        children: [Text("인기 콘텐츠")],
+                        children: [
+                          Expanded(
+                            child: FutureBuilder<List<Post>>(
+                              future: futurePosts,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return Center(child: Text('작성된 글이 없습니다.'));
+                                } else {
+                                  List<Post> posts = snapshot.data!;
+                                  return ListView.builder(
+                                    itemCount: posts.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return InkWell(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PostDetailPage(
+                                                      post: posts[index]),
+                                            ),
+                                          ).then((value) => setState(() {
+                                                futurePosts = fetchPosts();
+                                              })),
+                                        },
+                                        child: Container(
+                                          height: 150.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: Colors.black54,
+                                                width: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                    left: 8.0, top: 8.0)
+                                                .r,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      posts[index].name,
+                                                      style: TextStyle(
+                                                          fontSize: 12.sp,
+                                                          color:
+                                                              Colors.black54),
+                                                    ),
+                                                    PopupMenuButton<int>(
+                                                      padding: EdgeInsets.zero,
+                                                      color: Colors.white,
+                                                      child: Icon(
+                                                          Icons.more_vert,
+                                                          size: 15.r),
+                                                      onSelected: (value) {
+                                                        switch (value) {
+                                                          case 0:
+                                                            print(
+                                                                "Edit selected");
+
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (context) => PostModifyPage(
+                                                                        id: posts[index]
+                                                                            .id,
+                                                                        title: posts[index]
+                                                                            .title,
+                                                                        contents:
+                                                                            posts[index]
+                                                                                .contents,
+                                                                        imageNames:
+                                                                            posts[index].images))).then(
+                                                                (value) =>
+                                                                    setState(
+                                                                        () {
+                                                                      futurePosts =
+                                                                          fetchPosts();
+                                                                    }));
+
+                                                            break;
+                                                          case 1:
+                                                            deletePost(
+                                                                posts[index]
+                                                                    .id);
+                                                            print(
+                                                                "Delete selected");
+                                                            // Handle delete action
+                                                            break;
+                                                          case 2:
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return ReportDialog(
+                                                                    item: posts[
+                                                                        index],
+                                                                    type: CommunityType
+                                                                        .POST);
+                                                              },
+                                                            );
+                                                            print(
+                                                                "Report selected");
+                                                            // Handle report action
+                                                            break;
+                                                        }
+                                                      },
+                                                      itemBuilder: (BuildContext
+                                                          context) {
+                                                        List<
+                                                                PopupMenuEntry<
+                                                                    int>>
+                                                            menuItems = [
+                                                          PopupMenuItem<int>(
+                                                            value: 1,
+                                                            child: Text('삭제'),
+                                                          ),
+                                                          PopupMenuItem<int>(
+                                                            value: 2,
+                                                            child: Text('신고'),
+                                                          ),
+                                                          PopupMenuItem<int>(
+                                                            value: 0,
+                                                            child: Text('수정'),
+                                                          ),
+                                                        ];
+
+                                                        return menuItems;
+                                                      },
+                                                    ),
+                                                    // Icon(
+                                                    //   Icons.more_vert,
+                                                    //   size: 15.r,
+                                                    // )
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    style: TextStyle(
+                                                        fontSize: 15.sp),
+                                                    posts[index].title,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          style: TextStyle(
+                                                            height: 16 / 11,
+                                                            fontSize: 13.sp,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                          posts[index].contents,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10.w,
+                                                      ),
+                                                      Container(
+                                                        width: 65.w,
+                                                        height: 65.h,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: posts[index]
+                                                                  .images
+                                                                  .isEmpty
+                                                              ? Colors
+                                                                  .transparent
+                                                              : Colors.black12,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                      .circular(
+                                                                          10)
+                                                                  .r,
+                                                        ),
+                                                        child:
+                                                            posts[index]
+                                                                    .images
+                                                                    .isNotEmpty
+                                                                ? ClipRRect(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(10)
+                                                                            .r,
+                                                                    child:
+                                                                        CachedNetworkImage(
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                      imageUrl:
+                                                                          ('${EnvConfig().s3Url}' +
+                                                                              posts[index].images[0]),
+                                                                      progressIndicatorBuilder: (context,
+                                                                              url,
+                                                                              downloadProgress) =>
+                                                                          CircularProgressIndicator(
+                                                                              value: downloadProgress.progress),
+                                                                      errorWidget: (context,
+                                                                              url,
+                                                                              error) =>
+                                                                          const Icon(
+                                                                              Icons.error),
+                                                                    ),
+                                                                  )
+                                                                : null,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10.w,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Row(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                        right:
+                                                                            5.0)
+                                                                    .w,
+                                                            child: Icon(
+                                                                Icons.comment),
+                                                          ),
+                                                          Text(
+                                                            style: TextStyle(
+                                                              fontSize: 12.sp,
+                                                              color: Colors
+                                                                  .black54,
+                                                            ),
+                                                            posts[index]
+                                                                .commentCount
+                                                                .toString(),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                    left: 8.0)
+                                                                .w,
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                          right:
+                                                                              5.0)
+                                                                      .w,
+                                                              child: InkWell(
+                                                                onTap: () {
+                                                                  if (posts[
+                                                                          index]
+                                                                      .isLiked) {
+                                                                    unLike(
+                                                                        posts[index]
+                                                                            .id,
+                                                                        "POST",
+                                                                        posts[
+                                                                            index]);
+                                                                  } else {
+                                                                    like(
+                                                                        posts[index]
+                                                                            .id,
+                                                                        "POST",
+                                                                        posts[
+                                                                            index]);
+                                                                  }
+                                                                },
+                                                                child: Icon(
+                                                                    posts[index]
+                                                                            .isLiked
+                                                                        ? Icons
+                                                                            .favorite
+                                                                        : Icons
+                                                                            .favorite_border,
+                                                                    color: Colors
+                                                                        .red),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              style: TextStyle(
+                                                                fontSize: 12.sp,
+                                                                color: Colors
+                                                                    .black54,
+                                                              ),
+                                                              posts[index]
+                                                                  .likeCount
+                                                                  .toString(),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                    left: 8.0)
+                                                                .w,
+                                                        child: Text(
+                                                          style: TextStyle(
+                                                            fontSize: 12.sp,
+                                                            color:
+                                                                Colors.black54,
+                                                          ),
+                                                          posts[index].date,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                          )
+                        ],
                       ),
                     ],
                   ),
