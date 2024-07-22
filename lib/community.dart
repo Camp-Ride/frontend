@@ -10,6 +10,7 @@ import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
 import 'package:campride/post_modify.dart';
 import 'package:campride/posting.dart';
+import 'package:campride/report_dialog.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,7 +39,9 @@ class _CommunityPageState extends State<CommunityPage> {
     futurePosts = fetchPosts();
   }
 
-  Future<void> deletePost(int postId, ) async {
+  Future<void> deletePost(
+    int postId,
+  ) async {
     jwt = (await SecureStroageService.readAccessToken())!;
     final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
 
@@ -64,8 +67,6 @@ class _CommunityPageState extends State<CommunityPage> {
       print('Error: $e');
     }
   }
-
-
 
   Future<List<Post>> fetchPosts() async {
     currentNickname = (await SecureStroageService.readNickname())!;
@@ -292,12 +293,26 @@ class _CommunityPageState extends State<CommunityPage> {
 
                                                             break;
                                                           case 1:
-                                                            deletePost(posts[index].id);
+                                                            deletePost(
+                                                                posts[index]
+                                                                    .id);
                                                             print(
                                                                 "Delete selected");
                                                             // Handle delete action
                                                             break;
                                                           case 2:
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return ReportDialog(
+                                                                    item: posts[
+                                                                        index],
+                                                                    type: CommunityType
+                                                                        .POST);
+                                                              },
+                                                            );
                                                             print(
                                                                 "Report selected");
                                                             // Handle report action

@@ -6,6 +6,7 @@ import 'package:campride/login.dart';
 import 'package:campride/more_options_post_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_modify.dart';
+import 'package:campride/report_dialog.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -67,7 +68,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
-  Future<void> deletePost(int postId, ) async {
+  Future<void> deletePost(
+    int postId,
+  ) async {
     jwt = (await SecureStroageService.readAccessToken())!;
     final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
 
@@ -375,6 +378,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               // Handle delete action
                                               break;
                                             case 2:
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return ReportDialog(
+                                                      item: post,
+                                                      type: CommunityType.POST);
+                                                },
+                                              );
                                               print("Report selected");
                                               // Handle report action
                                               break;
@@ -581,7 +593,49 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   fontSize: 12.sp,
                                                   color: Colors.black54),
                                             ),
-                                            MoreOptionsCommentButton(),
+                                            PopupMenuButton<int>(
+                                              padding: EdgeInsets.zero,
+                                              color: Colors.white,
+                                              child: Icon(Icons.more_vert,
+                                                  size: 15.r),
+                                              onSelected: (value) {
+                                                switch (value) {
+                                                  case 1:
+                                                    print("Delete selected");
+                                                    // Handle delete action
+                                                    break;
+                                                  case 2:
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (BuildContext context) {
+                                                        return ReportDialog(
+                                                            item: comments[index],
+                                                            type: CommunityType.COMMENT);
+                                                      },
+                                                    );
+                                                    print("Report selected");
+                                                    // Handle report action
+                                                    break;
+                                                }
+                                              },
+                                              itemBuilder:
+                                                  (BuildContext context) {
+                                                List<PopupMenuEntry<int>>
+                                                    menuItems = [
+                                                  PopupMenuItem<int>(
+                                                    value: 1,
+                                                    child: Text('삭제'),
+                                                  ),
+                                                  PopupMenuItem<int>(
+                                                    value: 2,
+                                                    child: Text('신고'),
+                                                  ),
+                                                ];
+
+                                                return menuItems;
+                                              },
+                                            ),
                                           ],
                                         ),
                                         Text(

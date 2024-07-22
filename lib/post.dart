@@ -1,6 +1,8 @@
 import 'dart:io';
 
-class Post {
+import 'item.dart';
+
+class Post extends Item {
   final int id;
   final String name;
   final String date;
@@ -21,7 +23,9 @@ class Post {
     required this.likeCount,
     required this.images,
     required this.isLiked,
-  });
+  }) : super(
+          id: id,
+        );
 
   factory Post.fromJson(Map<String, dynamic> json, String currentNickname) {
     // Parsing the date from JSON array to string

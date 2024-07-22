@@ -1,4 +1,6 @@
-class Comment {
+import 'item.dart';
+
+class Comment extends Item {
   final int id;
   final String name;
   final String date;
@@ -13,7 +15,9 @@ class Comment {
     required this.comment,
     required this.likeCount,
     required this.isLiked,
-  });
+  }) : super(
+          id: id,
+        );
 
   factory Comment.fromJson(Map<String, dynamic> json, String currentNickname) {
     List<int> dateParts = List<int>.from(json['createdAt']);
