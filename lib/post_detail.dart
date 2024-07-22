@@ -68,6 +68,33 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
+  Future<void> deleteComment(int commentId, int postId) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/comment/$commentId');
+    jwt = (await SecureStroageService.readAccessToken())!;
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwt',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('댓글이 성공적으로 삭제되었습니다.');
+        setState(() {
+          futureComments = fetchComments(postId);
+          widget.post.commentCount--;
+        });
+      } else {
+        print('댓글 삭제 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('삭제 중 오류 발생: $e');
+    }
+  }
+
   Future<void> deletePost(
     int postId,
   ) async {
@@ -601,17 +628,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               onSelected: (value) {
                                                 switch (value) {
                                                   case 1:
+                                                    deleteComment(comments[index].id,widget.post.id);
                                                     print("Delete selected");
                                                     // Handle delete action
                                                     break;
                                                   case 2:
                                                     showDialog(
                                                       context: context,
-                                                      builder:
-                                                          (BuildContext context) {
+                                                      builder: (BuildContext
+                                                          context) {
                                                         return ReportDialog(
-                                                            item: comments[index],
-                                                            type: CommunityType.COMMENT);
+                                                            item:
+                                                                comments[index],
+                                                            type: CommunityType
+                                                                .COMMENT);
                                                       },
                                                     );
                                                     print("Report selected");
