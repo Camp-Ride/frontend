@@ -28,10 +28,8 @@ class CommunityPage extends StatefulWidget {
 
 class _CommunityPageState extends State<CommunityPage> {
   List<File> images = [];
-  String jwt =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNjExMjc3OTcyIiwiYXV0aCI6IlJPTEVfVVNFUiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjExNTI3OTEsImV4cCI6MTcyMTE1NDU5MX0.RkoV65zLXTDqJqnIItNvx29otJSkdlpvV8qOKrImL4k";
+  String jwt = "";
   String currentNickname = "";
-
   late Future<List<Post>> futurePosts;
 
   @override
@@ -39,6 +37,35 @@ class _CommunityPageState extends State<CommunityPage> {
     super.initState();
     futurePosts = fetchPosts();
   }
+
+  Future<void> deletePost(int postId, ) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
+    final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwt',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          futurePosts = fetchPosts();
+        });
+
+        print('Post deleted successfully');
+      } else {
+        print('Failed to delete post: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+
 
   Future<List<Post>> fetchPosts() async {
     currentNickname = (await SecureStroageService.readNickname())!;
@@ -196,7 +223,9 @@ class _CommunityPageState extends State<CommunityPage> {
                                                   PostDetailPage(
                                                       post: posts[index]),
                                             ),
-                                          ).then((value) => setState(() {futurePosts = fetchPosts();})),
+                                          ).then((value) => setState(() {
+                                                futurePosts = fetchPosts();
+                                              })),
                                         },
                                         child: Container(
                                           height: 150.h,
@@ -256,10 +285,14 @@ class _CommunityPageState extends State<CommunityPage> {
                                                                             posts[index].images))).then(
                                                                 (value) =>
                                                                     setState(
-                                                                        () {futurePosts = fetchPosts();}));
+                                                                        () {
+                                                                      futurePosts =
+                                                                          fetchPosts();
+                                                                    }));
 
                                                             break;
                                                           case 1:
+                                                            deletePost(posts[index].id);
                                                             print(
                                                                 "Delete selected");
                                                             // Handle delete action

@@ -67,6 +67,31 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
+  Future<void> deletePost(int postId, ) async {
+    jwt = (await SecureStroageService.readAccessToken())!;
+    final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwt',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+
+        print('Post deleted successfully');
+      } else {
+        print('Failed to delete post: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   Future<Post> fetchPost() async {
     int id = widget.post.id;
     jwt = (await SecureStroageService.readAccessToken())!;
@@ -345,6 +370,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   }));
                                               break;
                                             case 1:
+                                              deletePost(post.id);
                                               print("Delete selected");
                                               // Handle delete action
                                               break;
