@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
@@ -17,14 +19,12 @@ import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:http/http.dart' as http;
 
 import 'community.dart';
 import 'env_config.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-
-
 
 void main() async {
   await ScreenUtil.ensureScreenSize();
@@ -32,7 +32,6 @@ void main() async {
   var key = await dotenv.env['APP_KEY'];
   await EnvConfig().loadEnv();
   final secureStroageService = SecureStroageService();
-
 
   AuthRepository.initialize(appKey: key!);
 
@@ -62,7 +61,9 @@ class MyApp extends ConsumerWidget {
         return ProviderScope(
           child: MaterialApp(
             navigatorKey: navigatorKey,
-            home: SplashScreen(secureStroageService: secureStroageService,),
+            home: SplashScreen(
+              secureStroageService: secureStroageService,
+            ),
           ),
         );
       },
@@ -120,22 +121,24 @@ class _MainPageState extends State<MainPage> {
     unreadMessages: 129,
   );
 
+  var selectedTitle = "";
+
   var selectedDate = "";
 
   List<String> dropDownList = [
-    '1명',
-    '2명',
-    '3명',
-    '4명',
-    '5명',
-    '6명',
-    '7명',
-    '8명',
-    '9명',
-    '10명'
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10'
   ];
 
-  bool isRoundTrip = false;
+  bool isRoundTrip = true;
   bool isOneWay = false;
 
   void _onRoundTripChanged(bool? newValue) {
@@ -158,6 +161,56 @@ class _MainPageState extends State<MainPage> {
     });
     print(isRoundTrip);
     print(isOneWay);
+  }
+
+  Future<void> postRoomData(
+      String selectedTitle,
+      String selectedDate,
+      String selectedValue,
+      String startAddress,
+      String arriveAddress,
+      bool isOneWay,
+      bool isRoundTrip) async {
+    String jwt = (await SecureStroageService.readAccessToken())!;
+
+    final formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        .format(DateTime.parse(selectedDate));
+
+    final url = Uri.parse('http://localhost:8080/api/v1/room');
+
+    String roomType = "";
+    if (isOneWay) {
+      roomType = "ONE";
+    }
+    if (isRoundTrip) {
+      roomType = "ROUND";
+    }
+
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json',
+    };
+
+    final body = jsonEncode({
+      "title": selectedTitle,
+      "departure": startAddress,
+      "destination": arriveAddress,
+      "departureTime": formattedDate,
+      "maxParticipants": int.parse(selectedValue),
+      "roomType": roomType,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        print('요청 성공: ${response.body}');
+      } else {
+        print('요청 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('에러 발생: $e');
+    }
   }
 
   @override
@@ -227,6 +280,7 @@ class _MainPageState extends State<MainPage> {
                                             onTap: () => {
                                                   Navigator.of(context).pop(),
                                                   setState(() {
+                                                    selectedTitle = "";
                                                     selectedDate = "";
                                                     selectedValue = null;
                                                     startAddress = "";
@@ -246,7 +300,26 @@ class _MainPageState extends State<MainPage> {
                                                 backgroundColor:
                                                     Color(0xFF355A50),
                                               ),
-                                              onPressed: () {},
+                                              onPressed: () async {
+                                                await postRoomData(
+                                                    selectedTitle,
+                                                    selectedDate,
+                                                    selectedValue!,
+                                                    startAddress,
+                                                    arriveAddress,
+                                                    isOneWay,
+                                                    isRoundTrip);
+                                                Navigator.of(context).pop();
+                                                setState(() {
+                                                  selectedTitle = "";
+                                                  selectedDate = "";
+                                                  selectedValue = null;
+                                                  startAddress = "";
+                                                  arriveAddress = "";
+                                                  isOneWay = false;
+                                                  isRoundTrip = false;
+                                                });
+                                              },
                                               child: Text(
                                                 '완료',
                                                 style: TextStyle(
@@ -260,6 +333,11 @@ class _MainPageState extends State<MainPage> {
                                       ],
                                     ),
                                     TextField(
+                                      onChanged: (text) {
+                                        setState(() {
+                                          selectedTitle = text;
+                                        });
+                                      },
                                       textAlign: TextAlign.center,
                                       decoration: InputDecoration(
                                         hintText: '방 제목을 입력해 주세요!',
@@ -642,10 +720,8 @@ class _MainPageState extends State<MainPage> {
                                           value: isRoundTrip,
                                           onChanged: (bool? newValue) {
                                             setState(() {
-                                              isRoundTrip = newValue!;
-                                              if (isRoundTrip) {
-                                                isOneWay = false;
-                                              }
+                                              isRoundTrip = true;
+                                              isOneWay = false;
                                             });
                                           },
                                         ),
@@ -671,10 +747,8 @@ class _MainPageState extends State<MainPage> {
                                           value: isOneWay,
                                           onChanged: (bool? newValue) {
                                             setState(() {
-                                              isOneWay = newValue!;
-                                              if (isOneWay) {
-                                                isRoundTrip = false;
-                                              }
+                                              isOneWay = true;
+                                              isRoundTrip = false;
                                             });
                                           },
                                         ),
