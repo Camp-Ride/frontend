@@ -22,18 +22,17 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   List<Room> rooms = [
     Room(
-      id: 1,
-      name: "준행행님",
-      date: "2024-07-25 07:00",
-      durationMinutes: 30,
-      title: "상록 예비군 출발하실 분 구해요",
-      rideType: "왕복",
-      departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
-      arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
-      currentParticipants: 4,
-      maxParticipants: 4,
-      unreadMessages: 129,
-    ),
+        id: 1,
+        name: "준행행님",
+        date: "2024-07-25 07:00",
+        title: "상록 예비군 출발하실 분 구해요",
+        rideType: "왕복",
+        departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
+        arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
+        currentParticipants: 4,
+        maxParticipants: 4,
+        unreadMessages: 129,
+        createdAt: '2024-07-25'),
   ];
 
   @override

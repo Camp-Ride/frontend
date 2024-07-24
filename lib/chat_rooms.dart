@@ -21,7 +21,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
       id: 1,
       name: "준행행님",
       date: "2024-07-25 07:00",
-      durationMinutes: 30,
       title: "상록 예비군 출발하실 분 구해요",
       rideType: "왕복",
       departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
@@ -29,12 +28,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
       currentParticipants: 4,
       maxParticipants: 4,
       unreadMessages: 129,
+      createdAt: '2024-07-25'
     ),
     Room(
       id: 2,
       name: "민준님",
       date: "2024-07-20 09:00",
-      durationMinutes: 45,
       title: "인천 공항 가실 분",
       rideType: "편도",
       departureLocation: "서울 역삼동 강남구 도복로 103호길",
@@ -42,6 +41,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
       currentParticipants: 2,
       maxParticipants: 4,
       unreadMessages: 0,
+      createdAt: '2024-07-25'
     ),
   ];
 
