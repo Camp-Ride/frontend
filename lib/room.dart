@@ -11,33 +11,42 @@ class Room {
   final int unreadMessages;
   final String createdAt;
 
-  Room({
-    required this.id,
-    required this.name,
-    required this.date,
-    required this.title,
-    required this.rideType,
-    required this.departureLocation,
-    required this.arrivalLocation,
-    required this.currentParticipants,
-    required this.maxParticipants,
-    required this.unreadMessages,
-    required this.createdAt
-  });
+  Room(
+      {required this.id,
+      required this.name,
+      required this.date,
+      required this.title,
+      required this.rideType,
+      required this.departureLocation,
+      required this.arrivalLocation,
+      required this.currentParticipants,
+      required this.maxParticipants,
+      required this.unreadMessages,
+      required this.createdAt});
 
   factory Room.fromJson(Map<String, dynamic> json) {
+    List<int> dateParts = List<int>.from(json['createdAt']);
+    List<int> departureTime = List<int>.from(json['departureTime']);
+
+    List<dynamic> participants = json['participants'] ?? [];
+
+    String formattedDate =
+        "${dateParts[0]}-${dateParts[1].toString().padLeft(2, '0')}-${dateParts[2].toString().padLeft(2, '0')}";
+
+    String formattedDepartureDate =
+        "${departureTime[0]}-${departureTime[1].toString().padLeft(2, '0')}-${departureTime[2].toString().padLeft(2, '0')} ${departureTime[3].toString().padLeft(2, '0')}:${departureTime[4].toString().padLeft(2, '0')}";
+
     return Room(
-      id: json['id'],
-      name: json['name'],
-      date: json['date'],
-      title: json['title'],
-      rideType: json['tripType'],
-      departureLocation: json['departureLocation'],
-      arrivalLocation: json['arrivalLocation'],
-      currentParticipants: json['currentPeople'],
-      maxParticipants: json['maxParticipants'],
-      unreadMessages: json['unreadMessages'],
-      createdAt: json['createdAt']
-    );
+        id: json['id'],
+        name: json['leaderNickname'],
+        date: formattedDepartureDate,
+        title: json['title'],
+        rideType: json['roomType'],
+        departureLocation: json['departure'],
+        arrivalLocation: json['destination'],
+        currentParticipants: participants.length,
+        maxParticipants: json['maxParticipants'],
+        unreadMessages: 0,
+        createdAt: formattedDate);
   }
 }
