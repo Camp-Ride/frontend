@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/secure_storage.dart';
-import 'package:chatview/chatview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';

@@ -1,6 +1,9 @@
+import 'package:campride/reaction.dart';
+import 'package:campride/reaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'chat_room.dart';
+import 'message.dart';
+import 'message_type.dart';
 
 List<Message> messageDatas = [
   Message(
@@ -10,7 +13,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 2)),
       isSender: true,
       messageType: MessageType.image,
-      reactions: {},
+      reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
@@ -20,7 +23,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 2)),
       isSender: true,
       messageType: MessageType.text,
-      reactions: {},
+      reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
@@ -30,7 +33,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
       messageType: MessageType.text,
-      reactions: {},
+      reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
@@ -41,7 +44,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
       messageType: MessageType.image,
-      reactions: {},
+      reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
@@ -52,7 +55,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now(),
       isSender: true,
       messageType: MessageType.image,
-      reactions: {},
+      reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
@@ -62,7 +65,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
       messageType: MessageType.text,
-      reactions: {},
+      reactions: [],
       isReply: true,
       replyingMessage: "this is replying message original"),
   Message(
@@ -73,7 +76,7 @@ List<Message> messageDatas = [
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: true,
       messageType: MessageType.text,
-      reactions: {},
+      reactions: [],
       isReply: true,
       replyingMessage: "this is replying message original"),
   Message(
@@ -84,7 +87,7 @@ List<Message> messageDatas = [
     timestamp: DateTime.now().subtract(Duration(days: 1)),
     isSender: true,
     messageType: MessageType.text,
-    reactions: {},
+    reactions: [],
     isReply: true,
     replyingMessage:
         'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
@@ -97,7 +100,7 @@ List<Message> messageDatas = [
     timestamp: DateTime.now().subtract(Duration(days: 1)),
     isSender: false,
     messageType: MessageType.text,
-    reactions: {},
+    reactions: [],
     isReply: true,
     replyingMessage:
     'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
@@ -117,7 +120,8 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   void updateMessage(Message updatedMessage) {
     state = [
       for (final message in state)
-        if (message.id == updatedMessage.id) updatedMessage else message,
+        if (message.id == updatedMessage.id) updatedMessage else
+          message,
     ];
   }
 
@@ -126,26 +130,53 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     state = state.where((message) => message.id != id).toList();
   }
 
-  void reactToMessage(int index, String reaction, String userName) {
-    final updatedReactions =
-        Map<String, List<String>>.from(state[index].reactions);
+  void reactToMessage(int index, ReactionType reactionType, String userId) {
+    // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
+    final updatedReactions = List<Reaction>.from(state[index].reactions);
 
-    for (var entry in updatedReactions.entries) {
-      entry.value.remove(userName);
-    }
+    // 동일한 userId로 기존 reactionType이 존재하는 경우 제거합니다.
+    updatedReactions.removeWhere((reaction) => reaction.userId == userId);
 
-    final users = updatedReactions[reaction] ?? [];
-    if (users.contains(userName)) {
-      users.remove(userName);
+    // 새로운 반응을 추가합니다.
+    if (updatedReactions.any((reaction) =>
+    reaction.reactionType == reactionType && reaction.userId == userId)) {
+      // 이미 동일한 반응이 있는 경우 제거
+      updatedReactions.removeWhere((reaction) =>
+      reaction.reactionType == reactionType && reaction.userId == userId);
     } else {
-      users.add(userName);
+      // 새로운 반응 추가
+      updatedReactions.add(
+          Reaction(userId: userId, reactionType: reactionType));
     }
 
-    updatedReactions[reaction] = users;
+    // 복사된 메시지 객체에 업데이트된 reactions를 설정합니다.
     final updatedMessage = state[index].copyWith(reactions: updatedReactions);
+
+    // 업데이트된 메시지를 상태에 반영합니다.
     updateMessage(updatedMessage);
   }
 }
+
+//   void reactToMessage(int index, String reaction, String userName) {
+//     final updatedReactions =
+//         Map<String, List<String>>.from(state[index].reactions);
+//
+//     for (var entry in updatedReactions.entries) {
+//       entry.value.remove(userName);
+//     }
+//
+//     final users = updatedReactions[reaction] ?? [];
+//     if (users.contains(userName)) {
+//       users.remove(userName);
+//     } else {
+//       users.add(userName);
+//     }
+//
+//     updatedReactions[reaction] = users;
+//     final updatedMessage = state[index].copyWith(reactions: updatedReactions);
+//     updateMessage(updatedMessage);
+//   }
+// }
 
 // Provider to watch the message list state
 final messagesProvider =

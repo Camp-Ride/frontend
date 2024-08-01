@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/reaction_type.dart';
 import 'package:campride/reply_provider.dart';
 import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
@@ -17,15 +18,16 @@ import 'package:chat_bubbles/message_bars/message_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-import 'package:chatview/chatview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'message.dart';
+
 
 import 'package:image_picker/image_picker.dart';
 
 import 'Image_provider.dart';
+import 'message_type.dart';
 
 class ChatRoomPage extends ConsumerWidget {
   Duration duration = new Duration();
@@ -38,70 +40,25 @@ class ChatRoomPage extends ConsumerWidget {
 
   final ImagePicker _picker = ImagePicker();
 
-  Row? getReactionIcon(String reaction, int reactionCount) {
-    if (reaction == ('like')) {
-      return Row(
-        children: [
-          Icon(
-            Icons.favorite,
-            color: Colors.red,
-            size: 15.r,
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-          Text(
-            reactionCount.toString(),
-            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-        ],
-      );
-    } else if (reaction == ('hate')) {
-      return Row(
-        children: [
-          Icon(
-            Icons.close,
-            size: 15.r,
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-          Text(
-            reactionCount.toString(),
-            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-        ],
-      );
-    } else if (reaction == ('check')) {
-      return Row(
-        children: [
-          Icon(
-            Icons.check,
-            color: Colors.green,
-            size: 15.r,
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-          Text(
-            reactionCount.toString(),
-            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
-          ),
-          SizedBox(
-            width: 3.w,
-          ),
-        ],
-      );
-    } else {
-      return null;
-    }
+  Row getReactionIcon(ReactionType reactionType, int reactionCount) {
+    return Row(
+      children: [
+        Icon(
+          reactionType.icon,
+          color: reactionType.color,
+          size: 15,
+        ),
+        SizedBox(width: 3),
+        Text(
+          reactionCount.toString(),
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        SizedBox(width: 3),
+      ],
+    );
   }
+
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,6 +68,8 @@ class ChatRoomPage extends ConsumerWidget {
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
     final image = ref.watch(imageProvider);
+
+
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -123,7 +82,7 @@ class ChatRoomPage extends ConsumerWidget {
     }
 
     void _onReact(
-        var index, Message message, String reaction, String userName) {
+        var index, Message message, ReactionType reaction, String userName) {
       final notifier = ref.read(messagesProvider.notifier);
 
       notifier.reactToMessage(index, reaction, userName);
@@ -137,7 +96,7 @@ class ChatRoomPage extends ConsumerWidget {
           timestamp: now,
           isSender: true,
           messageType: messageType,
-          reactions: {},
+          reactions: [],
           isReply: isReplying,
           replyingMessage: replyingMessage,
           imageUrl: '');
@@ -184,7 +143,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('좋아요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, 'like', userName);
+                _onReact(index, message, ReactionType.like, userName);
               },
             ),
           ),
@@ -194,7 +153,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('확인'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, 'check', userName);
+                _onReact(index, message, ReactionType.check, userName);
               },
             ),
           ),
@@ -204,7 +163,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('싫어요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, 'hate', userName);
+                _onReact(index, message, ReactionType.hate, userName);
               },
             ),
           ),
@@ -311,15 +270,7 @@ class ChatRoomPage extends ConsumerWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: message.reactions.keys.map((reaction) {
-              return message.reactions[reaction]!.length == 0
-                  ? Container()
-                  : Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      child: getReactionIcon(
-                          reaction, message.reactions[reaction]!.length),
-                    );
-            }).toList(),
+            children: buildReactions(message),
           ),
         ),
       );
@@ -505,54 +456,28 @@ class ChatRoomPage extends ConsumerWidget {
       ),
     );
   }
-}
 
-class Message {
-  final String id;
-  final String text;
-  final String imageUrl;
-  final DateTime timestamp;
-  final bool isSender;
-  final MessageType messageType;
-  final Map<String, List<String>> reactions;
-  final bool isReply;
-  final String replyingMessage;
+  List<Container> buildReactions(Message message) {
+    // 각 reactionType별로 그룹화합니다.
+    final reactionGroups = <ReactionType, int>{};
+    for (var reaction in message.reactions) {
+      reactionGroups[reaction.reactionType] = (reactionGroups[reaction.reactionType] ?? 0) + 1;
+    }
 
-  Message({
-    required this.id,
-    required this.text,
-    required this.imageUrl,
-    required this.timestamp,
-    required this.isSender,
-    required this.messageType,
-    required this.reactions,
-    required this.isReply,
-    required this.replyingMessage,
-  });
-
-  Message copyWith({
-    String? id,
-    String? text,
-    String? imageUrl,
-    DateTime? timestamp,
-    bool? isSender,
-    MessageType? messageType,
-    Map<String, List<String>>? reactions,
-    bool? isReply,
-    String? replyingMessage,
-  }) {
-    return Message(
-      id: id ?? this.id,
-      text: text ?? this.text,
-      imageUrl: imageUrl ?? this.imageUrl,
-      timestamp: timestamp ?? this.timestamp,
-      isSender: isSender ?? this.isSender,
-      messageType: messageType ?? this.messageType,
-      reactions: reactions ?? this.reactions,
-      isReply: isReply ?? this.isReply,
-      replyingMessage: replyingMessage ?? this.replyingMessage,
-    );
+    // 각 그룹에 대해 아이콘을 생성합니다.
+    return reactionGroups.entries.map((entry) {
+      return entry.value == 0
+          ? Container()
+          : Container(
+        margin: EdgeInsets.symmetric(horizontal: 4),
+        child: getReactionIcon(entry.key, entry.value),
+      );
+    }).toList();
   }
+
+
 }
 
-enum MessageType { text, image }
+
+
+
