@@ -7,99 +7,108 @@ import 'message_type.dart';
 
 List<Message> messageDatas = [
   Message(
-      id: 'id001',
+      roomId: 1,
+      userId: 'id001',
       text: '',
       imageUrl: 'https://i.ibb.co/JCyT1kT/Asset-1.png',
       timestamp: DateTime.now().subtract(Duration(days: 2)),
       isSender: true,
-      messageType: MessageType.image,
+      chatMessageType: ChatMessageType.IMAGE,
       reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
-      id: 'id002',
+      roomId: 1 ,
+      userId: 'id002',
       text: 'bubble special three without tail',
       imageUrl: '',
       timestamp: DateTime.now().subtract(Duration(days: 2)),
       isSender: true,
-      messageType: MessageType.text,
+      chatMessageType: ChatMessageType.TEXT,
       reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
-      id: 'id003',
+      roomId: 1 ,
+      userId: 'id003',
       text: 'bubble special three without tail',
       imageUrl: '',
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
-      messageType: MessageType.text,
+      chatMessageType: ChatMessageType.TEXT,
       reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
-      id: 'id004',
+      roomId: 1 ,
+      userId: 'id004',
       text: '',
       imageUrl:
           'https://campride.s3.ap-northeast-2.amazonaws.com/images/040bc953569bfe134984ed5f101ed2db5b61587d6ad6fdb045c4cbd73f6c0a29.png',
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
-      messageType: MessageType.image,
+      chatMessageType: ChatMessageType.IMAGE,
       reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
-      id: 'id005',
+      roomId: 1 ,
+      userId: 'id005',
       text: '',
       imageUrl:
           'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
       timestamp: DateTime.now(),
       isSender: true,
-      messageType: MessageType.image,
+      chatMessageType: ChatMessageType.IMAGE,
       reactions: [],
       isReply: false,
       replyingMessage: ""),
   Message(
-      id: 'id006',
+      roomId: 1 ,
+      userId: 'id006',
       text: 'bubble special three without tail',
       imageUrl: '',
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: false,
-      messageType: MessageType.text,
+      chatMessageType: ChatMessageType.TEXT,
       reactions: [],
       isReply: true,
       replyingMessage: "this is replying message original"),
   Message(
-      id: 'id007',
+      roomId: 1 ,
+      userId: 'id007',
       text:
           'bubble special three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tail',
       imageUrl: '',
       timestamp: DateTime.now().subtract(Duration(days: 1)),
       isSender: true,
-      messageType: MessageType.text,
+      chatMessageType: ChatMessageType.TEXT,
       reactions: [],
       isReply: true,
       replyingMessage: "this is replying message original"),
   Message(
-    id: 'id007',
+    roomId: 1 ,
+    userId: 'id007',
     text:
         'bubble special three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tail',
     imageUrl: '',
     timestamp: DateTime.now().subtract(Duration(days: 1)),
     isSender: true,
-    messageType: MessageType.text,
-    reactions: [],
+    chatMessageType: ChatMessageType.TEXT,
+    reactions: [Reaction(userId: "junhyeong", reactionType: ChatReactionType.check),Reaction(userId: "junhyeong", reactionType: ChatReactionType.check),Reaction(userId: "junhyeong", reactionType: ChatReactionType.like),Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate),Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate), Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate)],
     isReply: true,
     replyingMessage:
         'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
   ),
   Message(
-    id: 'id008',
+    roomId: 1 ,
+    userId: 'id008',
     text:
     'bubble special three without tailspecial three without tailspecial three without',
     imageUrl: '',
     timestamp: DateTime.now().subtract(Duration(days: 1)),
     isSender: false,
-    messageType: MessageType.text,
+    chatMessageType: ChatMessageType.TEXT,
     reactions: [],
     isReply: true,
     replyingMessage:
@@ -120,17 +129,17 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   void updateMessage(Message updatedMessage) {
     state = [
       for (final message in state)
-        if (message.id == updatedMessage.id) updatedMessage else
+        if (message.userId == updatedMessage.userId) updatedMessage else
           message,
     ];
   }
 
   // Remove a message from the list
   void removeMessage(String id) {
-    state = state.where((message) => message.id != id).toList();
+    state = state.where((message) => message.userId != id).toList();
   }
 
-  void reactToMessage(int index, ReactionType reactionType, String userId) {
+  void reactToMessage(int index, ChatReactionType reactionType, String userId) {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
     final updatedReactions = List<Reaction>.from(state[index].reactions);
 
@@ -154,6 +163,10 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
 
     // 업데이트된 메시지를 상태에 반영합니다.
     updateMessage(updatedMessage);
+  }
+
+  initMessages(int roomId) {
+
   }
 }
 

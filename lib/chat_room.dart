@@ -6,13 +6,8 @@ import 'package:campride/reaction_type.dart';
 import 'package:campride/reply_provider.dart';
 import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
-import 'package:campride/rooms_provider.dart';
-import 'package:chat_bubbles/bubbles/bubble_normal.dart';
-import 'package:chat_bubbles/bubbles/bubble_normal_audio.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
-import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
-import 'package:chat_bubbles/bubbles/bubble_special_two.dart';
 import 'package:chat_bubbles/date_chips/date_chip.dart';
 import 'package:chat_bubbles/message_bars/message_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,8 +16,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'message.dart';
-
 
 import 'package:image_picker/image_picker.dart';
 
@@ -30,6 +26,9 @@ import 'Image_provider.dart';
 import 'message_type.dart';
 
 class ChatRoomPage extends ConsumerWidget {
+  final Room room;
+  ChatRoomPage({required this.room});
+
   Duration duration = new Duration();
   Duration position = new Duration();
   bool isPlaying = false;
@@ -38,9 +37,44 @@ class ChatRoomPage extends ConsumerWidget {
 
   String userName = "junTest";
 
+  StompClient? _stompClient;
+  final _channel =
+      WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+
+  void _connectStomp() {
+    print("Connecting to STOMP server");
+    _stompClient = StompClient(
+      config: StompConfig(
+        url: 'ws://localhost:8080/ws',
+        // STOMP WebSocket URL
+        onConnect: _onConnect,
+        onDisconnect: _onDisconnect,
+        onWebSocketError: (error) => print('WebSocket error: $error'),
+        onStompError: (frame) => print('STOMP error: ${frame.body}'),
+      ),
+    );
+
+    _stompClient?.activate();
+  }
+
+  void _onConnect(StompFrame frame) {
+    print('Connected to STOMP server');
+    // Subscribe to a topic or queue
+    _stompClient?.subscribe(
+      destination: '/topic/messages/room/'+room.id.toString(),
+      callback: (frame) {
+        print('Received message: ${frame.body}');
+      },
+    );
+  }
+
+  void _onDisconnect(StompFrame frame) {
+    print('Disconnected from STOMP server');
+  }
+
   final ImagePicker _picker = ImagePicker();
 
-  Row getReactionIcon(ReactionType reactionType, int reactionCount) {
+  Row getReactionIcon(ChatReactionType reactionType, int reactionCount) {
     return Row(
       children: [
         Icon(
@@ -58,18 +92,17 @@ class ChatRoomPage extends ConsumerWidget {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = new DateTime.now();
-    final rooms = ref.watch(roomsProvider);
-    final messages = ref.watch(messagesProvider);
+    var messages =
+        ref.read(messagesProvider.notifier).initMessages(room.id);
+
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
     final image = ref.watch(imageProvider);
 
-
+    _connectStomp();
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -81,26 +114,35 @@ class ChatRoomPage extends ConsumerWidget {
       ref.read(replyingMessageProvider.notifier).stopReplying();
     }
 
-    void _onReact(
-        var index, Message message, ReactionType reaction, String userName) {
+    void _onReact(var index, Message message, ChatReactionType reaction,
+        String userName) {
       final notifier = ref.read(messagesProvider.notifier);
 
       notifier.reactToMessage(index, reaction, userName);
     }
 
     void addMessage(String text, bool isReplying, String replyingMessage,
-        MessageType messageType) {
+        ChatMessageType messageType) {
       Message message = new Message(
-          id: "test1",
+          roomId: room.id.toInt(),
+          userId: "test1",
           text: text,
           timestamp: now,
           isSender: true,
-          messageType: messageType,
+          chatMessageType: messageType,
           reactions: [],
           isReply: isReplying,
           replyingMessage: replyingMessage,
           imageUrl: '');
       ref.read(messagesProvider.notifier).addMessage(message);
+
+      print(message.toString());
+
+      _stompClient?.send(
+        destination: '/app/send',
+        body: message.toString(),
+      );
+
       if (isReplying) {
         stopReply();
       }
@@ -108,7 +150,7 @@ class ChatRoomPage extends ConsumerWidget {
 
     void sendImage() async {
       await ref.read(imageProvider.notifier).pickImageFromGallery();
-      addMessage("imagetest1", false, "", MessageType.image);
+      addMessage("imagetest1", false, "", ChatMessageType.IMAGE);
     }
 
     void _showPopupMenu(
@@ -143,7 +185,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('좋아요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ReactionType.like, userName);
+                _onReact(index, message, ChatReactionType.like, userName);
               },
             ),
           ),
@@ -153,7 +195,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('확인'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ReactionType.check, userName);
+                _onReact(index, message, ChatReactionType.check, userName);
               },
             ),
           ),
@@ -163,7 +205,7 @@ class ChatRoomPage extends ConsumerWidget {
               title: Text('싫어요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ReactionType.hate, userName);
+                _onReact(index, message, ChatReactionType.hate, userName);
               },
             ),
           ),
@@ -231,7 +273,7 @@ class ChatRoomPage extends ConsumerWidget {
                 children: [
                   Container(
                     child: BubbleNormalImage(
-                      id: message.id,
+                      id: message.userId,
                       image: _image(replyingMessage),
                       color: Colors.white,
                       tail: true,
@@ -298,8 +340,8 @@ class ChatRoomPage extends ConsumerWidget {
               ],
             );
 
-      switch (message.messageType) {
-        case MessageType.text:
+      switch (message.chatMessageType) {
+        case ChatMessageType.TEXT:
           return Column(
             crossAxisAlignment: message.isSender
                 ? CrossAxisAlignment.end
@@ -321,7 +363,7 @@ class ChatRoomPage extends ConsumerWidget {
               ),
             ],
           );
-        case MessageType.image:
+        case ChatMessageType.IMAGE:
           return Column(
             crossAxisAlignment: message.isSender
                 ? CrossAxisAlignment.end
@@ -330,7 +372,7 @@ class ChatRoomPage extends ConsumerWidget {
               if (message.isReply && message.replyingMessage != null)
                 buildReplyWidget(message.replyingMessage!),
               BubbleNormalImage(
-                id: message.id,
+                id: message.userId,
                 image: _image(message.imageUrl),
                 color: Colors.white,
                 tail: true,
@@ -384,7 +426,7 @@ class ChatRoomPage extends ConsumerWidget {
           },
         ),
         title: Text(
-          rooms[0].title,
+          room.title,
           style: const TextStyle(color: Colors.white),
         ),
         flexibleSpace: Container(
@@ -402,8 +444,8 @@ class ChatRoomPage extends ConsumerWidget {
             replying: isReplying,
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
-            onSend: (String text) =>
-                addMessage(text, isReplying, replyingMessage, MessageType.text),
+            onSend: (String text) => addMessage(
+                text, isReplying, replyingMessage, ChatMessageType.TEXT),
             actions: [
               InkWell(
                 child: Icon(
@@ -459,9 +501,10 @@ class ChatRoomPage extends ConsumerWidget {
 
   List<Container> buildReactions(Message message) {
     // 각 reactionType별로 그룹화합니다.
-    final reactionGroups = <ReactionType, int>{};
+    final reactionGroups = <ChatReactionType, int>{};
     for (var reaction in message.reactions) {
-      reactionGroups[reaction.reactionType] = (reactionGroups[reaction.reactionType] ?? 0) + 1;
+      reactionGroups[reaction.reactionType] =
+          (reactionGroups[reaction.reactionType] ?? 0) + 1;
     }
 
     // 각 그룹에 대해 아이콘을 생성합니다.
@@ -469,15 +512,9 @@ class ChatRoomPage extends ConsumerWidget {
       return entry.value == 0
           ? Container()
           : Container(
-        margin: EdgeInsets.symmetric(horizontal: 4),
-        child: getReactionIcon(entry.key, entry.value),
-      );
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              child: getReactionIcon(entry.key, entry.value),
+            );
     }).toList();
   }
-
-
 }
-
-
-
-

@@ -1,38 +1,38 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ReactionType {
+class ChatReactionType {
   final String name;
   final IconData icon;
   final Color color;
 
-  const ReactionType({
+  const ChatReactionType({
     required this.name,
     required this.icon,
     required this.color,
   });
 
-  static const like = ReactionType(
+  static const like = ChatReactionType(
     name: 'like',
     icon: Icons.favorite,
     color: Colors.red,
   );
 
-  static const hate = ReactionType(
+  static const hate = ChatReactionType(
     name: 'hate',
     icon: Icons.close,
     color: Colors.black,
   );
 
-  static const check = ReactionType(
+  static const check = ChatReactionType(
     name: 'check',
     icon: Icons.check,
     color: Colors.green,
   );
 
-  static const List<ReactionType> values = [like, hate, check];
+  static const List<ChatReactionType> values = [like, hate, check];
 
-  static ReactionType fromName(String name) {
+  static ChatReactionType fromName(String name) {
     return values.firstWhere((type) => type.name == name);
   }
 }

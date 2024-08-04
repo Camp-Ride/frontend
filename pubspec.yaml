@@ -55,6 +55,8 @@ dependencies:
   chat_bubbles: ^1.6.0
   cached_network_image: ^3.3.1
   flutter_secure_storage: ^4.2.1
+  stomp_dart_client: ^2.0.0
+  web_socket_channel: ^2.1.0
 
 
 
