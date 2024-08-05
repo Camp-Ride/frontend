@@ -10,7 +10,6 @@ class Message {
   final String text;
   final String imageUrl;
   final DateTime timestamp;
-  final bool isSender;
   final ChatMessageType chatMessageType;
   final List<Reaction> reactions;
   final bool isReply;
@@ -22,7 +21,6 @@ class Message {
     required this.text,
     required this.imageUrl,
     required this.timestamp,
-    required this.isSender,
     required this.chatMessageType,
     required this.reactions,
     required this.isReply,
@@ -35,7 +33,6 @@ class Message {
     String? text,
     String? imageUrl,
     DateTime? timestamp,
-    bool? isSender,
     ChatMessageType? chatMessageType,
     List<Reaction>? reactions,
     bool? isReply,
@@ -47,7 +44,6 @@ class Message {
       text: text ?? this.text,
       imageUrl: imageUrl ?? this.imageUrl,
       timestamp: timestamp ?? this.timestamp,
-      isSender: isSender ?? this.isSender,
       chatMessageType: chatMessageType ?? this.chatMessageType,
       reactions: reactions ?? this.reactions,
       isReply: isReply ?? this.isReply,
@@ -62,7 +58,6 @@ class Message {
       'text': text,
       'imageUrl': imageUrl,
       'timestamp': timestamp.toIso8601String(),
-      'isSender': isSender,
       'chatMessageType':
           chatMessageType.toString().split(".").last.toUpperCase(),
       'reactions': reactions.map((r) => r.toJson()).toList(),
@@ -99,7 +94,6 @@ class Message {
       text: json['text'],
       imageUrl: json['imageUrl'],
       timestamp: timestamp,
-      isSender: json['isSender'],
       chatMessageType: ChatMessageType.values.firstWhere((e) =>
           e.toString().split(".").last.toUpperCase() ==
           json['chatMessageType']),

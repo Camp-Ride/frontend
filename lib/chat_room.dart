@@ -147,7 +147,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           userId: userName,
           text: text,
           timestamp: now,
-          isSender: true,
           chatMessageType: messageType,
           reactions: [],
           isReply: isReplying,
