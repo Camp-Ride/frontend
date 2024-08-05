@@ -160,8 +160,6 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
 
     print(updatedReactions);
 
-
-
     // 동일한 userId로 기존 reactionType이 존재하는 경우 제거합니다.
     updatedReactions.removeWhere((reaction) => reaction.userId == userId);
 
@@ -195,7 +193,9 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
+      print(response.bodyBytes);
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      print(data);
 
       state = data.map((item) => Message.fromJson(item)).toList();
     } else {

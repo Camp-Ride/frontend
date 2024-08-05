@@ -73,6 +73,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       destination: '/topic/messages/room/' + widget.room.id.toString(),
       callback: (frame) {
         print('Received message: ${frame.body}');
+
+        Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
+        Message message = Message.fromJson(jsonMap);
+
+        if (userName != message.userId) {
+          ref.read(messagesProvider.notifier).addMessage(message);
+        }
       },
     );
   }
@@ -137,7 +144,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         ChatMessageType messageType) {
       Message message = new Message(
           roomId: widget.room.id.toInt(),
-          userId: "test1",
+          userId: userName,
           text: text,
           timestamp: now,
           isSender: true,
@@ -227,14 +234,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     Widget buildMessageWidget(Message message) {
       final time = DateFormat('h:mm a').format(message.timestamp);
-      final alignment =
-          message.isSender ? MainAxisAlignment.end : MainAxisAlignment.start;
-      final textColor = message.isSender ? Colors.white : Colors.black;
+      final alignment = userName == message.userId
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start;
+      final textColor =
+          userName == message.userId ? Colors.white : Colors.black;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
             ? Column(
-                crossAxisAlignment: message.isSender
+                crossAxisAlignment: userName == message.userId
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
@@ -244,12 +253,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       children: [
                         BubbleSpecialThree(
                           text: replyingMessage,
-                          color: message.isSender
+                          color: userName == message.userId
                               ? Colors.lightBlueAccent
                               : Colors.black12,
                           tail: false,
                           textStyle: TextStyle(color: textColor, fontSize: 16),
-                          isSender: message.isSender,
+                          isSender: userName == message.userId ? true : false,
                         ),
 
                         // if (replyingMessage.imageUrl.isNotEmpty)
@@ -257,7 +266,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       ],
                     ),
                   ),
-                  message.isSender
+                  userName == message.userId
                       ? Padding(
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
@@ -279,7 +288,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 ],
               )
             : Column(
-                crossAxisAlignment: message.isSender
+                crossAxisAlignment: userName == message.userId
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
@@ -289,10 +298,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       image: _image(replyingMessage),
                       color: Colors.white,
                       tail: true,
-                      isSender: message.isSender,
+                      isSender: userName == message.userId ? true : false,
                     ),
                   ),
-                  message.isSender
+                  userName == message.userId
                       ? Padding(
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
@@ -334,7 +343,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         style: TextStyle(color: Colors.black54, fontSize: 12.sp),
       );
 
-      final reactionAndTime = message.isSender
+      final reactionAndTime = userName == message.userId
           ? Row(
               mainAxisAlignment: alignment,
               children: [
@@ -355,7 +364,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       switch (message.chatMessageType) {
         case ChatMessageType.TEXT:
           return Column(
-            crossAxisAlignment: message.isSender
+            crossAxisAlignment: userName == message.userId
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
@@ -363,10 +372,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 buildReplyWidget(message.replyingMessage!),
               BubbleSpecialThree(
                 text: message.text,
-                color: message.isSender ? Color(0xFF1B97F3) : Color(0xFFE8E8EE),
+                color: userName == message.userId
+                    ? Color(0xFF1B97F3)
+                    : Color(0xFFE8E8EE),
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
-                isSender: message.isSender,
+                isSender: userName == message.userId ? true : false,
               ),
               Padding(
                 padding:
@@ -377,7 +388,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           );
         case ChatMessageType.IMAGE:
           return Column(
-            crossAxisAlignment: message.isSender
+            crossAxisAlignment: userName == message.userId
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
@@ -388,7 +399,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 image: _image(message.imageUrl),
                 color: Colors.white,
                 tail: true,
-                isSender: message.isSender,
+                isSender: userName == message.userId ? true : false,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 26.0, right: 26.0).w,

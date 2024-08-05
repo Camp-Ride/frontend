@@ -99,13 +99,13 @@ class Message {
       text: json['text'],
       imageUrl: json['imageUrl'],
       timestamp: timestamp,
-      isSender: json['sender'],
+      isSender: json['isSender'],
       chatMessageType: ChatMessageType.values.firstWhere((e) =>
           e.toString().split(".").last.toUpperCase() ==
           json['chatMessageType']),
       // ChatMessageType enum 변환
       reactions: reactions,
-      isReply: json['reply'],
+      isReply: json['isReply'],
       replyingMessage: json['replyingMessage'],
     );
   }
