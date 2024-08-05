@@ -63,11 +63,51 @@ class Message {
       'imageUrl': imageUrl,
       'timestamp': timestamp.toIso8601String(),
       'isSender': isSender,
-      'chatMessageType': chatMessageType.toString().split(".").last.toUpperCase(),
+      'chatMessageType':
+          chatMessageType.toString().split(".").last.toUpperCase(),
       'reactions': reactions.map((r) => r.toJson()).toList(),
       'isReply': isReply,
       'replyingMessage': replyingMessage,
     };
+  }
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    List<Reaction> reactions = (json['reactions'] as List<dynamic>)
+        .map((reactionJson) => Reaction.fromJson(reactionJson))
+        .toList();
+
+
+    print("json['timestamp'] : " + json['timestamp'].toString());
+
+    List<int> dateParts = List<int>.from(json['timestamp']);
+
+    DateTime timestamp = DateTime(
+      dateParts[0],
+      dateParts[1],
+      dateParts[2],
+      dateParts[3],
+      dateParts[4],
+      dateParts[5],
+    );
+    print("timestamp : " + timestamp.toString());
+    print("reactions : " + reactions.toString());
+
+
+    return Message(
+      roomId: json['roomId'],
+      userId: json['userId'],
+      text: json['text'],
+      imageUrl: json['imageUrl'],
+      timestamp: timestamp,
+      isSender: json['sender'],
+      chatMessageType: ChatMessageType.values.firstWhere((e) =>
+          e.toString().split(".").last.toUpperCase() ==
+          json['chatMessageType']),
+      // ChatMessageType enum 변환
+      reactions: reactions,
+      isReply: json['reply'],
+      replyingMessage: json['replyingMessage'],
+    );
   }
 
   @override

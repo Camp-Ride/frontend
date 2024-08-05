@@ -25,10 +25,17 @@ import 'package:image_picker/image_picker.dart';
 import 'Image_provider.dart';
 import 'message_type.dart';
 
-class ChatRoomPage extends ConsumerWidget {
+class ChatRoomPage extends ConsumerStatefulWidget {
   final Room room;
+
   ChatRoomPage({required this.room});
 
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ChatRoomPageState(room);
+}
+
+class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   Duration duration = new Duration();
   Duration position = new Duration();
   bool isPlaying = false;
@@ -40,6 +47,8 @@ class ChatRoomPage extends ConsumerWidget {
   StompClient? _stompClient;
   final _channel =
       WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+
+  _ChatRoomPageState(Room room);
 
   void _connectStomp() {
     print("Connecting to STOMP server");
@@ -61,7 +70,7 @@ class ChatRoomPage extends ConsumerWidget {
     print('Connected to STOMP server');
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
-      destination: '/topic/messages/room/'+room.id.toString(),
+      destination: '/topic/messages/room/' + widget.room.id.toString(),
       callback: (frame) {
         print('Received message: ${frame.body}');
       },
@@ -93,16 +102,19 @@ class ChatRoomPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final now = new DateTime.now();
-    var messages =
-        ref.read(messagesProvider.notifier).initMessages(room.id);
+  void initState() {
+    super.initState();
+    _connectStomp();
+    ref.read(messagesProvider.notifier).initMessages(widget.room.id);
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final now = new DateTime.now();
+    var messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
     final image = ref.watch(imageProvider);
-
-    _connectStomp();
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -124,7 +136,7 @@ class ChatRoomPage extends ConsumerWidget {
     void addMessage(String text, bool isReplying, String replyingMessage,
         ChatMessageType messageType) {
       Message message = new Message(
-          roomId: room.id.toInt(),
+          roomId: widget.room.id.toInt(),
           userId: "test1",
           text: text,
           timestamp: now,
@@ -136,7 +148,7 @@ class ChatRoomPage extends ConsumerWidget {
           imageUrl: '');
       ref.read(messagesProvider.notifier).addMessage(message);
 
-      print(message.toString());
+      print("addmessage: " + message.toString());
 
       _stompClient?.send(
         destination: '/app/send',
@@ -393,6 +405,8 @@ class ChatRoomPage extends ConsumerWidget {
       List<Widget> messageWidgets = [];
       DateTime? lastDate;
 
+      print(messages.toString());
+
       for (var i = 0; i < messages.length; i++) {
         if (lastDate == null || !isSameDay(lastDate, messages[i].timestamp)) {
           messageWidgets.add(DateChip(date: messages[i].timestamp));
@@ -426,7 +440,7 @@ class ChatRoomPage extends ConsumerWidget {
           },
         ),
         title: Text(
-          room.title,
+          widget.room.title,
           style: const TextStyle(color: Colors.white),
         ),
         flexibleSpace: Container(
