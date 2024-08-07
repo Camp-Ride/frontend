@@ -328,19 +328,30 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               );
       }
 
-      final reactionsWidget = Padding(
-        padding: const EdgeInsets.only(left: 8.0).w,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(12.0).r,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: buildReactions(message),
-          ),
-        ),
-      );
+      final reactionsWidget = userName == message.userId
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8.0).w,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12.0).r,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: buildReactions(message),
+                ),
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12.0).r,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: buildReactions(message),
+              ),
+            );
 
       final timeWidget = Text(
         time,
@@ -358,7 +369,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ],
             )
           : Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 timeWidget,
                 SizedBox(height: 2.0.h),
@@ -385,10 +396,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userName == message.userId ? true : false,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 26.0, right: 26.0).r,
-                child: reactionAndTime,
-              ),
+              userName == message.userId
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 20.0).r,
+                      child: reactionAndTime,
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 20.0).r,
+                      child: reactionAndTime,
+                    ),
             ],
           );
         case ChatMessageType.IMAGE:
