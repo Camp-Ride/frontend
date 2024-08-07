@@ -81,11 +81,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ref.read(messagesProvider.notifier).addMessage(message);
         }
 
-        if(userName == message.userId) {
+        if (userName == message.userId) {
           ref.read(messagesProvider.notifier).updateMessageId(message);
         }
-
-
       },
     );
   }
@@ -350,20 +348,22 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
 
       final reactionAndTime = userName == message.userId
-          ? Row(
-              mainAxisAlignment: alignment,
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                reactionsWidget,
-                SizedBox(width: 8.0.w),
                 timeWidget,
+                SizedBox(height: 2.0.h),
+                reactionsWidget,
+                SizedBox(height: 8.0.h),
               ],
             )
-          : Row(
-              mainAxisAlignment: alignment,
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 timeWidget,
-                SizedBox(width: 8.0.w),
+                SizedBox(height: 2.0.h),
                 reactionsWidget,
+                SizedBox(height: 8.0.h),
               ],
             );
 
@@ -386,8 +386,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 isSender: userName == message.userId ? true : false,
               ),
               Padding(
-                padding:
-                    const EdgeInsets.only(left: 26.0, right: 26.0, top: 6.0).r,
+                padding: const EdgeInsets.only(left: 26.0, right: 26.0).r,
                 child: reactionAndTime,
               ),
             ],
