@@ -47,7 +47,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   StompClient? _stompClient;
   final _channel =
       WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
-
   _ChatRoomPageState(Room room);
 
   void _connectStomp() {
@@ -88,6 +87,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     );
   }
 
+
   void _onDisconnect(StompFrame frame) {
     print('Disconnected from STOMP server');
   }
@@ -121,11 +121,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     final now = new DateTime.now();
     var messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
     final image = ref.watch(imageProvider);
+
+    print("messages 123 : " + messages.toString());
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -395,6 +400,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userName == message.userId ? true : false,
+                sent: message.chatMessageId != "" && message.userId == userName ? true : false,
               ),
               userName == message.userId
                   ? Padding(
@@ -421,6 +427,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 color: Colors.white,
                 tail: true,
                 isSender: userName == message.userId ? true : false,
+                sent: message.chatMessageId != "" && message.userId == userName ? true : false,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 26.0, right: 26.0).w,

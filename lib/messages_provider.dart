@@ -153,16 +153,19 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     print(state);
   }
 
-  // Update a message in the list
-  void updateMessageId(Message updatedMessage) async {
+  void updateMessageId(Message updatedMessage) {
+    bool updated = false;
+    state = [
+      for (final message in state)
+        if (!updated && message.userId == updatedMessage.userId && message.chatMessageId == "")
+              () {
+            updated = true;
+            return message.copyWith(chatMessageId: updatedMessage.chatMessageId);
+          }()
+        else
+          message
+    ];
 
-    for(int i = 0 ; i < state.length; i++){
-      if (state[i].userId == updatedMessage.userId&&
-          state[i].chatMessageId == ""){
-        state[i].chatMessageId = updatedMessage.chatMessageId;
-        break;
-      }
-    }
     print(updatedMessage);
     print("7");
     print(state);
