@@ -80,6 +80,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         if (userName != message.userId) {
           ref.read(messagesProvider.notifier).addMessage(message);
         }
+
+        if(userName == message.userId) {
+          ref.read(messagesProvider.notifier).updateMessageId(message);
+        }
+
+
       },
     );
   }
@@ -143,6 +149,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     void addMessage(String text, bool isReplying, String replyingMessage,
         ChatMessageType messageType) {
       Message message = new Message(
+          chatMessageId: "",
           roomId: widget.room.id.toInt(),
           userId: userName,
           text: text,

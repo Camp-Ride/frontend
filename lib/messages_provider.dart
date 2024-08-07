@@ -139,14 +139,33 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   }
 
   // Update a message in the list
-  void updateMessage(Message updatedMessage) {
-    state = [
+  void updateMessage(Message updatedMessage) async {
+    state = await [
       for (final message in state)
-        if (message.userId == updatedMessage.userId)
+        if (message.chatMessageId == updatedMessage.chatMessageId)
           updatedMessage
         else
           message,
     ];
+
+    print(updatedMessage);
+    print("7");
+    print(state);
+  }
+
+  // Update a message in the list
+  void updateMessageId(Message updatedMessage) async {
+
+    for(int i = 0 ; i < state.length; i++){
+      if (state[i].userId == updatedMessage.userId&&
+          state[i].chatMessageId == ""){
+        state[i].chatMessageId = updatedMessage.chatMessageId;
+        break;
+      }
+    }
+    print(updatedMessage);
+    print("7");
+    print(state);
   }
 
   // Remove a message from the list
@@ -158,25 +177,33 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
     final updatedReactions = List<Reaction>.from(state[index].reactions);
 
-    print(updatedReactions);
-
+    print("1");
     // 동일한 userId로 기존 reactionType이 존재하는 경우 제거합니다.
     updatedReactions.removeWhere((reaction) => reaction.userId == userId);
+
+    print("2");
 
     // 새로운 반응을 추가합니다.
     if (updatedReactions.any((reaction) =>
         reaction.reactionType == reactionType && reaction.userId == userId)) {
       // 이미 동일한 반응이 있는 경우 제거
+      print("3");
       updatedReactions.removeWhere((reaction) =>
           reaction.reactionType == reactionType && reaction.userId == userId);
     } else {
       // 새로운 반응 추가
+      print("4");
       updatedReactions
           .add(Reaction(userId: userId, reactionType: reactionType));
     }
 
+    print("5");
+    print("updatedReactions " + updatedReactions.toString());
+
     // 복사된 메시지 객체에 업데이트된 reactions를 설정합니다.
     final updatedMessage = state[index].copyWith(reactions: updatedReactions);
+    print("updatedMessage " + updatedMessage.toString());
+    print("6");
 
     // 업데이트된 메시지를 상태에 반영합니다.
     updateMessage(updatedMessage);
@@ -185,7 +212,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   initMessages(int roomId) async {
     String? jwtToken = (await SecureStroageService.readAccessToken());
     final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=0&count=50');
+        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=1&count=10');
 
     final response = await http.get(
       url,

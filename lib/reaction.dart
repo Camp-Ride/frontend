@@ -12,7 +12,7 @@ class Reaction {
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
-      'reactionType': reactionType,
+      'reactionType': reactionType.name,
     };
   }
 
