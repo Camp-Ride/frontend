@@ -77,12 +77,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
 
+        print("changed message :" + message.toString());
+
         if (userName != message.userId) {
+          print("username not match" + message.toString());
           ref.read(messagesProvider.notifier).addMessage(message);
         }
 
         if (userName == message.userId) {
-          ref.read(messagesProvider.notifier).updateMessageId(message);
+          print(ref.read(messagesProvider.notifier).updateMessageId(message));
+          print("<- updated Message");
+
         }
       },
     );
@@ -405,7 +410,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userName == message.userId ? true : false,
-                sent: message.id != "" && message.userId == userName
+                sent: message.id != null && message.userId == userName
                     ? true
                     : false,
               ),
@@ -434,7 +439,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 color: Colors.white,
                 tail: true,
                 isSender: userName == message.userId ? true : false,
-                sent: message.id != "" && message.userId == userName
+                sent: message.id != null && message.userId == userName
                     ? true
                     : false,
               ),

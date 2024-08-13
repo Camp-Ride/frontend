@@ -134,18 +134,15 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   MessagesNotifier(List<Message> initialMessages) : super(initialMessages);
 
   // Add a new message to the list
-  void addMessage(Message message) {
-    state = [...state, message];
+  List<Message> addMessage(Message message) {
+    return state = [...state, message];
   }
 
   // Update a message in the list
   Future<Message> updateMessage(Message updatedMessage) async {
     state = await [
       for (final message in state)
-        if (message.id == updatedMessage.id)
-          updatedMessage
-        else
-          message,
+        if (message.id == updatedMessage.id) updatedMessage else message,
     ];
 
     print(updatedMessage);
@@ -154,12 +151,14 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     return updatedMessage;
   }
 
-  void updateMessageId(Message updatedMessage) {
+  List<Message> updateMessageId(Message updatedMessage)  {
     bool updated = false;
-    state = [
+    return state =  [
       for (final message in state)
-        if (!updated && message.userId == updatedMessage.userId && message.id == "")
-              () {
+        if (!updated &&
+            message.userId == updatedMessage.userId &&
+            message.id == null)
+          () {
             updated = true;
             return message.copyWith(id: updatedMessage.id);
           }()
@@ -167,9 +166,6 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
           message
     ];
 
-    print(updatedMessage);
-    print("7");
-    print(state);
   }
 
   // Remove a message from the list
@@ -177,7 +173,8 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     state = state.where((message) => message.userId != id).toList();
   }
 
-  Future<Message> reactToMessage(int index, ChatReactionType reactionType, String userId) {
+  Future<Message> reactToMessage(
+      int index, ChatReactionType reactionType, String userId) {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
     final updatedReactions = List<Reaction>.from(state[index].reactions);
 
@@ -225,8 +222,6 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
-
-
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
       state = data.map((item) => Message.fromJson(item)).toList();
@@ -248,7 +243,6 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
-
       Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       List<dynamic> content = data['content'];
       print(content);
