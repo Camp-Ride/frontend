@@ -47,6 +47,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   StompClient? _stompClient;
   final _channel =
       WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+
   _ChatRoomPageState(Room room);
 
   void _connectStomp() {
@@ -87,7 +88,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     );
   }
 
-
   void _onDisconnect(StompFrame frame) {
     print('Disconnected from STOMP server');
   }
@@ -121,9 +121,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     final now = new DateTime.now();
     var messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
@@ -143,16 +140,24 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }
 
     void _onReact(var index, Message message, ChatReactionType reaction,
-        String userName) {
+        String userName) async {
       final notifier = ref.read(messagesProvider.notifier);
 
-      notifier.reactToMessage(index, reaction, userName);
+      Message message =
+          await notifier.reactToMessage(index, reaction, userName);
+
+      print("reaction message :" + message.toString());
+
+      _stompClient?.send(
+        destination: '/app/send/reaction',
+        body: message.toString(),
+      );
     }
 
     void addMessage(String text, bool isReplying, String replyingMessage,
         ChatMessageType messageType) {
       Message message = new Message(
-          chatMessageId: "",
+          id: null,
           roomId: widget.room.id.toInt(),
           userId: userName,
           text: text,
@@ -400,7 +405,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userName == message.userId ? true : false,
-                sent: message.chatMessageId != "" && message.userId == userName ? true : false,
+                sent: message.id != "" && message.userId == userName
+                    ? true
+                    : false,
               ),
               userName == message.userId
                   ? Padding(
@@ -427,7 +434,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 color: Colors.white,
                 tail: true,
                 isSender: userName == message.userId ? true : false,
-                sent: message.chatMessageId != "" && message.userId == userName ? true : false,
+                sent: message.id != "" && message.userId == userName
+                    ? true
+                    : false,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 26.0, right: 26.0).w,

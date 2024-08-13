@@ -13,19 +13,19 @@ class ChatReactionType {
   });
 
   static const like = ChatReactionType(
-    name: 'like',
+    name: 'LIKE',
     icon: Icons.favorite,
     color: Colors.red,
   );
 
   static const hate = ChatReactionType(
-    name: 'hate',
+    name: 'HATE',
     icon: Icons.close,
     color: Colors.black,
   );
 
   static const check = ChatReactionType(
-    name: 'check',
+    name: 'CHECK',
     icon: Icons.check,
     color: Colors.green,
   );

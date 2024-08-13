@@ -139,10 +139,10 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   }
 
   // Update a message in the list
-  void updateMessage(Message updatedMessage) async {
+  Future<Message> updateMessage(Message updatedMessage) async {
     state = await [
       for (final message in state)
-        if (message.chatMessageId == updatedMessage.chatMessageId)
+        if (message.id == updatedMessage.id)
           updatedMessage
         else
           message,
@@ -151,16 +151,17 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     print(updatedMessage);
     print("7");
     print(state);
+    return updatedMessage;
   }
 
   void updateMessageId(Message updatedMessage) {
     bool updated = false;
     state = [
       for (final message in state)
-        if (!updated && message.userId == updatedMessage.userId && message.chatMessageId == "")
+        if (!updated && message.userId == updatedMessage.userId && message.id == "")
               () {
             updated = true;
-            return message.copyWith(chatMessageId: updatedMessage.chatMessageId);
+            return message.copyWith(id: updatedMessage.id);
           }()
         else
           message
@@ -176,7 +177,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     state = state.where((message) => message.userId != id).toList();
   }
 
-  void reactToMessage(int index, ChatReactionType reactionType, String userId) {
+  Future<Message> reactToMessage(int index, ChatReactionType reactionType, String userId) {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
     final updatedReactions = List<Reaction>.from(state[index].reactions);
 
@@ -209,13 +210,14 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     print("6");
 
     // 업데이트된 메시지를 상태에 반영합니다.
-    updateMessage(updatedMessage);
+    return updateMessage(updatedMessage);
   }
 
   initMessages(int roomId) async {
     String? jwtToken = (await SecureStroageService.readAccessToken());
     final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=1&count=10');
+        'http://localhost:8080/api/v1/chat/messages/latest?roomId=$roomId');
+    print(url);
 
     final response = await http.get(
       url,
@@ -223,9 +225,9 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
-      print(response.bodyBytes);
+
+
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      print(data);
 
       state = data.map((item) => Message.fromJson(item)).toList();
     } else {
@@ -236,7 +238,9 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   void getMessages(int roomId, int startOffset, int count) async {
     String? jwtToken = (await SecureStroageService.readAccessToken());
     final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count');
+        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&page=$startOffset&size=$count');
+
+    print(url);
 
     final response = await http.get(
       url,
@@ -244,9 +248,12 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
-      state = data.map((item) => Message.fromJson(item)).toList();
+      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      List<dynamic> content = data['content'];
+      print(content);
+
+      state = content.map((item) => Message.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load messages');
     }

@@ -5,7 +5,7 @@ import 'package:campride/reaction.dart';
 import 'message_type.dart';
 
 class Message {
-  late  String? chatMessageId;
+  late  int? id;
   final int roomId;
   final String userId;
   final String text;
@@ -17,7 +17,7 @@ class Message {
   final String replyingMessage;
 
   Message({
-    required this.chatMessageId,
+    required this.id,
     required this.roomId,
     required this.userId,
     required this.text,
@@ -30,7 +30,7 @@ class Message {
   });
 
   Message copyWith({
-    String? chatMessageId,
+    int? id,
     int? roomId,
     String? userId,
     String? text,
@@ -42,7 +42,7 @@ class Message {
     String? replyingMessage,
   }) {
     return Message(
-      chatMessageId: chatMessageId ?? this.chatMessageId,
+      id: id ?? this.id,
       roomId: roomId ?? this.roomId,
       userId: userId ?? this.userId,
       text: text ?? this.text,
@@ -57,7 +57,7 @@ class Message {
 
   Map<String, dynamic> toJson() {
     return {
-      'chatMessageId': chatMessageId,
+      'id': id,
       'roomId': roomId,
       'userId': userId,
       'text': text,
@@ -72,9 +72,10 @@ class Message {
   }
 
   factory Message.fromJson(Map<String, dynamic> json) {
-    List<Reaction> reactions = (json['reactions'] as List<dynamic>)
-        .map((reactionJson) => Reaction.fromJson(reactionJson))
-        .toList();
+    List<Reaction> reactions = (json['reactions'] as List<dynamic>?)
+        ?.map((reactionJson) => Reaction.fromJson(reactionJson))
+        .toList()
+        ?? [];
 
     print("json['timestamp'] : " + json['timestamp'].toString());
 
@@ -92,7 +93,7 @@ class Message {
     print("reactions : " + reactions.toString());
 
     return Message(
-      chatMessageId: json['chatMessageId'],
+      id: json['id'],
       roomId: json['roomId'],
       userId: json['userId'],
       text: json['text'],
