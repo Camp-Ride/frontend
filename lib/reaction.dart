@@ -19,7 +19,7 @@ class Reaction {
   factory Reaction.fromJson(Map<String, dynamic> json) {
     return Reaction(
       userId: json['userId'],
-      reactionType: json['reactionType'],
+      reactionType: ChatReactionType.fromName(json['reactionType']),
     );
   }
 }

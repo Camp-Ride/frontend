@@ -91,6 +91,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         }
       },
     );
+
   }
 
   void _onDisconnect(StompFrame frame) {

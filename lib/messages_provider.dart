@@ -176,17 +176,18 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
   Future<Message> reactToMessage(
       int index, ChatReactionType reactionType, String userId) {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
-    final updatedReactions = List<Reaction>.from(state[index].reactions);
+    final updatedReactions = state[index].reactions;
 
     print("1");
     // 동일한 userId로 기존 reactionType이 존재하는 경우 제거합니다.
-    updatedReactions.removeWhere((reaction) => reaction.userId == userId);
 
     print("2");
 
+    print(updatedReactions);
+
     // 새로운 반응을 추가합니다.
     if (updatedReactions.any((reaction) =>
-        reaction.reactionType == reactionType && reaction.userId == userId)) {
+        reaction.reactionType.name == reactionType.name && reaction.userId == userId)) {
       // 이미 동일한 반응이 있는 경우 제거
       print("3");
       updatedReactions.removeWhere((reaction) =>
@@ -194,6 +195,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     } else {
       // 새로운 반응 추가
       print("4");
+      updatedReactions.removeWhere((reaction) => reaction.userId == userId);
       updatedReactions
           .add(Reaction(userId: userId, reactionType: reactionType));
     }
