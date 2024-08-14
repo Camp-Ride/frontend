@@ -76,22 +76,23 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
-
         print("changed message :" + message.toString());
 
-        if (userName != message.userId) {
-          print("username not match" + message.toString());
-          ref.read(messagesProvider.notifier).addMessage(message);
-        }
+        if (message.id != null) {
+          ref.read(messagesProvider.notifier).updateMessage(message);
+        } else {
+          if (userName != message.userId) {
+            print("username not match" + message.toString());
+            ref.read(messagesProvider.notifier).addMessage(message);
+          }
 
-        if (userName == message.userId) {
-          print(ref.read(messagesProvider.notifier).updateMessageId(message));
-          print("<- updated Message");
-
+          if (userName == message.userId) {
+            print(ref.read(messagesProvider.notifier).updateMessageId(message));
+            print("<- updated Message");
+          }
         }
       },
     );
-
   }
 
   void _onDisconnect(StompFrame frame) {
