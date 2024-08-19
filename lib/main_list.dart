@@ -121,6 +121,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 
       List<dynamic> content = data['content'];
+      print(content);
 
       return content.map((json) => Room.fromJson(json)).toList();
     } else {
@@ -451,7 +452,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                 Expanded(
                                                                   child: Text(
                                                                     rooms[index]
-                                                                        .title+"123123123123123123123123",
+                                                                        .title,
                                                                     overflow:
                                                                         TextOverflow
                                                                             .ellipsis,
@@ -596,9 +597,46 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                   child:
                                                                       KakaoMap(
                                                                     onMapCreated:
-                                                                        ((controller) {
+                                                                        ((controller) async {
                                                                       kakaoMapController =
                                                                           controller;
+
+                                                                      final departureLocation = await LatLng(
+                                                                          rooms[index].departureLocation[0]
+                                                                              as double,
+                                                                          rooms[index].departureLocation[1]
+                                                                              as double);
+                                                                      final destinationLocation = await LatLng(
+                                                                          rooms[index].arrivalLocation[0]
+                                                                              as double,
+                                                                          rooms[index].arrivalLocation[1]
+                                                                              as double);
+
+                                                                      // 출발지 마커 추가
+                                                                      await markers
+                                                                          .add(
+                                                                              Marker(
+                                                                        markerId:
+                                                                            UniqueKey().toString(),
+                                                                        latLng:
+                                                                            departureLocation,
+                                                                      ));
+
+                                                                      await markers.add(Marker(
+                                                                          markerId: UniqueKey()
+                                                                              .toString(),
+                                                                          latLng:
+                                                                              destinationLocation));
+
+                                                                      kakaoMapController
+                                                                          .panTo(
+                                                                              departureLocation);
+                                                                      kakaoMapController.addMarker(
+                                                                          markers:
+                                                                              markers.toList());
+
+                                                                      setState(
+                                                                          () {});
                                                                     }),
                                                                   ),
                                                                 ),
@@ -633,11 +671,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                     ),
                                                                     SizedBox(
                                                                       height:
-                                                                          10.h,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          30.h,
+                                                                          50.h,
                                                                     ),
                                                                     Row(
                                                                       mainAxisAlignment:
@@ -664,8 +698,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                             mainAxisAlignment:
                                                                                 MainAxisAlignment.center,
                                                                             children: [
-                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].departureLocation, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
-                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].arrivalLocation, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].departure, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].arrival, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
                                                                             ],
                                                                           ),
                                                                         ),
@@ -884,7 +918,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           TextOverflow
                                                                               .ellipsis,
                                                                       rooms[index]
-                                                                          .departureLocation,
+                                                                          .departure,
                                                                       style: TextStyle(
                                                                           fontSize: 13
                                                                               .sp,
@@ -895,7 +929,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           TextOverflow
                                                                               .ellipsis,
                                                                       rooms[index]
-                                                                          .arrivalLocation,
+                                                                          .arrival,
                                                                       style: TextStyle(
                                                                           fontSize: 13
                                                                               .sp,

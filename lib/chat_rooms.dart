@@ -18,31 +18,33 @@ class ChatRoomsPage extends StatefulWidget {
 class _ChatRoomsPageState extends State<ChatRoomsPage> {
   List<Room> rooms = [
     Room(
-      id: 1,
-      name: "준행행님",
-      date: "2024-07-25 07:00",
-      title: "상록 예비군 출발하실 분 구해요",
-      rideType: "왕복",
-      departureLocation: "서울 특별시 관악구 신림동 1547-10 101호 천국",
-      arrivalLocation: "경기도 안산시 상록구 304동 4003호 121212121222",
-      currentParticipants: 4,
-      maxParticipants: 4,
-      unreadMessages: 129,
-      createdAt: '2024-07-25'
-    ),
+        id: 1,
+        name: "준행행님",
+        date: "2024-07-25 07:00",
+        title: "상록 예비군 출발하실 분 구해요",
+        rideType: "왕복",
+        departureLocation: [123.122, 123.122],
+        arrivalLocation: [123.122, 123.122],
+        departure: "서울 특별시 관악구 신림동 1547-10 101호 천국",
+        arrival: "경기도 안산시 상록구 304동 4003호 121212121222",
+        currentParticipants: 4,
+        maxParticipants: 4,
+        unreadMessages: 129,
+        createdAt: '2024-07-25'),
     Room(
-      id: 2,
-      name: "민준님",
-      date: "2024-07-20 09:00",
-      title: "인천 공항 가실 분",
-      rideType: "편도",
-      departureLocation: "서울 역삼동 강남구 도복로 103호길",
-      arrivalLocation: "인천 국제공항 강남구 도복로 103호길 비행장 123호",
-      currentParticipants: 2,
-      maxParticipants: 4,
-      unreadMessages: 0,
-      createdAt: '2024-07-25'
-    ),
+        id: 2,
+        name: "민준님",
+        date: "2024-07-20 09:00",
+        title: "인천 공항 가실 분",
+        rideType: "편도",
+        departureLocation: [123.122, 123.122],
+        arrivalLocation: [123.122, 123.122],
+        departure: "서울 특별시 관악구 신림동 1547-10 101호 천국",
+        arrival: "경기도 안산시 상록구 304동 4003호 121212121222",
+        currentParticipants: 2,
+        maxParticipants: 4,
+        unreadMessages: 0,
+        createdAt: '2024-07-25'),
   ];
 
   @override
@@ -78,8 +80,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () => {
-                    navigatorKey.currentState?.push(
-                        MaterialPageRoute(builder: (context) => ChatRoomPage(room: rooms[index])))
+                    navigatorKey.currentState?.push(MaterialPageRoute(
+                        builder: (context) => ChatRoomPage(room: rooms[index])))
                   },
                   child: Column(
                     children: [

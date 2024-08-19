@@ -3,9 +3,13 @@ class Room {
   final String name;
   final String date;
   final String title;
-  final String rideType; // 왕복 or 편도
-  final String departureLocation;
-  final String arrivalLocation;
+  final String rideType;
+  final List<dynamic> departureLocation;
+  final List<dynamic> arrivalLocation;
+
+  final String departure;
+  final String arrival;
+
   final int currentParticipants;
   final int maxParticipants;
   final int unreadMessages;
@@ -19,6 +23,8 @@ class Room {
       required this.rideType,
       required this.departureLocation,
       required this.arrivalLocation,
+      required this.departure,
+      required this.arrival,
       required this.currentParticipants,
       required this.maxParticipants,
       required this.unreadMessages,
@@ -36,14 +42,26 @@ class Room {
     String formattedDepartureDate =
         "${departureTime[0]}-${departureTime[1].toString().padLeft(2, '0')}-${departureTime[2].toString().padLeft(2, '0')} ${departureTime[3].toString().padLeft(2, '0')}:${departureTime[4].toString().padLeft(2, '0')}";
 
+    List<dynamic> departureLoc = [
+      json['departureLocation']['latitude'],
+      json['departureLocation']['longitude']
+    ].map((e) => e.toDouble()).toList();
+
+    List<dynamic> arrivalLoc = [
+      json['destinationLocation']['latitude'],
+      json['destinationLocation']['longitude']
+    ].map((e) => e.toDouble()).toList();
+
     return Room(
         id: json['id'],
         name: json['leaderNickname'],
         date: formattedDepartureDate,
         title: json['title'],
         rideType: json['roomType'],
-        departureLocation: json['departure'],
-        arrivalLocation: json['destination'],
+        departureLocation: departureLoc,
+        arrivalLocation: arrivalLoc,
+        departure: json['departure'],
+        arrival: json['destination'],
         currentParticipants: participants.length,
         maxParticipants: json['maxParticipants'],
         unreadMessages: 0,
