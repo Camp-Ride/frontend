@@ -444,16 +444,43 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         child: Column(
                                                           children: [
                                                             Row(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
                                                               children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    rooms[index]
+                                                                        .title+"123123123123123123123123",
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          15.sp,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                    width: 10),
+                                                                // Text 사이에 여유 공간을 추가할 수도 있습니다.
                                                                 Text(
                                                                   rooms[index]
-                                                                      .title,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          15.sp),
+                                                                      .createdAt,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        10.sp,
+                                                                    color: Colors
+                                                                        .orange,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
                                                                 ),
                                                               ],
                                                             ),
@@ -470,6 +497,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                         .spaceBetween,
                                                                 children: [
                                                                   Text(
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
                                                                     rooms[index]
                                                                         .name,
                                                                     style: TextStyle(
@@ -587,6 +617,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           40.h,
                                                                     ),
                                                                     Text(
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                       rooms[index]
                                                                               .date +
                                                                           " 출발",
@@ -601,17 +634,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                     SizedBox(
                                                                       height:
                                                                           10.h,
-                                                                    ),
-                                                                    Text(
-                                                                      rooms[index]
-                                                                          .createdAt,
-                                                                      style: TextStyle(
-                                                                          fontSize: 13
-                                                                              .sp,
-                                                                          color: Colors
-                                                                              .orange,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
                                                                     ),
                                                                     SizedBox(
                                                                       height:
@@ -734,6 +756,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                   .black54),
                                                         ),
                                                         Text(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           rooms[index].date +
                                                               " 출발",
                                                           style: TextStyle(
@@ -742,6 +766,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                   Colors.blue),
                                                         ),
                                                         Text(
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           rooms[index]
                                                               .createdAt,
                                                           style: TextStyle(
