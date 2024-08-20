@@ -205,7 +205,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       imageUrl = await decodedJson['imageNames'][0];
       print(imageUrl);
 
-      addMessage("", false, "", imageUrl, ChatMessageType.IMAGE);
+      addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
     }
 
     void _showPopupMenu(
