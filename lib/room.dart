@@ -12,23 +12,29 @@ class Room {
 
   final int currentParticipants;
   final int maxParticipants;
-  final int unreadMessages;
   final String createdAt;
 
-  Room(
-      {required this.id,
-      required this.name,
-      required this.date,
-      required this.title,
-      required this.rideType,
-      required this.departureLocation,
-      required this.arrivalLocation,
-      required this.departure,
-      required this.arrival,
-      required this.currentParticipants,
-      required this.maxParticipants,
-      required this.unreadMessages,
-      required this.createdAt});
+  final String latestMessageSender;
+  final String latestMessageContent;
+  final int unreadMessageCount;
+
+  Room({
+    required this.id,
+    required this.name,
+    required this.date,
+    required this.title,
+    required this.rideType,
+    required this.departureLocation,
+    required this.arrivalLocation,
+    required this.departure,
+    required this.arrival,
+    required this.currentParticipants,
+    required this.maxParticipants,
+    required this.createdAt,
+    required this.latestMessageSender,
+    required this.latestMessageContent,
+    required this.unreadMessageCount,
+  });
 
   factory Room.fromJson(Map<String, dynamic> json) {
     List<int> dateParts = List<int>.from(json['createdAt']);
@@ -52,6 +58,8 @@ class Room {
       json['destinationLocation']['longitude']
     ].map((e) => e.toDouble()).toList();
 
+    Map<String, dynamic> latestMessage = json['latestMessageResponse'] ?? {};
+
     return Room(
         id: json['id'],
         name: json['leaderNickname'],
@@ -64,7 +72,9 @@ class Room {
         arrival: json['destination'],
         currentParticipants: participants.length,
         maxParticipants: json['maxParticipants'],
-        unreadMessages: 0,
-        createdAt: formattedDate);
+        createdAt: formattedDate,
+        latestMessageSender: latestMessage['sender'] ?? '',
+        latestMessageContent: latestMessage['content'] ?? '',
+        unreadMessageCount: json['unreadMessageCount'] ?? 0);
   }
 }
