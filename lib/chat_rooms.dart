@@ -10,6 +10,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+
+import 'message.dart';
 
 class ChatRoomsPage extends StatefulWidget {
   const ChatRoomsPage({super.key});
@@ -25,6 +28,51 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   void initState() {
     super.initState();
     futureRooms = fetchRooms();
+    subscribeStomps(futureRooms);
+  }
+
+  void subscribeStomps(Future<List<Room>> futureRooms) async {
+    List<Room> rooms = await futureRooms;
+    rooms.forEach((room) {
+      _connectStomp(room.id);
+    });
+  }
+
+  StompClient? _stompClient;
+
+  void _connectStomp(int roomId) {
+    print("Connecting to STOMP server for room ID: $roomId");
+
+    _stompClient = StompClient(
+      config: StompConfig(
+        url: 'ws://localhost:8080/ws',
+        // STOMP WebSocket URL
+        onConnect: (StompFrame frame) => _onConnect(frame, roomId),
+        onDisconnect: _onDisconnect,
+        onWebSocketError: (error) => print('WebSocket error: $error'),
+        onStompError: (frame) => print('STOMP error: ${frame.body}'),
+      ),
+    );
+
+    _stompClient?.activate();
+  }
+
+  void _onConnect(StompFrame frame, int roomId) {
+    print('Connected to STOMP server for room ID: $roomId');
+
+    // Subscribe to a topic or queue based on the room ID
+    _stompClient?.subscribe(
+      destination: '/topic/messages/room/$roomId',
+      callback: (frame) {
+        setState(() {
+          futureRooms = fetchRooms();
+        });
+      },
+    );
+  }
+
+  void _onDisconnect(StompFrame frame) {
+    print('Disconnected from STOMP server');
   }
 
   Future<List<Room>> fetchRooms() async {
@@ -135,17 +183,20 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                           ),
                                         ),
                                         SizedBox(
-                                            width: 170.w,
                                             child: Text(
-                                              overflow: TextOverflow.ellipsis,
-                                              "최근 대화 " +
+                                          overflow: TextOverflow.ellipsis,
+                                          (rooms[index]
+                                                  .latestMessageCreatedAt
+                                                  .isEmpty
+                                              ? ("최근 대화 없음")
+                                              : ("최근 대화 " +
                                                   rooms[index]
-                                                      .latestMessageCreatedAt,
-                                              style: TextStyle(
-                                                fontSize: 11.sp,
-                                                color: Colors.black54,
-                                              ),
-                                            )),
+                                                      .latestMessageCreatedAt)),
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: Colors.black54,
+                                          ),
+                                        )),
                                         Icon(
                                           Icons.close,
                                           size: 14.r,
@@ -185,10 +236,15 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             flex: 1,
                                             child: Text(
                                               overflow: TextOverflow.ellipsis,
-                                              rooms[index].latestMessageSender +
-                                                  " : " +
-                                                  rooms[index]
-                                                      .latestMessageContent,
+                                              rooms[index]
+                                                      .latestMessageSender
+                                                      .isEmpty
+                                                  ? "채팅방을 클릭해 대화를 시작해 보세요."
+                                                  : rooms[index]
+                                                          .latestMessageSender +
+                                                      " : " +
+                                                      rooms[index]
+                                                          .latestMessageContent,
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 color: Colors.black54,

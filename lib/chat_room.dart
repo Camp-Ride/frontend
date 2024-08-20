@@ -45,8 +45,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   String userName = "junTest";
 
   StompClient? _stompClient;
-  final _channel =
-      WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+
 
   _ChatRoomPageState(Room room);
 
@@ -62,7 +61,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         onStompError: (frame) => print('STOMP error: ${frame.body}'),
       ),
     );
-
     _stompClient?.activate();
   }
 
@@ -76,9 +74,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
-        print("changed message :" + message.toString());
 
-        if (message.id != null) {
+        if (message.id == null) {
           ref.read(messagesProvider.notifier).updateMessage(message);
         } else {
           if (userName != message.userId) {
@@ -134,7 +131,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     var replyingMessage = ref.watch(replyingMessageProvider);
     final image = ref.watch(imageProvider);
 
-    print("messages 123 : " + messages.toString());
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -153,7 +149,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       Message message =
           await notifier.reactToMessage(index, reaction, userName);
 
-      print("reaction message :" + message.toString());
 
       _stompClient?.send(
         destination: '/app/send/reaction',
@@ -176,7 +171,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           imageUrl: '');
       ref.read(messagesProvider.notifier).addMessage(message);
 
-      print("addmessage: " + message.toString());
 
       _stompClient?.send(
         destination: '/app/send',
@@ -460,7 +454,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       List<Widget> messageWidgets = [];
       DateTime? lastDate;
 
-      print(messages.toString());
 
       for (var i = 0; i < messages.length; i++) {
         if (lastDate == null || !isSameDay(lastDate, messages[i].timestamp)) {
