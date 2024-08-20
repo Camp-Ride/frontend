@@ -6,6 +6,7 @@ import 'package:campride/reaction_type.dart';
 import 'package:campride/reply_provider.dart';
 import 'package:campride/messages_provider.dart';
 import 'package:campride/room.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/date_chips/date_chip.dart';
@@ -17,8 +18,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'env_config.dart';
 import 'message.dart';
+import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
+import 'package:path/path.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -45,7 +49,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   String userName = "junTest";
 
   StompClient? _stompClient;
-
 
   _ChatRoomPageState(Room room);
 
@@ -129,8 +132,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     var messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
-    final image = ref.watch(imageProvider);
-
 
     void _onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
@@ -149,15 +150,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       Message message =
           await notifier.reactToMessage(index, reaction, userName);
 
-
       _stompClient?.send(
         destination: '/app/send/reaction',
         body: message.toString(),
       );
     }
 
-    void addMessage(String text, bool isReplying, String replyingMessage,
-        ChatMessageType messageType) {
+    void addMessage(String text, bool isReplying, String replyingMessage, String imageUrl,
+        ChatMessageType messageType) async {
       Message message = new Message(
           id: null,
           roomId: widget.room.id.toInt(),
@@ -168,9 +168,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           reactions: [],
           isReply: isReplying,
           replyingMessage: replyingMessage,
-          imageUrl: '');
+          imageUrl: imageUrl);
       ref.read(messagesProvider.notifier).addMessage(message);
-
 
       _stompClient?.send(
         destination: '/app/send',
@@ -184,7 +183,29 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     void sendImage() async {
       await ref.read(imageProvider.notifier).pickImageFromGallery();
-      addMessage("imagetest1", false, "", ChatMessageType.IMAGE);
+      File? image = await ref.read(imageProvider);
+      print(image);
+
+      String url = "http://localhost:8080/api/v1/images";
+      String jwt = (await SecureStroageService.readAccessToken())!;
+
+      String imageUrl = "";
+
+      var headers = {
+        'Authorization': 'Bearer $jwt',
+      };
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.files
+          .add(await http.MultipartFile.fromPath('images', image!.path));
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      final Map<String, dynamic> decodedJson = jsonDecode(await response.stream.bytesToString());
+      imageUrl = await decodedJson['imageNames'][0];
+      print(imageUrl);
+
+      addMessage("", false, "", imageUrl, ChatMessageType.IMAGE);
     }
 
     void _showPopupMenu(
@@ -454,7 +475,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       List<Widget> messageWidgets = [];
       DateTime? lastDate;
 
-
       for (var i = 0; i < messages.length; i++) {
         if (lastDate == null || !isSameDay(lastDate, messages[i].timestamp)) {
           messageWidgets.add(DateChip(date: messages[i].timestamp));
@@ -507,7 +527,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
             onSend: (String text) => addMessage(
-                text, isReplying, replyingMessage, ChatMessageType.TEXT),
+                text, isReplying, replyingMessage, "", ChatMessageType.TEXT),
             actions: [
               InkWell(
                 child: Icon(
@@ -553,7 +573,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         minWidth: 20.0,
       ),
       child: CachedNetworkImage(
-        imageUrl: url,
+        imageUrl:  ('${EnvConfig().s3Url}' +url),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
