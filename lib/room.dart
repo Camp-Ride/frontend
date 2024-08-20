@@ -16,6 +16,7 @@ class Room {
 
   final String latestMessageSender;
   final String latestMessageContent;
+  final String latestMessageCreatedAt;
   final int unreadMessageCount;
 
   Room({
@@ -33,21 +34,22 @@ class Room {
     required this.createdAt,
     required this.latestMessageSender,
     required this.latestMessageContent,
+    required this.latestMessageCreatedAt,
     required this.unreadMessageCount,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
-    List<int> dateParts = List<int>.from(json['createdAt']);
-    List<int> departureTime = List<int>.from(json['departureTime']);
+    // createdAt 및 departureTime을 적절히 포맷팅
+    String formatDate(List<int> dateParts) {
+      return "${dateParts[0]}-${dateParts[1].toString().padLeft(2, '0')}-${dateParts[2].toString().padLeft(2, '0')}";
+    }
 
-    List<dynamic> participants = json['participants'] ?? [];
+    String formatDateTime(List<int> dateTimeParts) {
+      return "${dateTimeParts[0]}-${dateTimeParts[1].toString().padLeft(2, '0')}-${dateTimeParts[2].toString().padLeft(2, '0')} "
+          "${dateTimeParts[3].toString().padLeft(2, '0')}:${dateTimeParts[4].toString().padLeft(2, '0')}";
+    }
 
-    String formattedDate =
-        "${dateParts[0]}-${dateParts[1].toString().padLeft(2, '0')}-${dateParts[2].toString().padLeft(2, '0')}";
-
-    String formattedDepartureDate =
-        "${departureTime[0]}-${departureTime[1].toString().padLeft(2, '0')}-${departureTime[2].toString().padLeft(2, '0')} ${departureTime[3].toString().padLeft(2, '0')}:${departureTime[4].toString().padLeft(2, '0')}";
-
+    // 출발지 및 도착지 위치를 List<double>로 변환
     List<dynamic> departureLoc = [
       json['departureLocation']['latitude'],
       json['departureLocation']['longitude']
@@ -58,23 +60,29 @@ class Room {
       json['destinationLocation']['longitude']
     ].map((e) => e.toDouble()).toList();
 
+    // latestMessageResponse 처리
     Map<String, dynamic> latestMessage = json['latestMessageResponse'] ?? {};
+    String latestMessageCreatedAtFormatted = latestMessage.isNotEmpty
+        ? formatDateTime(List<int>.from(latestMessage['createdAt']))
+        : '';
 
     return Room(
-        id: json['id'],
-        name: json['leaderNickname'],
-        date: formattedDepartureDate,
-        title: json['title'],
-        rideType: json['roomType'],
-        departureLocation: departureLoc,
-        arrivalLocation: arrivalLoc,
-        departure: json['departure'],
-        arrival: json['destination'],
-        currentParticipants: participants.length,
-        maxParticipants: json['maxParticipants'],
-        createdAt: formattedDate,
-        latestMessageSender: latestMessage['sender'] ?? '',
-        latestMessageContent: latestMessage['content'] ?? '',
-        unreadMessageCount: json['unreadMessageCount'] ?? 0);
+      id: json['id'],
+      name: json['leaderNickname'],
+      date: formatDateTime(List<int>.from(json['departureTime'])),
+      title: json['title'],
+      rideType: json['roomType'],
+      departureLocation: departureLoc,
+      arrivalLocation: arrivalLoc,
+      departure: json['departure'],
+      arrival: json['destination'],
+      currentParticipants: (json['participants'] as List).length,
+      maxParticipants: json['maxParticipants'],
+      createdAt: formatDate(List<int>.from(json['createdAt'])),
+      latestMessageSender: latestMessage['sender'] ?? '',
+      latestMessageContent: latestMessage['content'] ?? '',
+      latestMessageCreatedAt: latestMessageCreatedAtFormatted,
+      unreadMessageCount: json['unreadMessageCount'] ?? 0,
+    );
   }
 }

@@ -134,13 +134,18 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             color: Colors.black54,
                                           ),
                                         ),
-                                        Text(
-                                          "최근 대화 오후 5:33",
-                                          style: TextStyle(
-                                            fontSize: 11.sp,
-                                            color: Colors.black54,
-                                          ),
-                                        ),
+                                        SizedBox(
+                                            width: 170.w,
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              "최근 대화 " +
+                                                  rooms[index]
+                                                      .latestMessageCreatedAt,
+                                              style: TextStyle(
+                                                fontSize: 11.sp,
+                                                color: Colors.black54,
+                                              ),
+                                            )),
                                         Icon(
                                           Icons.close,
                                           size: 14.r,
