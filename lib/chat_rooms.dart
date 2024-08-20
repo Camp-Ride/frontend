@@ -14,6 +14,8 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import 'message.dart';
 
+const String minDateTimeString = "-999999999-01-01 00:00";
+
 class ChatRoomsPage extends StatefulWidget {
   const ChatRoomsPage({super.key});
 
@@ -186,8 +188,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             child: Text(
                                           overflow: TextOverflow.ellipsis,
                                           (rooms[index]
-                                                  .latestMessageCreatedAt
-                                                  .isEmpty
+                                                      .latestMessageCreatedAt ==
+                                                  minDateTimeString
                                               ? ("최근 대화 없음")
                                               : ("최근 대화 " +
                                                   rooms[index]
