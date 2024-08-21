@@ -77,7 +77,7 @@ class Message {
         .toList()
         ?? [];
 
-    print("json['timestamp'] : " + json['timestamp'].toString());
+    // print("json['timestamp'] : " + json['timestamp'].toString());
 
     List<int> dateParts = List<int>.from(json['timestamp']);
 
@@ -89,8 +89,8 @@ class Message {
       dateParts[4],
       dateParts[5],
     );
-    print("timestamp : " + timestamp.toString());
-    print("reactions : " + reactions.toString());
+    // print("timestamp : " + timestamp.toString());
+    // print("reactions : " + reactions.toString());
 
     return Message(
       id: json['id'],

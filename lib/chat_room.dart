@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -21,8 +22,7 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'env_config.dart';
 import 'message.dart';
 import 'package:http/http.dart' as http;
-import 'package:mime/mime.dart';
-import 'package:path/path.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -45,9 +45,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
-
+  int startOffset = 0;
+  double currentScrollPosition = 0.0;
   String userName = "junTest";
-
+  ScrollController scrollController = ScrollController();
   StompClient? _stompClient;
 
   _ChatRoomPageState(Room room);
@@ -73,7 +74,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _stompClient?.subscribe(
       destination: '/topic/messages/room/' + widget.room.id.toString(),
       callback: (frame) {
-        print('Received message: ${frame.body}');
+        // print('Received message: ${frame.body}');
 
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
@@ -82,13 +83,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ref.read(messagesProvider.notifier).updateMessage(message);
         } else {
           if (userName != message.userId) {
-            print("username not match" + message.toString());
+            // print("username not match" + message.toString());
             ref.read(messagesProvider.notifier).addMessage(message);
           }
 
           if (userName == message.userId) {
             print(ref.read(messagesProvider.notifier).updateMessageId(message));
-            print("<- updated Message");
+            // print("<- updated Message");
           }
         }
       },
@@ -122,8 +123,25 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   @override
   void initState() {
     super.initState();
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.minScrollExtent) {
+        startOffset++;
+
+        ref
+            .read(messagesProvider.notifier)
+            .getMessages(widget.room.id, startOffset, 5);
+      }
+    });
     _connectStomp();
     ref.read(messagesProvider.notifier).initMessages(widget.room.id);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -148,7 +166,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       final notifier = ref.read(messagesProvider.notifier);
 
       Message message =
-          await notifier.reactToMessage(index, reaction, userName);
+      await notifier.reactToMessage(index, reaction, userName);
 
       _stompClient?.send(
         destination: '/app/send/reaction',
@@ -156,8 +174,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
     }
 
-    void addMessage(String text, bool isReplying, String replyingMessage, String imageUrl,
-        ChatMessageType messageType) async {
+    void addMessage(String text, bool isReplying, String replyingMessage,
+        String imageUrl, ChatMessageType messageType) async {
       Message message = new Message(
           id: null,
           roomId: widget.room.id.toInt(),
@@ -201,21 +219,27 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
       http.StreamedResponse response = await request.send();
 
-      final Map<String, dynamic> decodedJson = jsonDecode(await response.stream.bytesToString());
+      final Map<String, dynamic> decodedJson =
+      jsonDecode(await response.stream.bytesToString());
       imageUrl = await decodedJson['imageNames'][0];
       print(imageUrl);
 
       addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
     }
 
-    void _showPopupMenu(
-        BuildContext context, Message message, var index, Offset offset) {
+    void _showPopupMenu(BuildContext context, Message message, var index,
+        Offset offset) {
       final RenderBox overlay =
-          Overlay.of(context).context.findRenderObject() as RenderBox;
+      Overlay
+          .of(context)
+          .context
+          .findRenderObject() as RenderBox;
       showMenu(
         color: Colors.white70,
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0).r),
+        RoundedRectangleBorder(borderRadius: BorderRadius
+            .circular(16.0)
+            .r),
         context: context,
         position: RelativeRect.fromLTRB(
           offset.dx,
@@ -274,116 +298,120 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start;
       final textColor =
-          userName == message.userId ? Colors.white : Colors.black;
+      userName == message.userId ? Colors.white : Colors.black;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
             ? Column(
-                crossAxisAlignment: userName == message.userId
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+          crossAxisAlignment: userName == message.userId
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BubbleSpecialThree(
-                          text: replyingMessage,
-                          color: userName == message.userId
-                              ? Colors.lightBlueAccent
-                              : Colors.black12,
-                          tail: false,
-                          textStyle: TextStyle(color: textColor, fontSize: 16),
-                          isSender: userName == message.userId ? true : false,
-                        ),
+                  BubbleSpecialThree(
+                    text: replyingMessage,
+                    color: userName == message.userId
+                        ? Colors.lightBlueAccent
+                        : Colors.black12,
+                    tail: false,
+                    textStyle: TextStyle(color: textColor, fontSize: 16),
+                    isSender: userName == message.userId ? true : false,
+                  ),
 
-                        // if (replyingMessage.imageUrl.isNotEmpty)
-                        //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
-                      ],
-                    ),
-                  ),
-                  userName == message.userId
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 20.0).w,
-                          child: Transform.flip(
-                              flipY: true,
-                              child: Icon(
-                                Icons.reply,
-                                color: Colors.black54,
-                              )),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(left: 20.0).w,
-                          child: Transform.rotate(
-                              angle: 3.14,
-                              child: Icon(
-                                Icons.reply,
-                                color: Colors.black54,
-                              )),
-                        )
+                  // if (replyingMessage.imageUrl.isNotEmpty)
+                  //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
                 ],
-              )
+              ),
+            ),
+            userName == message.userId
+                ? Padding(
+              padding: const EdgeInsets.only(right: 20.0).w,
+              child: Transform.flip(
+                  flipY: true,
+                  child: Icon(
+                    Icons.reply,
+                    color: Colors.black54,
+                  )),
+            )
+                : Padding(
+              padding: const EdgeInsets.only(left: 20.0).w,
+              child: Transform.rotate(
+                  angle: 3.14,
+                  child: Icon(
+                    Icons.reply,
+                    color: Colors.black54,
+                  )),
+            )
+          ],
+        )
             : Column(
-                crossAxisAlignment: userName == message.userId
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: BubbleNormalImage(
-                      id: message.userId,
-                      image: _image(replyingMessage),
-                      color: Colors.white,
-                      tail: true,
-                      isSender: userName == message.userId ? true : false,
-                    ),
-                  ),
-                  userName == message.userId
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 20.0).w,
-                          child: Transform.flip(
-                              flipY: true,
-                              child: Icon(
-                                Icons.reply,
-                                color: Colors.black54,
-                              )),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(left: 20.0).w,
-                          child: Transform.rotate(
-                              angle: 3.14,
-                              child: Icon(
-                                Icons.reply,
-                                color: Colors.black54,
-                              )),
-                        )
-                ],
-              );
+          crossAxisAlignment: userName == message.userId
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            Container(
+              child: BubbleNormalImage(
+                id: message.userId,
+                image: _image(replyingMessage),
+                color: Colors.white,
+                tail: true,
+                isSender: userName == message.userId ? true : false,
+              ),
+            ),
+            userName == message.userId
+                ? Padding(
+              padding: const EdgeInsets.only(right: 20.0).w,
+              child: Transform.flip(
+                  flipY: true,
+                  child: Icon(
+                    Icons.reply,
+                    color: Colors.black54,
+                  )),
+            )
+                : Padding(
+              padding: const EdgeInsets.only(left: 20.0).w,
+              child: Transform.rotate(
+                  angle: 3.14,
+                  child: Icon(
+                    Icons.reply,
+                    color: Colors.black54,
+                  )),
+            )
+          ],
+        );
       }
 
       final reactionsWidget = userName == message.userId
           ? Padding(
-              padding: const EdgeInsets.only(left: 8.0).w,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12.0).r,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: buildReactions(message),
-                ),
-              ),
-            )
+        padding: const EdgeInsets.only(left: 8.0).w,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius
+                .circular(12.0)
+                .r,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: buildReactions(message),
+          ),
+        ),
+      )
           : Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12.0).r,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: buildReactions(message),
-              ),
-            );
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius
+              .circular(12.0)
+              .r,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: buildReactions(message),
+        ),
+      );
 
       final timeWidget = Text(
         time,
@@ -392,23 +420,23 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
       final reactionAndTime = userName == message.userId
           ? Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                timeWidget,
-                SizedBox(height: 2.0.h),
-                reactionsWidget,
-                SizedBox(height: 8.0.h),
-              ],
-            )
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          timeWidget,
+          SizedBox(height: 2.0.h),
+          reactionsWidget,
+          SizedBox(height: 8.0.h),
+        ],
+      )
           : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                timeWidget,
-                SizedBox(height: 2.0.h),
-                reactionsWidget,
-                SizedBox(height: 8.0.h),
-              ],
-            );
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          timeWidget,
+          SizedBox(height: 2.0.h),
+          reactionsWidget,
+          SizedBox(height: 8.0.h),
+        ],
+      );
 
       switch (message.chatMessageType) {
         case ChatMessageType.TEXT:
@@ -433,13 +461,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ),
               userName == message.userId
                   ? Padding(
-                      padding: const EdgeInsets.only(right: 20.0).r,
-                      child: reactionAndTime,
-                    )
+                padding: const EdgeInsets.only(right: 20.0).r,
+                child: reactionAndTime,
+              )
                   : Padding(
-                      padding: const EdgeInsets.only(left: 20.0).r,
-                      child: reactionAndTime,
-                    ),
+                padding: const EdgeInsets.only(left: 20.0).r,
+                child: reactionAndTime,
+              ),
             ],
           );
         case ChatMessageType.IMAGE:
@@ -491,8 +519,18 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         );
       }
 
-      return ListView(
-        children: messageWidgets,
+      return ListView.builder(
+        controller: scrollController,
+        itemCount: messageWidgets.length + 1,
+        itemBuilder: (context, index) {
+          if (index < messages.length) {
+            return messageWidgets[index];
+          } else {
+            return isLoading
+                ? const CircularProgressIndicator()
+                : const SizedBox();
+          }
+        },
       );
     }
 
@@ -526,8 +564,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             replying: isReplying,
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
-            onSend: (String text) => addMessage(
-                text, isReplying, replyingMessage, "", ChatMessageType.TEXT),
+            onSend: (String text) =>
+                addMessage(
+                    text, isReplying, replyingMessage, "",
+                    ChatMessageType.TEXT),
             actions: [
               InkWell(
                 child: Icon(
@@ -573,7 +613,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         minWidth: 20.0,
       ),
       child: CachedNetworkImage(
-        imageUrl:  ('${EnvConfig().s3Url}' +url),
+        imageUrl: ('${EnvConfig().s3Url}' + url),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -594,9 +634,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       return entry.value == 0
           ? Container()
           : Container(
-              margin: EdgeInsets.symmetric(horizontal: 4),
-              child: getReactionIcon(entry.key, entry.value),
-            );
+        margin: EdgeInsets.symmetric(horizontal: 4),
+        child: getReactionIcon(entry.key, entry.value),
+      );
     }).toList();
   }
 }

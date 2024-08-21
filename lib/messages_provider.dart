@@ -11,124 +11,6 @@ import 'message_type.dart';
 
 List<Message> messageDatas = [];
 
-// List<Message> messageDatas = [
-//   Message(
-//       roomId: 1,
-//       userId: 'id001',
-//       text: '',
-//       imageUrl: 'https://i.ibb.co/JCyT1kT/Asset-1.png',
-//       timestamp: DateTime.now().subtract(Duration(days: 2)),
-//       isSender: true,
-//       chatMessageType: ChatMessageType.IMAGE,
-//       reactions: [],
-//       isReply: false,
-//       replyingMessage: ""),
-//   Message(
-//       roomId: 1,
-//       userId: 'id002',
-//       text: 'bubble special three without tail',
-//       imageUrl: '',
-//       timestamp: DateTime.now().subtract(Duration(days: 2)),
-//       isSender: true,
-//       chatMessageType: ChatMessageType.TEXT,
-//       reactions: [],
-//       isReply: false,
-//       replyingMessage: ""),
-//   Message(
-//       roomId: 1,
-//       userId: 'id003',
-//       text: 'bubble special three without tail',
-//       imageUrl: '',
-//       timestamp: DateTime.now().subtract(Duration(days: 1)),
-//       isSender: false,
-//       chatMessageType: ChatMessageType.TEXT,
-//       reactions: [],
-//       isReply: false,
-//       replyingMessage: ""),
-//   Message(
-//       roomId: 1,
-//       userId: 'id004',
-//       text: '',
-//       imageUrl:
-//           'https://campride.s3.ap-northeast-2.amazonaws.com/images/040bc953569bfe134984ed5f101ed2db5b61587d6ad6fdb045c4cbd73f6c0a29.png',
-//       timestamp: DateTime.now().subtract(Duration(days: 1)),
-//       isSender: false,
-//       chatMessageType: ChatMessageType.IMAGE,
-//       reactions: [],
-//       isReply: false,
-//       replyingMessage: ""),
-//   Message(
-//       roomId: 1,
-//       userId: 'id005',
-//       text: '',
-//       imageUrl:
-//           'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
-//       timestamp: DateTime.now(),
-//       isSender: true,
-//       chatMessageType: ChatMessageType.IMAGE,
-//       reactions: [],
-//       isReply: false,
-//       replyingMessage: ""),
-//   Message(
-//       roomId: 1,
-//       userId: 'id006',
-//       text: 'bubble special three without tail',
-//       imageUrl: '',
-//       timestamp: DateTime.now().subtract(Duration(days: 1)),
-//       isSender: false,
-//       chatMessageType: ChatMessageType.TEXT,
-//       reactions: [],
-//       isReply: true,
-//       replyingMessage: "this is replying message original"),
-//   Message(
-//       roomId: 1,
-//       userId: 'id007',
-//       text:
-//           'bubble special three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tail',
-//       imageUrl: '',
-//       timestamp: DateTime.now().subtract(Duration(days: 1)),
-//       isSender: true,
-//       chatMessageType: ChatMessageType.TEXT,
-//       reactions: [],
-//       isReply: true,
-//       replyingMessage: "this is replying message original"),
-//   Message(
-//     roomId: 1,
-//     userId: 'id007',
-//     text:
-//         'bubble special three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tailspecial three without tail',
-//     imageUrl: '',
-//     timestamp: DateTime.now().subtract(Duration(days: 1)),
-//     isSender: true,
-//     chatMessageType: ChatMessageType.TEXT,
-//     reactions: [
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.check),
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.check),
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.like),
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate),
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate),
-//       Reaction(userId: "junhyeong", reactionType: ChatReactionType.hate)
-//     ],
-//     isReply: true,
-//     replyingMessage:
-//         'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
-//   ),
-//   Message(
-//     roomId: 1,
-//     userId: 'id008',
-//     text:
-//         'bubble special three without tailspecial three without tailspecial three without',
-//     imageUrl: '',
-//     timestamp: DateTime.now().subtract(Duration(days: 1)),
-//     isSender: false,
-//     chatMessageType: ChatMessageType.TEXT,
-//     reactions: [],
-//     isReply: true,
-//     replyingMessage:
-//         'https://campride.s3.ap-northeast-2.amazonaws.com/images/021ec2bee243290f27282f13f8f627d64765de8f1dc3476ff1000b400f342d53.png',
-//   ),
-// ];
-
 // StateNotifier to manage the state of the message list
 class MessagesNotifier extends StateNotifier<List<Message>> {
   MessagesNotifier(List<Message> initialMessages) : super(initialMessages);
@@ -145,15 +27,15 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
         if (message.id == updatedMessage.id) updatedMessage else message,
     ];
 
-    print(updatedMessage);
-    print("7");
-    print(state);
+    // print(updatedMessage);
+    // print("7");
+    // print(state);
     return updatedMessage;
   }
 
-  List<Message> updateMessageId(Message updatedMessage)  {
+  List<Message> updateMessageId(Message updatedMessage) {
     bool updated = false;
-    return state =  [
+    return state = [
       for (final message in state)
         if (!updated &&
             message.userId == updatedMessage.userId &&
@@ -165,7 +47,6 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
         else
           message
     ];
-
   }
 
   // Remove a message from the list
@@ -178,35 +59,36 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     // 기존 상태에서 reactions 리스트를 복사하여 업데이트할 새로운 리스트를 생성합니다.
     final updatedReactions = state[index].reactions;
 
-    print("1");
+    // print("1");
     // 동일한 userId로 기존 reactionType이 존재하는 경우 제거합니다.
 
-    print("2");
+    // print("2");
 
-    print(updatedReactions);
+    // print(updatedReactions);
 
     // 새로운 반응을 추가합니다.
     if (updatedReactions.any((reaction) =>
-        reaction.reactionType.name == reactionType.name && reaction.userId == userId)) {
+        reaction.reactionType.name == reactionType.name &&
+        reaction.userId == userId)) {
       // 이미 동일한 반응이 있는 경우 제거
       print("3");
       updatedReactions.removeWhere((reaction) =>
           reaction.reactionType == reactionType && reaction.userId == userId);
     } else {
       // 새로운 반응 추가
-      print("4");
+      // print("4");
       updatedReactions.removeWhere((reaction) => reaction.userId == userId);
       updatedReactions
           .add(Reaction(userId: userId, reactionType: reactionType));
     }
 
-    print("5");
-    print("updatedReactions " + updatedReactions.toString());
+    // print("5");
+    // print("updatedReactions " + updatedReactions.toString());
 
     // 복사된 메시지 객체에 업데이트된 reactions를 설정합니다.
     final updatedMessage = state[index].copyWith(reactions: updatedReactions);
-    print("updatedMessage " + updatedMessage.toString());
-    print("6");
+    // print("updatedMessage " + updatedMessage.toString());
+    // print("6");
 
     // 업데이트된 메시지를 상태에 반영합니다.
     return updateMessage(updatedMessage);
@@ -216,7 +98,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     String? jwtToken = (await SecureStroageService.readAccessToken());
     final url = Uri.parse(
         'http://localhost:8080/api/v1/chat/messages/latest?roomId=$roomId');
-    print(url);
+    // print(url);
 
     final response = await http.get(
       url,
@@ -232,12 +114,12 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     }
   }
 
-  void getMessages(int roomId, int startOffset, int count) async {
+  Future<bool> getMessages(int roomId, int startOffset, int count) async {
     String? jwtToken = (await SecureStroageService.readAccessToken());
     final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&page=$startOffset&size=$count');
+        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count');
 
-    print(url);
+    // print(url);
 
     final response = await http.get(
       url,
@@ -245,11 +127,11 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      List<dynamic> content = data['content'];
-      print(content);
-
-      state = content.map((item) => Message.fromJson(item)).toList();
+      final List<dynamic> data =
+          await json.decode(utf8.decode(response.bodyBytes));
+      // print(data);
+      state = [...data.map((item) => Message.fromJson(item)).toList(), ...state];
+      return true;
     } else {
       throw Exception('Failed to load messages');
     }

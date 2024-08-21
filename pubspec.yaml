@@ -57,6 +57,7 @@ dependencies:
   flutter_secure_storage: ^4.2.1
   stomp_dart_client: ^2.0.0
   web_socket_channel: ^2.1.0
+  scroll_to_index: ^3.0.1
 
 
 
