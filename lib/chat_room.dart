@@ -76,20 +76,22 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       callback: (frame) {
         // print('Received message: ${frame.body}');
 
-        Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
-        Message message = Message.fromJson(jsonMap);
+        if (this.mounted) {
+          Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
+          Message message = Message.fromJson(jsonMap);
 
-        if (message.id == null) {
-          ref.read(messagesProvider.notifier).updateMessage(message);
-        } else {
-          if (userName != message.userId) {
-            // print("username not match" + message.toString());
-            ref.read(messagesProvider.notifier).addMessage(message);
-          }
+          if (message.id == null) {
+            ref.read(messagesProvider.notifier).updateMessage(message);
+          } else {
+            if (userName != message.userId) {
+              // print("username not match" + message.toString());
+              ref.read(messagesProvider.notifier).addMessage(message);
+            }
 
-          if (userName == message.userId) {
-            ref.read(messagesProvider.notifier).updateMessageId(message);
-            // print("<- updated Message");
+            if (userName == message.userId) {
+              ref.read(messagesProvider.notifier).updateMessageId(message);
+              // print("<- updated Message");
+            }
           }
         }
       },
@@ -142,6 +144,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   @override
   void dispose() async {
     scrollController.dispose();
+    _stompClient?.deactivate();
     super.dispose();
   }
 
@@ -515,7 +518,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         controller: scrollController,
         itemCount: messageWidgets.length,
         itemBuilder: (context, index) {
-            return messageWidgets[index];
+          return messageWidgets[index];
         },
       );
     }

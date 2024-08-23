@@ -33,6 +33,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     subscribeStomps(futureRooms);
   }
 
+  @override
+  void dispose(){
+    _stompClient?.deactivate();
+    super.dispose();
+  }
+
   void subscribeStomps(Future<List<Room>> futureRooms) async {
     List<Room> rooms = await futureRooms;
     rooms.forEach((room) {
