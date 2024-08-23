@@ -135,12 +135,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
     });
     _connectStomp();
+    updateLastMessage(widget.room.id);
     ref.read(messagesProvider.notifier).initMessages(widget.room.id);
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    updateLastMessage(widget.room.id);
     super.dispose();
   }
 
@@ -166,7 +168,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       final notifier = ref.read(messagesProvider.notifier);
 
       Message message =
-      await notifier.reactToMessage(index, reaction, userName);
+          await notifier.reactToMessage(index, reaction, userName);
 
       _stompClient?.send(
         destination: '/app/send/reaction',
@@ -220,26 +222,21 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       http.StreamedResponse response = await request.send();
 
       final Map<String, dynamic> decodedJson =
-      jsonDecode(await response.stream.bytesToString());
+          jsonDecode(await response.stream.bytesToString());
       imageUrl = await decodedJson['imageNames'][0];
       print(imageUrl);
 
       addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
     }
 
-    void _showPopupMenu(BuildContext context, Message message, var index,
-        Offset offset) {
+    void _showPopupMenu(
+        BuildContext context, Message message, var index, Offset offset) {
       final RenderBox overlay =
-      Overlay
-          .of(context)
-          .context
-          .findRenderObject() as RenderBox;
+          Overlay.of(context).context.findRenderObject() as RenderBox;
       showMenu(
         color: Colors.white70,
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius
-            .circular(16.0)
-            .r),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0).r),
         context: context,
         position: RelativeRect.fromLTRB(
           offset.dx,
@@ -298,120 +295,116 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start;
       final textColor =
-      userName == message.userId ? Colors.white : Colors.black;
+          userName == message.userId ? Colors.white : Colors.black;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
             ? Column(
-          crossAxisAlignment: userName == message.userId
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
-          children: [
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: userName == message.userId
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
-                  BubbleSpecialThree(
-                    text: replyingMessage,
-                    color: userName == message.userId
-                        ? Colors.lightBlueAccent
-                        : Colors.black12,
-                    tail: false,
-                    textStyle: TextStyle(color: textColor, fontSize: 16),
-                    isSender: userName == message.userId ? true : false,
-                  ),
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        BubbleSpecialThree(
+                          text: replyingMessage,
+                          color: userName == message.userId
+                              ? Colors.lightBlueAccent
+                              : Colors.black12,
+                          tail: false,
+                          textStyle: TextStyle(color: textColor, fontSize: 16),
+                          isSender: userName == message.userId ? true : false,
+                        ),
 
-                  // if (replyingMessage.imageUrl.isNotEmpty)
-                  //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
+                        // if (replyingMessage.imageUrl.isNotEmpty)
+                        //   Image.network(replyingMessage.imageUrl, height: 50, fit: BoxFit.cover),
+                      ],
+                    ),
+                  ),
+                  userName == message.userId
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20.0).w,
+                          child: Transform.flip(
+                              flipY: true,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 20.0).w,
+                          child: Transform.rotate(
+                              angle: 3.14,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
                 ],
-              ),
-            ),
-            userName == message.userId
-                ? Padding(
-              padding: const EdgeInsets.only(right: 20.0).w,
-              child: Transform.flip(
-                  flipY: true,
-                  child: Icon(
-                    Icons.reply,
-                    color: Colors.black54,
-                  )),
-            )
-                : Padding(
-              padding: const EdgeInsets.only(left: 20.0).w,
-              child: Transform.rotate(
-                  angle: 3.14,
-                  child: Icon(
-                    Icons.reply,
-                    color: Colors.black54,
-                  )),
-            )
-          ],
-        )
+              )
             : Column(
-          crossAxisAlignment: userName == message.userId
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
-          children: [
-            Container(
-              child: BubbleNormalImage(
-                id: message.userId,
-                image: _image(replyingMessage),
-                color: Colors.white,
-                tail: true,
-                isSender: userName == message.userId ? true : false,
-              ),
-            ),
-            userName == message.userId
-                ? Padding(
-              padding: const EdgeInsets.only(right: 20.0).w,
-              child: Transform.flip(
-                  flipY: true,
-                  child: Icon(
-                    Icons.reply,
-                    color: Colors.black54,
-                  )),
-            )
-                : Padding(
-              padding: const EdgeInsets.only(left: 20.0).w,
-              child: Transform.rotate(
-                  angle: 3.14,
-                  child: Icon(
-                    Icons.reply,
-                    color: Colors.black54,
-                  )),
-            )
-          ],
-        );
+                crossAxisAlignment: userName == message.userId
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    child: BubbleNormalImage(
+                      id: message.userId,
+                      image: _image(replyingMessage),
+                      color: Colors.white,
+                      tail: true,
+                      isSender: userName == message.userId ? true : false,
+                    ),
+                  ),
+                  userName == message.userId
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20.0).w,
+                          child: Transform.flip(
+                              flipY: true,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 20.0).w,
+                          child: Transform.rotate(
+                              angle: 3.14,
+                              child: Icon(
+                                Icons.reply,
+                                color: Colors.black54,
+                              )),
+                        )
+                ],
+              );
       }
 
       final reactionsWidget = userName == message.userId
           ? Padding(
-        padding: const EdgeInsets.only(left: 8.0).w,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius
-                .circular(12.0)
-                .r,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: buildReactions(message),
-          ),
-        ),
-      )
+              padding: const EdgeInsets.only(left: 8.0).w,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12.0).r,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: buildReactions(message),
+                ),
+              ),
+            )
           : Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius
-              .circular(12.0)
-              .r,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: buildReactions(message),
-        ),
-      );
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12.0).r,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: buildReactions(message),
+              ),
+            );
 
       final timeWidget = Text(
         time,
@@ -420,23 +413,23 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
       final reactionAndTime = userName == message.userId
           ? Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          timeWidget,
-          SizedBox(height: 2.0.h),
-          reactionsWidget,
-          SizedBox(height: 8.0.h),
-        ],
-      )
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                timeWidget,
+                SizedBox(height: 2.0.h),
+                reactionsWidget,
+                SizedBox(height: 8.0.h),
+              ],
+            )
           : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          timeWidget,
-          SizedBox(height: 2.0.h),
-          reactionsWidget,
-          SizedBox(height: 8.0.h),
-        ],
-      );
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                timeWidget,
+                SizedBox(height: 2.0.h),
+                reactionsWidget,
+                SizedBox(height: 8.0.h),
+              ],
+            );
 
       switch (message.chatMessageType) {
         case ChatMessageType.TEXT:
@@ -461,13 +454,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ),
               userName == message.userId
                   ? Padding(
-                padding: const EdgeInsets.only(right: 20.0).r,
-                child: reactionAndTime,
-              )
+                      padding: const EdgeInsets.only(right: 20.0).r,
+                      child: reactionAndTime,
+                    )
                   : Padding(
-                padding: const EdgeInsets.only(left: 20.0).r,
-                child: reactionAndTime,
-              ),
+                      padding: const EdgeInsets.only(left: 20.0).r,
+                      child: reactionAndTime,
+                    ),
             ],
           );
         case ChatMessageType.IMAGE:
@@ -564,10 +557,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             replying: isReplying,
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
-            onSend: (String text) =>
-                addMessage(
-                    text, isReplying, replyingMessage, "",
-                    ChatMessageType.TEXT),
+            onSend: (String text) => addMessage(
+                text, isReplying, replyingMessage, "", ChatMessageType.TEXT),
             actions: [
               InkWell(
                 child: Icon(
@@ -634,9 +625,35 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       return entry.value == 0
           ? Container()
           : Container(
-        margin: EdgeInsets.symmetric(horizontal: 4),
-        child: getReactionIcon(entry.key, entry.value),
-      );
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              child: getReactionIcon(entry.key, entry.value),
+            );
     }).toList();
+  }
+
+  void updateLastMessage(int roomId) async {
+    String jwt = (await SecureStroageService.readAccessToken())!;
+
+    final url =
+        Uri.parse('http://localhost:8080/api/v1/room/$roomId/last-message');
+
+    final headers = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.put(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        var data = json.decode(utf8.decode(response.bodyBytes));
+        print('Last message: $data');
+      } else {
+        print(
+            'Failed to load last message. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 }
