@@ -147,7 +147,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                             builder: (context) =>
                                 ChatRoomPage(room: rooms[index]),
                           ),
-                        ),
+                        ).then((value)=>setState((){futureRooms = fetchRooms();})),
                       },
                       child: Column(
                         children: [

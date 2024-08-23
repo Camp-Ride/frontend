@@ -140,9 +140,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     scrollController.dispose();
-    updateLastMessage(widget.room.id);
     super.dispose();
   }
 
@@ -251,6 +250,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               title: Text('답장'),
               onTap: () {
                 Navigator.pop(context);
+
                 _onReply(index, message);
               },
             ),
@@ -534,7 +534,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             Icons.chevron_left,
             color: Colors.white,
           ),
-          onPressed: () {
+          onPressed: () async {
+            await updateLastMessage(widget.room.id);
             Navigator.pop(context);
           },
         ),
@@ -631,7 +632,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }).toList();
   }
 
-  void updateLastMessage(int roomId) async {
+  Future updateLastMessage(int roomId) async {
     String jwt = (await SecureStroageService.readAccessToken())!;
 
     final url =
