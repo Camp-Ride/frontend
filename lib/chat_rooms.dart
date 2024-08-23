@@ -34,7 +34,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _stompClient?.deactivate();
     super.dispose();
   }
@@ -72,8 +72,20 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     _stompClient?.subscribe(
       destination: '/topic/messages/room/$roomId',
       callback: (frame) {
+        Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
+        Message message = Message.fromJson(jsonMap);
+
         setState(() {
-          futureRooms = fetchRooms();
+          futureRooms.then((rooms) => {
+                rooms.forEach((room) {
+                  if (room.id == roomId) {
+                    room.latestMessageSender = message.userId;
+                    room.latestMessageContent = message.text;
+                    room.latestMessageCreatedAt = message.timestamp.toString();
+                    room.unreadMessageCount++;
+                  }
+                })
+              });
         });
       },
     );
@@ -148,12 +160,16 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () => {
-                        navigatorKey.currentState?.push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ChatRoomPage(room: rooms[index]),
-                          ),
-                        ).then((value)=>setState((){futureRooms = fetchRooms();})),
+                        navigatorKey.currentState
+                            ?.push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ChatRoomPage(room: rooms[index]),
+                              ),
+                            )
+                            .then((value) => setState(() {
+                                  futureRooms = fetchRooms();
+                                })),
                       },
                       child: Column(
                         children: [

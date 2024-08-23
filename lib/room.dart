@@ -14,10 +14,10 @@ class Room {
   final int maxParticipants;
   final String createdAt;
 
-  final String latestMessageSender;
-  final String latestMessageContent;
-  final String latestMessageCreatedAt;
-  final int unreadMessageCount;
+  late String latestMessageSender;
+  late String latestMessageContent;
+  late String latestMessageCreatedAt;
+  late int unreadMessageCount;
 
   Room({
     required this.id,

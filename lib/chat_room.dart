@@ -29,6 +29,11 @@ import 'package:image_picker/image_picker.dart';
 import 'Image_provider.dart';
 import 'message_type.dart';
 
+String formatDateTime(List<int> dateTimeParts) {
+  return "${dateTimeParts[0]}-${dateTimeParts[1].toString().padLeft(2, '0')}-${dateTimeParts[2].toString().padLeft(2, '0')} "
+      "${dateTimeParts[3].toString().padLeft(2, '0')}:${dateTimeParts[4].toString().padLeft(2, '0')}";
+}
+
 class ChatRoomPage extends ConsumerStatefulWidget {
   final Room room;
 
