@@ -88,7 +88,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           }
 
           if (userName == message.userId) {
-            print(ref.read(messagesProvider.notifier).updateMessageId(message));
+            ref.read(messagesProvider.notifier).updateMessageId(message);
             // print("<- updated Message");
           }
         }
@@ -189,7 +189,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           replyingMessage: replyingMessage,
           imageUrl: imageUrl);
       ref.read(messagesProvider.notifier).addMessage(message);
-
       _stompClient?.send(
         destination: '/app/send',
         body: message.toString(),
@@ -514,15 +513,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
       return ListView.builder(
         controller: scrollController,
-        itemCount: messageWidgets.length + 1,
+        itemCount: messageWidgets.length,
         itemBuilder: (context, index) {
-          if (index < messages.length) {
             return messageWidgets[index];
-          } else {
-            return isLoading
-                ? const CircularProgressIndicator()
-                : const SizedBox();
-          }
         },
       );
     }
