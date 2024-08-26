@@ -156,13 +156,35 @@ class _CampRiderPageState extends State<CampRiderPage> {
         // 요청이 실패했을 때 처리
         print('Failed to join room: ${response.statusCode}');
         print('Response body: ${response.body}');
+        _showFailureDialog(context, '방에 이미 참여 중입니다.');
+
+
       }
     } catch (e) {
       // 요청 중 오류가 발생했을 때 처리
       print('Error: $e');
+      _showFailureDialog(context, '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+
     }
   }
-
+  void _showFailureDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
