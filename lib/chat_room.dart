@@ -130,7 +130,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     initializeUserName();
     scrollController.addListener(() {
@@ -638,7 +638,25 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                         title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(participant.nickname),
+                              Row(
+                                children: [
+                                  Text(participant.nickname),
+                                  participant.nickname == widget.room.name
+                                      ? const Icon(
+                                          Icons.star,
+                                          color: Colors.orangeAccent,
+                                          size: 15,
+                                        )
+                                      : const SizedBox.shrink(),
+                                  participant.nickname == userName
+                                      ? const Icon(
+                                          Icons.circle,
+                                          color: Colors.blue,
+                                          size: 10,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ],
+                              ),
                               SizedBox(
                                 width: 8.w,
                               ),
