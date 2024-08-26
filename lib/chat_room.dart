@@ -49,7 +49,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   bool isPause = false;
   int startOffset = 0;
   double currentScrollPosition = 0.0;
-  String userName = "junTest";
+  String userName = "";
+
   ScrollController scrollController = ScrollController();
   StompClient? _stompClient;
 
@@ -124,10 +125,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
+  void initializeUserName() async {
+    userName = (await SecureStroageService.readNickname())!;
+  }
 
+  @override
+  void initState()  {
+    super.initState();
+    initializeUserName();
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
