@@ -513,7 +513,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                               .center,
                                                                       children: [
                                                                         Text(
-                                                                            "${rooms[index].currentParticipants}/${rooms[index].maxParticipants}"),
+                                                                            "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
                                                                       ],
                                                                     ),
                                                                   ),
