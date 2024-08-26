@@ -641,6 +641,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               Row(
                                 children: [
                                   Text(participant.nickname),
+                                  SizedBox(
+                                    width: 4.w,
+                                  ),
                                   participant.nickname == widget.room.name
                                       ? const Icon(
                                           Icons.star,
