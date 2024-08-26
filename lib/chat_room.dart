@@ -528,9 +528,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
     }
 
-
-
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -613,9 +610,21 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               Container(
                 height: 50.h,
                 alignment: Alignment.center,
-                child: Text(
-                  "참가자",
-                  style: TextStyle(color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.chevron_right, color: Colors.white),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Drawer 닫기
+                      },
+                    ),
+                    Text(
+                      "참가자",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(width: 48.w), // 왼쪽에 공간을 추가하여 "참가자"를 가운데로 정렬
+                  ],
                 ),
                 color: Color(0xFF355A50),
               ),
