@@ -12,9 +12,7 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/date_chips/date_chip.dart';
 import 'package:chat_bubbles/message_bars/message_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +20,6 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'env_config.dart';
 import 'message.dart';
 import 'package:http/http.dart' as http;
-import 'package:scroll_to_index/scroll_to_index.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -37,7 +34,7 @@ String formatDateTime(List<int> dateTimeParts) {
 class ChatRoomPage extends ConsumerStatefulWidget {
   final Room room;
 
-  ChatRoomPage({required this.room});
+  const ChatRoomPage({super.key, required this.room});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -45,8 +42,8 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 }
 
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
-  Duration duration = new Duration();
-  Duration position = new Duration();
+  Duration duration = const Duration();
+  Duration position = const Duration();
   bool isPlaying = false;
   bool isLoading = false;
   bool isPause = false;
@@ -77,11 +74,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     print('Connected to STOMP server');
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
-      destination: '/topic/messages/room/' + widget.room.id.toString(),
+      destination: '/topic/messages/room/${widget.room.id}',
       callback: (frame) {
         // print('Received message: ${frame.body}');
 
-        if (this.mounted) {
+        if (mounted) {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
@@ -117,12 +114,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           color: reactionType.color,
           size: 15,
         ),
-        SizedBox(width: 3),
+        const SizedBox(width: 3),
         Text(
           reactionCount.toString(),
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
         ),
-        SizedBox(width: 3),
+        const SizedBox(width: 3),
       ],
     );
   }
@@ -155,12 +152,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    final now = new DateTime.now();
+    final now = DateTime.now();
     var messages = ref.watch(messagesProvider);
     var isReplying = ref.watch(replyingProvider);
     var replyingMessage = ref.watch(replyingMessageProvider);
 
-    void _onReply(var index, Message message) {
+    void onReply(var index, Message message) {
       ref.read(replyingProvider.notifier).startReplying();
       ref.read(replyingMessageProvider.notifier).startReplying(message.text);
     }
@@ -170,7 +167,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       ref.read(replyingMessageProvider.notifier).stopReplying();
     }
 
-    void _onReact(var index, Message message, ChatReactionType reaction,
+    void onReact(var index, Message message, ChatReactionType reaction,
         String userName) async {
       final notifier = ref.read(messagesProvider.notifier);
 
@@ -185,7 +182,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     void addMessage(String text, bool isReplying, String replyingMessage,
         String imageUrl, ChatMessageType messageType) async {
-      Message message = new Message(
+      Message message = Message(
           id: null,
           roomId: widget.room.id.toInt(),
           userId: userName,
@@ -235,7 +232,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
     }
 
-    void _showPopupMenu(
+    void showPopupMenu(
         BuildContext context, Message message, var index, Offset offset) {
       final RenderBox overlay =
           Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -253,42 +250,42 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         items: [
           PopupMenuItem(
             child: ListTile(
-              leading: Icon(Icons.reply),
-              title: Text('답장'),
+              leading: const Icon(Icons.reply),
+              title: const Text('답장'),
               onTap: () {
                 Navigator.pop(context);
 
-                _onReply(index, message);
+                onReply(index, message);
               },
             ),
           ),
           PopupMenuItem(
             child: ListTile(
-              leading: Icon(Icons.favorite),
-              title: Text('좋아요'),
+              leading: const Icon(Icons.favorite),
+              title: const Text('좋아요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ChatReactionType.like, userName);
+                onReact(index, message, ChatReactionType.like, userName);
               },
             ),
           ),
           PopupMenuItem(
             child: ListTile(
-              leading: Icon(Icons.check),
-              title: Text('확인'),
+              leading: const Icon(Icons.check),
+              title: const Text('확인'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ChatReactionType.check, userName);
+                onReact(index, message, ChatReactionType.check, userName);
               },
             ),
           ),
           PopupMenuItem(
             child: ListTile(
-              leading: Icon(Icons.close),
-              title: Text('싫어요'),
+              leading: const Icon(Icons.close),
+              title: const Text('싫어요'),
               onTap: () {
                 Navigator.pop(context);
-                _onReact(index, message, ChatReactionType.hate, userName);
+                onReact(index, message, ChatReactionType.hate, userName);
               },
             ),
           ),
@@ -335,7 +332,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
                               flipY: true,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.reply,
                                 color: Colors.black54,
                               )),
@@ -344,7 +341,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                           padding: const EdgeInsets.only(left: 20.0).w,
                           child: Transform.rotate(
                               angle: 3.14,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.reply,
                                 color: Colors.black54,
                               )),
@@ -370,7 +367,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
                               flipY: true,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.reply,
                                 color: Colors.black54,
                               )),
@@ -379,7 +376,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                           padding: const EdgeInsets.only(left: 20.0).w,
                           child: Transform.rotate(
                               angle: 3.14,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.reply,
                                 color: Colors.black54,
                               )),
@@ -445,13 +442,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
-              if (message.isReply && message.replyingMessage != null)
-                buildReplyWidget(message.replyingMessage!),
+              if (message.isReply) buildReplyWidget(message.replyingMessage),
               BubbleSpecialThree(
                 text: message.text,
                 color: userName == message.userId
-                    ? Color(0xFF1B97F3)
-                    : Color(0xFFE8E8EE),
+                    ? const Color(0xFF1B97F3)
+                    : const Color(0xFFE8E8EE),
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userName == message.userId ? true : false,
@@ -476,8 +472,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
-              if (message.isReply && message.replyingMessage != null)
-                buildReplyWidget(message.replyingMessage!),
+              if (message.isReply) buildReplyWidget(message.replyingMessage),
               BubbleNormalImage(
                 id: message.userId,
                 image: _image(message.imageUrl),
@@ -512,7 +507,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         messageWidgets.add(
           GestureDetector(
             onLongPressStart: (details) {
-              _showPopupMenu(context, messages[i], i, details.globalPosition);
+              showPopupMenu(context, messages[i], i, details.globalPosition);
             },
             child: buildMessageWidget(messages[i]),
           ),
@@ -554,7 +549,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.more_vert,
                 color: Colors.white,
               ),
@@ -576,7 +571,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 text, isReplying, replyingMessage, "", ChatMessageType.TEXT),
             actions: [
               InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.image,
                   color: Colors.lightBlueAccent,
                   size: 24,
@@ -586,9 +581,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 },
               ),
               Padding(
-                padding: EdgeInsets.only(left: 8, right: 8),
+                padding: const EdgeInsets.only(left: 8, right: 8),
                 child: InkWell(
-                  child: Icon(
+                  child: const Icon(
                     Icons.camera_alt,
                     color: Colors.lightGreen,
                     size: 24,
@@ -604,47 +599,71 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       ),
       endDrawer: SafeArea(
         child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
+          child: Column(
             children: [
               Container(
                 height: 50.h,
                 alignment: Alignment.center,
+                color: const Color(0xFF355A50),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.chevron_right, color: Colors.white),
+                      icon:
+                          const Icon(Icons.chevron_right, color: Colors.white),
                       onPressed: () {
                         Navigator.of(context).pop(); // Drawer 닫기
                       },
                     ),
-                    Text(
+                    const Text(
                       "참가자",
                       style: TextStyle(color: Colors.white),
                     ),
                     SizedBox(width: 48.w), // 왼쪽에 공간을 추가하여 "참가자"를 가운데로 정렬
                   ],
                 ),
-                color: Color(0xFF355A50),
               ),
-              for (var participant in widget.room.currentParticipants)
-                Column(children: [
-                  ListTile(
-                    titleAlignment: ListTileTitleAlignment.center,
-                    title: Row(children: [
-                      Text(participant.nickname),
-                      SizedBox(
-                        width: 8.w,
+              Expanded(
+                  child: ListView(
+                children: [
+                  for (var participant in widget.room.currentParticipants)
+                    Column(children: [
+                      ListTile(
+                        titleAlignment: ListTileTitleAlignment.center,
+                        title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(participant.nickname),
+                              SizedBox(
+                                width: 8.w,
+                              ),
+                              const Icon(
+                                Icons.close,
+                                color: Colors.grey,
+                              ),
+                            ]),
                       ),
-                      Icon(
-                        Icons.close,
-                        color: Colors.grey,
-                      ),
-                    ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                  ),
-                  Divider(color: Colors.black12),
-                ]),
+                      const Divider(color: Colors.black12),
+                    ]),
+                ],
+              )),
+              Container(
+                height: 50.h,
+                color: Color(0xFF355A50),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      child: Icon(Icons.exit_to_app, color: Colors.white),
+                      onTap: () {
+                        // 방 나가기 버튼 눌렀을 때의 동작
+                        Navigator.of(context).pop(); // 예시로 Drawer 닫기
+                      },
+                    ),
+                    SizedBox(width: 8.w),
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -660,12 +679,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
   Widget _image(String url) {
     return Container(
-      constraints: BoxConstraints(
+      constraints: const BoxConstraints(
         minHeight: 20.0,
         minWidth: 20.0,
       ),
       child: CachedNetworkImage(
-        imageUrl: ('${EnvConfig().s3Url}' + url),
+        imageUrl: ('${EnvConfig().s3Url}$url'),
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             CircularProgressIndicator(value: downloadProgress.progress),
         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -686,7 +705,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       return entry.value == 0
           ? Container()
           : Container(
-              margin: EdgeInsets.symmetric(horizontal: 4),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               child: getReactionIcon(entry.key, entry.value),
             );
     }).toList();

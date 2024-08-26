@@ -1,25 +1,17 @@
-import 'dart:convert';
 
 import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
-import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:campride/splash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
-import 'package:daum_postcode_view/daum_postcode_view.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:http/http.dart' as http;
 
 import 'community.dart';
 import 'env_config.dart';
@@ -29,7 +21,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   await ScreenUtil.ensureScreenSize();
   await dotenv.load(fileName: "assets/env/.env");
-  var key = await dotenv.env['APP_KEY'];
+  var key = dotenv.env['APP_KEY'];
   await EnvConfig().loadEnv();
   final secureStroageService = SecureStroageService();
 
@@ -94,11 +86,11 @@ class _MainPageState extends State<MainPage> {
   String startAddress = "";
   String arriveAddress = "";
 
-  List<Widget> _widgetOptions = <Widget>[
-    ChatRoomsPage(),
-    CampRiderPage(),
-    CommunityPage(),
-    MyPage(),
+  final List<Widget> _widgetOptions = <Widget>[
+    const ChatRoomsPage(),
+    const CampRiderPage(),
+    const CommunityPage(),
+    const MyPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -182,7 +174,7 @@ class _MainPageState extends State<MainPage> {
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFF365B51),
+        selectedItemColor: const Color(0xFF365B51),
         unselectedItemColor: Colors.black54,
         onTap: _onItemTapped,
       ),

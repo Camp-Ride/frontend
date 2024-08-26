@@ -1,11 +1,8 @@
 import 'dart:convert';
 
 import 'package:campride/community_type.dart';
-import 'package:campride/post.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 
 import 'item.dart';
@@ -14,7 +11,7 @@ class ReportDialog extends StatefulWidget {
   final Item item;
   final CommunityType type;
 
-  ReportDialog({required this.item, required this.type});
+  const ReportDialog({super.key, required this.item, required this.type});
 
   @override
   _ReportDialogState createState() => _ReportDialogState();
@@ -65,7 +62,7 @@ class _ReportDialogState extends State<ReportDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Center(child: Text('신고하기')),
+      title: const Center(child: Text('신고하기')),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -78,7 +75,7 @@ class _ReportDialogState extends State<ReportDialog> {
         child: TextField(
           textAlign: TextAlign.center,
           controller: _controller,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: '신고 내용을 입력하세요',
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16),
@@ -89,11 +86,11 @@ class _ReportDialogState extends State<ReportDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('취소'),
+          child: const Text('취소'),
         ),
         ElevatedButton(
           onPressed: _submitReport,
-          child: Text('확인'),
+          child: const Text('확인'),
         ),
       ],
     );

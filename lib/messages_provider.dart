@@ -7,13 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import 'message.dart';
-import 'message_type.dart';
 
 List<Message> messageDatas = [];
 
 // StateNotifier to manage the state of the message list
 class MessagesNotifier extends StateNotifier<List<Message>> {
-  MessagesNotifier(List<Message> initialMessages) : super(initialMessages);
+  MessagesNotifier(super.initialMessages);
 
   // Add a new message to the list
   List<Message> addMessage(Message message) {
@@ -22,7 +21,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
 
   // Update a message in the list
   Future<Message> updateMessage(Message updatedMessage) async {
-    state = await [
+    state = [
       for (final message in state)
         if (message.id == updatedMessage.id) updatedMessage else message,
     ];
@@ -130,7 +129,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
       final List<dynamic> data =
           await json.decode(utf8.decode(response.bodyBytes));
       // print(data);
-      state = [...data.map((item) => Message.fromJson(item)).toList(), ...state];
+      state = [...data.map((item) => Message.fromJson(item)), ...state];
       return true;
     } else {
       throw Exception('Failed to load messages');

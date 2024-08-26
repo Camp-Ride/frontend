@@ -1,6 +1,7 @@
 import 'item.dart';
 
 class Comment extends Item {
+  @override
   final int id;
   final String name;
   final String date;

@@ -1,8 +1,8 @@
-import 'dart:io';
 
 import 'item.dart';
 
 class Post extends Item {
+  @override
   final int id;
   final String name;
   final String date;

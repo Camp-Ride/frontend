@@ -1,14 +1,12 @@
-import 'package:campride/community_type.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_modify.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MoreOptionsPostButton extends StatefulWidget {
   final Post post;
 
-  const MoreOptionsPostButton({Key? key, required this.post}) : super(key: key);
+  const MoreOptionsPostButton({super.key, required this.post});
 
   @override
   _MoreOptionsPostButtonState createState() => _MoreOptionsPostButtonState();
@@ -49,15 +47,15 @@ class _MoreOptionsPostButtonState extends State<MoreOptionsPostButton> {
       },
       itemBuilder: (BuildContext context) {
         List<PopupMenuEntry<int>> menuItems = [
-          PopupMenuItem<int>(
+          const PopupMenuItem<int>(
             value: 1,
             child: Text('삭제'),
           ),
-          PopupMenuItem<int>(
+          const PopupMenuItem<int>(
             value: 2,
             child: Text('신고'),
           ),
-          PopupMenuItem<int>(
+          const PopupMenuItem<int>(
             value: 0,
             child: Text('수정'),
           ),

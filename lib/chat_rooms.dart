@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/chat_room.dart';
-import 'package:campride/login.dart';
 import 'package:campride/main.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -41,9 +38,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
 
   void subscribeStomps(Future<List<Room>> futureRooms) async {
     List<Room> rooms = await futureRooms;
-    rooms.forEach((room) {
+    for (var room in rooms) {
       _connectStomp(room.id);
-    });
+    }
   }
 
   StompClient? _stompClient;
@@ -126,12 +123,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "나의 채팅 목록",
             style: TextStyle(color: Colors.white),
           ),
-          flexibleSpace: new Container(
-            decoration: BoxDecoration(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
@@ -145,12 +142,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
             future: futureRooms,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator()); // 로딩 중일 때 표시
+                return const Center(child: CircularProgressIndicator()); // 로딩 중일 때 표시
               } else if (snapshot.hasError) {
                 return Center(
                     child: Text('Error: ${snapshot.error}')); // 에러 발생 시 표시
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(
+                return const Center(
                     child: Text('No rooms available')); // 데이터가 없을 때 표시
               } else {
                 List<Room> rooms = snapshot.data!; // 데이터가 존재할 때 처리
@@ -186,7 +183,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                     color: Colors.grey.withOpacity(0.5),
                                     spreadRadius: 5,
                                     blurRadius: 7,
-                                    offset: Offset(0, 3),
+                                    offset: const Offset(0, 3),
                                   ),
                                 ],
                               ),
@@ -213,9 +210,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                       .latestMessageCreatedAt ==
                                                   minDateTimeString
                                               ? ("최근 대화 없음")
-                                              : ("최근 대화 " +
-                                                  rooms[index]
-                                                      .latestMessageCreatedAt)),
+                                              : ("최근 대화 ${rooms[index]
+                                                      .latestMessageCreatedAt}")),
                                           style: TextStyle(
                                             fontSize: 11.sp,
                                             color: Colors.black54,
@@ -241,7 +237,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                         ),
                                         Row(
                                           children: [
-                                            Icon(Icons.people),
+                                            const Icon(Icons.people),
                                             SizedBox(width: 8.w),
                                             Text(
                                               "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}",
@@ -264,11 +260,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                       .latestMessageSender
                                                       .isEmpty
                                                   ? "채팅방을 클릭해 대화를 시작해 보세요."
-                                                  : rooms[index]
-                                                          .latestMessageSender +
-                                                      " : " +
-                                                      rooms[index]
-                                                          .latestMessageContent,
+                                                  : "${rooms[index]
+                                                          .latestMessageSender} : ${rooms[index]
+                                                          .latestMessageContent}",
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 color: Colors.black54,
@@ -311,7 +305,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                   width: 50.w,
                                                   height: 20.h,
                                                   decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
+                                                    gradient: const LinearGradient(
                                                       colors: [
                                                         Color(0xff48ADE5),
                                                         Color(0xff76CB68)
@@ -321,7 +315,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                         BorderRadius.circular(
                                                             10),
                                                   ),
-                                                  child: Text(
+                                                  child: const Text(
                                                     "편도",
                                                     textAlign: TextAlign.center,
                                                   ),
@@ -330,7 +324,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                   width: 50.w,
                                                   height: 20.h,
                                                   decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
+                                                    gradient: const LinearGradient(
                                                       colors: [
                                                         Color(0xffDCCB37),
                                                         Color(0xff44EB29)
@@ -340,7 +334,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                         BorderRadius.circular(
                                                             10),
                                                   ),
-                                                  child: Text(
+                                                  child: const Text(
                                                     "왕복",
                                                     textAlign: TextAlign.center,
                                                   ),

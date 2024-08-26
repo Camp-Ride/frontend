@@ -4,19 +4,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/community_type.dart';
 import 'package:campride/env_config.dart';
-import 'package:campride/login.dart';
-import 'package:campride/more_options_post_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_detail.dart';
 import 'package:campride/post_modify.dart';
 import 'package:campride/posting.dart';
 import 'package:campride/report_dialog.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 
@@ -169,12 +163,12 @@ class _CommunityPageState extends State<CommunityPage>
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "커뮤니티",
             style: TextStyle(color: Colors.white),
           ),
-          flexibleSpace: new Container(
-            decoration: BoxDecoration(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
@@ -192,14 +186,14 @@ class _CommunityPageState extends State<CommunityPage>
                   child: TabBar(
                     controller: _tabController,
                     indicator: UnderlineTabIndicator(
-                      borderSide: BorderSide(color: Colors.green, width: 3.0),
+                      borderSide: const BorderSide(color: Colors.green, width: 3.0),
                       insets: EdgeInsets.symmetric(
                           horizontal: 30.0.w), // 밑줄 길이를 늘리기 위한 인셋 조정
                     ),
                     tabAlignment: TabAlignment.start,
                     indicatorPadding: EdgeInsets.zero,
                     isScrollable: true,
-                    tabs: [
+                    tabs: const [
                       Tab(text: '최근'),
                       Tab(text: '인기'),
                     ],
@@ -219,14 +213,14 @@ class _CommunityPageState extends State<CommunityPage>
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return Center(
+                                  return const Center(
                                       child: CircularProgressIndicator());
                                 } else if (snapshot.hasError) {
                                   return Center(
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return Center(child: Text('작성된 글이 없습니다.'));
+                                  return const Center(child: Text('작성된 글이 없습니다.'));
                                 } else {
                                   List<Post> posts = snapshot.data!;
                                   return ListView.builder(
@@ -248,7 +242,7 @@ class _CommunityPageState extends State<CommunityPage>
                                         },
                                         child: Container(
                                           height: 150.h,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.white,
                                             border: Border(
                                               bottom: BorderSide(
@@ -343,15 +337,15 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 PopupMenuEntry<
                                                                     int>>
                                                             menuItems = [
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 1,
                                                             child: Text('삭제'),
                                                           ),
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 2,
                                                             child: Text('신고'),
                                                           ),
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 0,
                                                             child: Text('수정'),
                                                           ),
@@ -422,7 +416,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                       fit: BoxFit
                                                                           .cover,
                                                                       imageUrl:
-                                                                          ('${EnvConfig().s3Url}' +
+                                                                          (EnvConfig().s3Url +
                                                                               posts[index].images[0]),
                                                                       progressIndicatorBuilder: (context,
                                                                               url,
@@ -457,7 +451,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                         right:
                                                                             5.0)
                                                                     .w,
-                                                            child: Icon(
+                                                            child: const Icon(
                                                                 Icons.comment),
                                                           ),
                                                           Text(
@@ -570,14 +564,14 @@ class _CommunityPageState extends State<CommunityPage>
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return Center(
+                                  return const Center(
                                       child: CircularProgressIndicator());
                                 } else if (snapshot.hasError) {
                                   return Center(
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return Center(child: Text('작성된 글이 없습니다.'));
+                                  return const Center(child: Text('작성된 글이 없습니다.'));
                                 } else {
                                   List<Post> posts = snapshot.data!;
                                   return ListView.builder(
@@ -599,7 +593,7 @@ class _CommunityPageState extends State<CommunityPage>
                                         },
                                         child: Container(
                                           height: 150.h,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.white,
                                             border: Border(
                                               bottom: BorderSide(
@@ -694,15 +688,15 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 PopupMenuEntry<
                                                                     int>>
                                                             menuItems = [
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 1,
                                                             child: Text('삭제'),
                                                           ),
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 2,
                                                             child: Text('신고'),
                                                           ),
-                                                          PopupMenuItem<int>(
+                                                          const PopupMenuItem<int>(
                                                             value: 0,
                                                             child: Text('수정'),
                                                           ),
@@ -773,8 +767,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                       fit: BoxFit
                                                                           .cover,
                                                                       imageUrl:
-                                                                          ('${EnvConfig().s3Url}' +
-                                                                              posts[index].images[0]),
+                                                                          ('${EnvConfig().s3Url}${posts[index].images[0]}'),
                                                                       progressIndicatorBuilder: (context,
                                                                               url,
                                                                               downloadProgress) =>
@@ -808,7 +801,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                         right:
                                                                             5.0)
                                                                     .w,
-                                                            child: Icon(
+                                                            child: const Icon(
                                                                 Icons.comment),
                                                           ),
                                                           Text(
@@ -925,10 +918,10 @@ class _CommunityPageState extends State<CommunityPage>
             width: 95.w,
             height: 40.h,
             child: FloatingActionButton(
-              backgroundColor: Color(0xff154236),
+              backgroundColor: const Color(0xff154236),
               onPressed: () {
                 Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => PostingPage()))
+                        MaterialPageRoute(builder: (context) => const PostingPage()))
                     .then((value) => setState(() {
                           futurePosts = fetchPosts();
                         }));
@@ -942,7 +935,7 @@ class _CommunityPageState extends State<CommunityPage>
                       "글쓰기",
                       style: TextStyle(fontSize: 15.sp, color: Colors.white),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.edit,
                       color: Colors.white,
                     ),

@@ -1,13 +1,8 @@
 import 'dart:async';
-import 'package:campride/chat_room.dart';
 import 'package:campride/login.dart';
-import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -28,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     });
   }
@@ -64,14 +59,14 @@ class _SplashScreenState extends State<SplashScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "CAMPRIDE",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 40.h,
                         ),
-                        CircularProgressIndicator(
+                        const CircularProgressIndicator(
                           color: Color(0xFF29435C),
                         ),
                       ],

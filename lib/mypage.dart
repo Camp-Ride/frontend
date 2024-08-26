@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:campride/login.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,7 +18,7 @@ class _MyPageState extends State<MyPage> {
   String _nickname = "";
   String _token = "";
 
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   Future<void> getUserInfo() async {
     String? nickname = await SecureStroageService.readNickname();
@@ -77,17 +72,17 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    String _tempNickname = _nickname;
+    String tempNickname = _nickname;
 
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "마이페이지",
             style: TextStyle(color: Colors.white),
           ),
-          flexibleSpace: new Container(
-            decoration: BoxDecoration(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
@@ -124,7 +119,7 @@ class _MyPageState extends State<MyPage> {
                                   ),
                                   Row(
                                     children: [
-                                      Container(
+                                      SizedBox(
                                         width: _nickname.length * 13.0,
                                         height: 50.h,
                                         child: TextField(
@@ -135,7 +130,7 @@ class _MyPageState extends State<MyPage> {
                                             LengthLimitingTextInputFormatter(
                                                 10),
                                           ],
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Color(0xFF333333),
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -144,12 +139,12 @@ class _MyPageState extends State<MyPage> {
                                           decoration: InputDecoration(
                                             hintText: _nickname,
                                             border: InputBorder.none,
-                                            enabledBorder: UnderlineInputBorder(
+                                            enabledBorder: const UnderlineInputBorder(
                                               borderSide: BorderSide(
                                                   width: 1,
                                                   color: Colors.black),
                                             ),
-                                            focusedBorder: UnderlineInputBorder(
+                                            focusedBorder: const UnderlineInputBorder(
                                               borderSide: BorderSide(
                                                   width: 1,
                                                   color: Colors.black),
@@ -201,7 +196,13 @@ class _MyPageState extends State<MyPage> {
                             width: screenWidth,
                             child: ElevatedButton(
                               onPressed: null,
-                              child: Row(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Colors.transparent),
+                                elevation:
+                                    WidgetStateProperty.all(0), // 그림자 없애기
+                              ),
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -215,18 +216,18 @@ class _MyPageState extends State<MyPage> {
                                   )
                                 ],
                               ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                elevation:
-                                    MaterialStateProperty.all(0), // 그림자 없애기
-                              ),
                             )),
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
                               onPressed: null,
-                              child: Row(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Colors.transparent),
+                                elevation:
+                                    WidgetStateProperty.all(0), // 그림자 없애기
+                              ),
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -240,18 +241,18 @@ class _MyPageState extends State<MyPage> {
                                   )
                                 ],
                               ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                elevation:
-                                    MaterialStateProperty.all(0), // 그림자 없애기
-                              ),
                             )),
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
                               onPressed: null,
-                              child: Row(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Colors.transparent),
+                                elevation:
+                                    WidgetStateProperty.all(0), // 그림자 없애기
+                              ),
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -265,18 +266,18 @@ class _MyPageState extends State<MyPage> {
                                   )
                                 ],
                               ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                elevation:
-                                    MaterialStateProperty.all(0), // 그림자 없애기
-                              ),
                             )),
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
                               onPressed: null,
-                              child: Row(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Colors.transparent),
+                                elevation:
+                                    WidgetStateProperty.all(0), // 그림자 없애기
+                              ),
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -290,18 +291,18 @@ class _MyPageState extends State<MyPage> {
                                   )
                                 ],
                               ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                elevation:
-                                    MaterialStateProperty.all(0), // 그림자 없애기
-                              ),
                             )),
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
                               onPressed: null,
-                              child: Row(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    Colors.transparent),
+                                elevation:
+                                    WidgetStateProperty.all(0), // 그림자 없애기
+                              ),
+                              child: const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -314,12 +315,6 @@ class _MyPageState extends State<MyPage> {
                                     color: Colors.black54,
                                   )
                                 ],
-                              ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                elevation:
-                                    MaterialStateProperty.all(0), // 그림자 없애기
                               ),
                             ))
                       ],

@@ -2,32 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/community_type.dart';
-import 'package:campride/login.dart';
-import 'package:campride/more_options_post_button.dart';
 import 'package:campride/post.dart';
 import 'package:campride/post_modify.dart';
 import 'package:campride/report_dialog.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'comment.dart';
 import 'env_config.dart';
 import 'image_detail.dart';
-import 'more_options_comment_button.dart';
 
 class PostDetailPage extends StatefulWidget {
   final Post post;
 
-  const PostDetailPage({Key? key, required this.post}) : super(key: key);
+  const PostDetailPage({super.key, required this.post});
 
   @override
   _PostDetailPageState createState() => _PostDetailPageState();
@@ -312,7 +302,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.chevron_left,
               color: Colors.white,
             ),
@@ -320,12 +310,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
               Navigator.pop(context);
             },
           ),
-          title: Text(
+          title: const Text(
             "글 상세",
             style: TextStyle(color: Colors.white),
           ),
           flexibleSpace: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
@@ -343,19 +333,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
                         } else if (!snapshot.hasData) {
-                          return Center(child: Text('No data available'));
+                          return const Center(child: Text('No data available'));
                         } else {
                           var post = snapshot.data!;
 
                           return Padding(
                             padding: const EdgeInsets.only(left: 8.0, top: 8.0),
                             child: Container(
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
                                     color: Colors.black54, // 밑부분 테두리 색상
@@ -372,14 +362,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                     children: [
                                       Text(
                                         post.name,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.black54),
                                       ),
                                       PopupMenuButton<int>(
                                         padding: EdgeInsets.zero,
                                         color: Colors.white,
-                                        child: Icon(Icons.more_vert, size: 15),
+                                        child: const Icon(Icons.more_vert, size: 15),
                                         onSelected: (value) {
                                           switch (value) {
                                             case 0:
@@ -421,15 +411,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                         },
                                         itemBuilder: (BuildContext context) {
                                           return [
-                                            PopupMenuItem<int>(
+                                            const PopupMenuItem<int>(
                                               value: 0,
                                               child: Text('수정'),
                                             ),
-                                            PopupMenuItem<int>(
+                                            const PopupMenuItem<int>(
                                               value: 1,
                                               child: Text('삭제'),
                                             ),
-                                            PopupMenuItem<int>(
+                                            const PopupMenuItem<int>(
                                               value: 2,
                                               child: Text('신고'),
                                             ),
@@ -440,17 +430,17 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                   ),
                                   Text(
                                     post.title,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 15, color: Colors.black),
                                   ),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   Text(
                                     post.contents,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 13, color: Colors.black),
                                   ),
-                                  SizedBox(height: 10),
-                                  Container(
+                                  const SizedBox(height: 10),
+                                  SizedBox(
                                     height: 100,
                                     child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
@@ -458,7 +448,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       itemBuilder:
                                           (BuildContext context, int imgIndex) {
                                         return Padding(
-                                          padding: EdgeInsets.only(right: 8.0),
+                                          padding: const EdgeInsets.only(right: 8.0),
                                           child: GestureDetector(
                                             onTap: () {
                                               Navigator.push(
@@ -496,19 +486,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       },
                                     ),
                                   ),
-                                  SizedBox(height: 5),
+                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
                                       Row(
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
+                                          const Padding(
+                                            padding: EdgeInsets.only(
                                                 right: 5.0),
                                             child: Icon(Icons.comment),
                                           ),
                                           Text(
                                             widget.post.commentCount.toString(),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.black54),
                                           ),
@@ -541,7 +531,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                             ),
                                             Text(
                                               widget.post.likeCount.toString(),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.black54),
                                             ),
@@ -553,7 +543,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                             const EdgeInsets.only(left: 8.0),
                                         child: Text(
                                           post.date,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 12,
                                               color: Colors.black54),
                                         ),
@@ -572,7 +562,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
@@ -588,12 +578,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                           List<Comment> comments = snapshot.data!;
                           return ListView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: comments.length,
                             itemBuilder: (BuildContext context, int index) {
                               return IntrinsicHeight(
                                 child: Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
                                     border: Border(
                                       bottom: BorderSide(
@@ -653,11 +643,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   (BuildContext context) {
                                                 List<PopupMenuEntry<int>>
                                                     menuItems = [
-                                                  PopupMenuItem<int>(
+                                                  const PopupMenuItem<int>(
                                                     value: 1,
                                                     child: Text('삭제'),
                                                   ),
-                                                  PopupMenuItem<int>(
+                                                  const PopupMenuItem<int>(
                                                     value: 2,
                                                     child: Text('신고'),
                                                   ),
@@ -752,7 +742,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
               padding: const EdgeInsets.all(8.0).r,
               child: Container(
                 decoration: BoxDecoration(
-                    color: Color(0xFF355A50),
+                    color: const Color(0xFF355A50),
                     borderRadius: BorderRadius.circular(12).r),
                 height: 50.h,
                 child: Row(
@@ -761,7 +751,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                         onChanged: (text) {
                           setState(() {
                             comment = text;
@@ -779,7 +769,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.comment, color: Colors.white),
+                      icon: const Icon(Icons.comment, color: Colors.white),
                       onPressed: () {
                         _controller.clear();
                         postComment(widget.post.id, comment);

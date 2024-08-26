@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:campride/login.dart';
 import 'package:campride/secure_storage.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -96,7 +90,7 @@ class _PostingPageState extends State<PostingPage> {
       home: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.chevron_left,
               color: Colors.white,
             ),
@@ -104,12 +98,12 @@ class _PostingPageState extends State<PostingPage> {
               Navigator.pop(context);
             },
           ),
-          title: Text(
+          title: const Text(
             "글 쓰기",
             style: TextStyle(color: Colors.white),
           ),
           flexibleSpace: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF355A50), Color(0xFF154135)],
               ),
@@ -130,7 +124,7 @@ class _PostingPageState extends State<PostingPage> {
                       });
                     },
                     textAlign: TextAlign.start,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: '제목을 입력해 주세요.',
                       hintStyle: TextStyle(color: Colors.grey),
                       enabledBorder: UnderlineInputBorder(
@@ -156,7 +150,7 @@ class _PostingPageState extends State<PostingPage> {
                   },
                   maxLines: null,
                   textAlign: TextAlign.start,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: '내용을 입력하세요.',
                     hintStyle: TextStyle(color: Colors.grey),
                     border: InputBorder.none,
@@ -167,7 +161,7 @@ class _PostingPageState extends State<PostingPage> {
             Expanded(
               flex: 3,
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: Border(
                     top: BorderSide(
                       color: Colors.black54,
@@ -206,11 +200,11 @@ class _PostingPageState extends State<PostingPage> {
                                   child: GestureDetector(
                                     onTap: () => _removeImage(index),
                                     child: Container(
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.close,
                                         color: Colors.red,
                                       ),
@@ -231,7 +225,7 @@ class _PostingPageState extends State<PostingPage> {
               color: Colors.white,
               child: SafeArea(
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     border: Border(),
                     color: Colors.white,
                   ),
@@ -241,20 +235,20 @@ class _PostingPageState extends State<PostingPage> {
                     children: [
                       Row(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           IconButton(
-                            icon: Icon(Icons.camera_alt_outlined),
+                            icon: const Icon(Icons.camera_alt_outlined),
                             onPressed: () {
                               _pickImage(ImageSource.camera);
                             },
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           IconButton(
-                            icon: Icon(Icons.image_outlined),
+                            icon: const Icon(Icons.image_outlined),
                             onPressed: () {
                               _pickImage(ImageSource.gallery);
                             },
@@ -271,10 +265,10 @@ class _PostingPageState extends State<PostingPage> {
                               width: 40,
                               height: 25,
                               decoration: BoxDecoration(
-                                color: Color(0xFF154135),
+                                color: const Color(0xFF154135),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Center(
+                              child: const Center(
                                 child: Text(
                                   "완료",
                                   textAlign: TextAlign.center,
@@ -286,7 +280,7 @@ class _PostingPageState extends State<PostingPage> {
                               ),
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                         ],
