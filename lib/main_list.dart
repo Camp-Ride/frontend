@@ -157,16 +157,14 @@ class _CampRiderPageState extends State<CampRiderPage> {
         print('Failed to join room: ${response.statusCode}');
         print('Response body: ${response.body}');
         _showFailureDialog(context, '방에 이미 참여 중입니다.');
-
-
       }
     } catch (e) {
       // 요청 중 오류가 발생했을 때 처리
       print('Error: $e');
       _showFailureDialog(context, '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-
     }
   }
+
   void _showFailureDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -185,6 +183,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -779,6 +778,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                               0xFF355A50)),
                                                                   onPressed:
                                                                       () {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
                                                                     joinRoom(rooms[
                                                                             index])
                                                                         .then((onValue) =>
