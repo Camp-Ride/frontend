@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:campride/chat_room.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
@@ -125,6 +126,43 @@ class _CampRiderPageState extends State<CampRiderPage> {
     }
   }
 
+  Future<void> joinRoom(Room room) async {
+    // JWT 토큰 가져오기
+    final String jwtToken = (await SecureStroageService.readAccessToken())!;
+
+    int roomId = room.id;
+// API 엔드포인트 URL
+    final String url = 'http://localhost:8080/api/v1/room/$roomId/join';
+
+    // HTTP 헤더
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $jwtToken', // JWT 토큰 추가
+    };
+
+    try {
+      // PUT 요청 보내기
+      final http.Response response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      // 응답 상태 확인
+      if (response.statusCode == 200) {
+        print('Room joined successfully');
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ChatRoomPage(room: room)));
+      } else {
+        // 요청이 실패했을 때 처리
+        print('Failed to join room: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      // 요청 중 오류가 발생했을 때 처리
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -234,7 +272,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                   builder: (context) =>
                                                       Scaffold(
                                                     appBar: AppBar(
-                                                      title: const Text("주소 검색"),
+                                                      title:
+                                                          const Text("주소 검색"),
                                                       backgroundColor:
                                                           Colors.white,
                                                     ),
@@ -261,10 +300,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                           },
                                           style: ButtonStyle(
                                             backgroundColor:
-                                                WidgetStateProperty.all<
-                                                    Color>(Colors.transparent),
-                                            overlayColor: WidgetStateProperty
-                                                .all<Color>(Colors.transparent),
+                                                WidgetStateProperty.all<Color>(
+                                                    Colors.transparent),
+                                            overlayColor:
+                                                WidgetStateProperty.all<Color>(
+                                                    Colors.transparent),
                                           ),
                                           child: Text(
                                             mainStartAddress == ""
@@ -291,11 +331,10 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                       String tempAddress = "";
 
                                       setState(() {
-                                            tempAddress = mainStartAddress;
-                                            mainStartAddress =
-                                                mainArriveAddress;
-                                            mainArriveAddress = tempAddress;
-                                          });
+                                        tempAddress = mainStartAddress;
+                                        mainStartAddress = mainArriveAddress;
+                                        mainArriveAddress = tempAddress;
+                                      });
                                     }
                                   },
                                   icon: Image.asset("assets/images/change.png",
@@ -343,7 +382,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                   builder: (context) =>
                                                       Scaffold(
                                                     appBar: AppBar(
-                                                      title: const Text("주소 검색"),
+                                                      title:
+                                                          const Text("주소 검색"),
                                                       backgroundColor:
                                                           Colors.white,
                                                     ),
@@ -369,10 +409,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                           },
                                           style: ButtonStyle(
                                             backgroundColor:
-                                                WidgetStateProperty.all<
-                                                    Color>(Colors.transparent),
-                                            overlayColor: WidgetStateProperty
-                                                .all<Color>(Colors.transparent),
+                                                WidgetStateProperty.all<Color>(
+                                                    Colors.transparent),
+                                            overlayColor:
+                                                WidgetStateProperty.all<Color>(
+                                                    Colors.transparent),
                                           ),
                                           child: Text(
                                             mainArriveAddress == ""
@@ -404,13 +445,15 @@ class _CampRiderPageState extends State<CampRiderPage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           } else if (snapshot.hasError) {
                             return Center(
                                 child: Text('Error: ${snapshot.error}'));
                           } else if (!snapshot.hasData ||
                               snapshot.data!.isEmpty) {
-                            return const Center(child: Text('No rooms available'));
+                            return const Center(
+                                child: Text('No rooms available'));
                           } else {
                             final rooms = snapshot.data!;
                             return ListView.builder(
@@ -609,9 +652,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                               as double);
 
                                                                       // 출발지 마커 추가
-                                                                      markers
-                                                                          .add(
-                                                                              Marker(
+                                                                      markers.add(
+                                                                          Marker(
                                                                         markerId:
                                                                             UniqueKey().toString(),
                                                                         latLng:
@@ -654,8 +696,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                       overflow:
                                                                           TextOverflow
                                                                               .ellipsis,
-                                                                      "${rooms[index]
-                                                                              .date} 출발",
+                                                                      "${rooms[index].date} 출발",
                                                                       style: TextStyle(
                                                                           fontSize: 13
                                                                               .sp,
@@ -715,7 +756,16 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           const Color(
                                                                               0xFF355A50)),
                                                                   onPressed:
-                                                                      () {},
+                                                                      () {
+                                                                    joinRoom(rooms[
+                                                                            index])
+                                                                        .then((onValue) =>
+                                                                            {
+                                                                              setState(() {
+                                                                                futureRooms = fetchRooms();
+                                                                              })
+                                                                            });
+                                                                  },
                                                                   child: const Text(
                                                                       '참여',
                                                                       style: TextStyle(
@@ -732,8 +782,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                             context)
                                                                         .pop();
                                                                   },
-                                                                  child: const Text(
-                                                                      '닫기'),
+                                                                  child:
+                                                                      const Text(
+                                                                          '닫기'),
                                                                 ),
                                                               ],
                                                             ),
@@ -843,7 +894,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           .circular(
                                                                               10),
                                                                 ),
-                                                                child: const Text(
+                                                                child:
+                                                                    const Text(
                                                                   "편도",
                                                                   textAlign:
                                                                       TextAlign
@@ -870,7 +922,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           .circular(
                                                                               10),
                                                                 ),
-                                                                child: const Text(
+                                                                child:
+                                                                    const Text(
                                                                   "왕복",
                                                                   textAlign:
                                                                       TextAlign
@@ -1035,7 +1088,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         height: 27.h,
                                         child: TextButton(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF355A50),
+                                            backgroundColor:
+                                                const Color(0xFF355A50),
                                           ),
                                           onPressed: () async {
                                             await postRoomData(
@@ -1133,8 +1187,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         builder: (context) =>
                                                             Scaffold(
                                                           appBar: AppBar(
-                                                            title:
-                                                                const Text("주소 검색"),
+                                                            title: const Text(
+                                                                "주소 검색"),
                                                             backgroundColor:
                                                                 Colors.white,
                                                           ),
@@ -1213,11 +1267,10 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               String tempAddress = "";
 
                                               setState(() {
-                                                    tempAddress = startAddress;
-                                                    startAddress =
-                                                        arriveAddress;
-                                                    arriveAddress = tempAddress;
-                                                  });
+                                                tempAddress = startAddress;
+                                                startAddress = arriveAddress;
+                                                arriveAddress = tempAddress;
+                                              });
                                             }
                                           },
                                           icon: Image.asset(
@@ -1269,8 +1322,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         builder: (context) =>
                                                             Scaffold(
                                                           appBar: AppBar(
-                                                            title:
-                                                                const Text("주소 검색"),
+                                                            title: const Text(
+                                                                "주소 검색"),
                                                             backgroundColor:
                                                                 Colors.white,
                                                           ),
