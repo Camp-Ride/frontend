@@ -244,7 +244,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             Icon(Icons.people),
                                             SizedBox(width: 8.w),
                                             Text(
-                                              "${rooms[index].currentParticipants}/${rooms[index].maxParticipants}",
+                                              "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}",
                                             ),
                                           ],
                                         ),

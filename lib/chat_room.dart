@@ -528,6 +528,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
     }
 
+
+
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -551,6 +554,19 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             ),
           ),
         ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -589,7 +605,41 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ),
         ],
       ),
-      // This trailing comma makes auto-formatting nicer for build methods.
+      endDrawer: SafeArea(
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Container(
+                height: 50.h,
+                alignment: Alignment.center,
+                child: Text(
+                  "참가자",
+                  style: TextStyle(color: Colors.white),
+                ),
+                color: Color(0xFF355A50),
+              ),
+              for (var participant in widget.room.currentParticipants)
+                Column(children: [
+                  ListTile(
+                    titleAlignment: ListTileTitleAlignment.center,
+                    title: Row(children: [
+                      Text(participant.nickname),
+                      SizedBox(
+                        width: 8.w,
+                      ),
+                      Icon(
+                        Icons.close,
+                        color: Colors.grey,
+                      ),
+                    ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                  ),
+                  Divider(color: Colors.black12),
+                ]),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

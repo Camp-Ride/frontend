@@ -963,7 +963,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                         'Text to announce in accessibility modes',
                                                                   ),
                                                                   Text(
-                                                                      "${rooms[index].currentParticipants}/${rooms[index].maxParticipants}"),
+                                                                      "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
                                                                 ],
                                                               ),
                                                             ),

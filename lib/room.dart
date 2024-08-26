@@ -1,3 +1,5 @@
+import 'package:campride/participants.dart';
+
 class Room {
   final int id;
   final String name;
@@ -10,7 +12,7 @@ class Room {
   final String departure;
   final String arrival;
 
-  final int currentParticipants;
+  final List<dynamic> currentParticipants;
   final int maxParticipants;
   final String createdAt;
 
@@ -76,7 +78,9 @@ class Room {
       arrivalLocation: arrivalLoc,
       departure: json['departure'],
       arrival: json['destination'],
-      currentParticipants: (json['participants'] as List).length,
+      currentParticipants: json['participants']
+          .map((participant) => Participant.fromJson(participant))
+          .toList(),
       maxParticipants: json['maxParticipants'],
       createdAt: formatDate(List<int>.from(json['createdAt'])),
       latestMessageSender: latestMessage['sender'] ?? '',
