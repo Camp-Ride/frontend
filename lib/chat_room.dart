@@ -941,9 +941,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       padding: const EdgeInsets.only(right: 8.0).w,
                       child: InkWell(
                         child: Icon(Icons.exit_to_app, color: Colors.white),
-                        onTap: () {
+                        onTap: () async {
                           // 방 나가기 버튼 눌렀을 때의 동작
+                          await exitRoom(widget.room.id);
                           Navigator.of(context).pop(); // 예시로 Drawer 닫기
+                          Navigator.pop(context);
+
+
                         },
                       ),
                     ),
@@ -1019,6 +1023,32 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             'Failed to load last message. Status code: ${response.statusCode}');
       }
     } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> exitRoom(int roomId) async {
+    final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId/exit');
+    final jwtToken = await SecureStroageService.readAccessToken();
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Successfully exited the room.');
+      } else {
+        // 서버가 200이 아닌 응답을 반환한 경우
+        print('Failed to exit the room. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      // 네트워크 오류 또는 예외 처리
       print('Error: $e');
     }
   }
