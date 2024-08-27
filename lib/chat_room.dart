@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'env_config.dart';
 import 'message.dart';
@@ -50,6 +51,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   int startOffset = 0;
   double currentScrollPosition = 0.0;
   String userName = "";
+
+  int selectedIndex = 0;
+
+  Set<Marker> markers = {};
+  late KakaoMapController kakaoMapController;
 
   ScrollController scrollController = ScrollController();
   StompClient? _stompClient;
@@ -628,65 +634,319 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   ],
                 ),
               ),
-              Expanded(
-                  child: ListView(
-                children: [
-                  for (var participant in widget.room.currentParticipants)
-                    Column(children: [
-                      ListTile(
-                        titleAlignment: ListTileTitleAlignment.center,
-                        title: Row(
+              selectedIndex == 1
+                  ? Expanded(
+                      child: ListView(
+                      children: [
+                        for (var participant in widget.room.currentParticipants)
+                          Column(children: [
+                            ListTile(
+                              titleAlignment: ListTileTitleAlignment.center,
+                              title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(participant.nickname),
+                                        SizedBox(
+                                          width: 4.w,
+                                        ),
+                                        participant.nickname == widget.room.name
+                                            ? const Icon(
+                                                Icons.star,
+                                                color: Colors.orangeAccent,
+                                                size: 15,
+                                              )
+                                            : const SizedBox.shrink(),
+                                        participant.nickname == userName
+                                            ? const Icon(
+                                                Icons.circle,
+                                                color: Colors.blue,
+                                                size: 10,
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 8.w,
+                                    ),
+                                    const Icon(
+                                      Icons.close,
+                                      color: Colors.grey,
+                                    ),
+                                  ]),
+                            ),
+                            const Divider(color: Colors.black12),
+                          ]),
+                      ],
+                    ))
+                  : Expanded(
+                      child: Container(
+                      margin: EdgeInsets.all(10).r,
+                      child: Column(
+                        children: [
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Text(participant.nickname),
-                                  SizedBox(
-                                    width: 4.w,
+                              Expanded(
+                                child: Text(
+                                  widget.room.title,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
                                   ),
-                                  participant.nickname == widget.room.name
-                                      ? const Icon(
-                                          Icons.star,
-                                          color: Colors.orangeAccent,
-                                          size: 15,
-                                        )
-                                      : const SizedBox.shrink(),
-                                  participant.nickname == userName
-                                      ? const Icon(
-                                          Icons.circle,
-                                          color: Colors.blue,
-                                          size: 10,
-                                        )
-                                      : const SizedBox.shrink(),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // Text 사이에 여유 공간을 추가할 수도 있습니다.
+                              Text(
+                                widget.room.createdAt,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0).h,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  overflow: TextOverflow.ellipsis,
+                                  widget.room.name,
+                                  style: TextStyle(
+                                      fontSize: 12.sp, color: Colors.black54),
+                                ),
+                                SizedBox(
+                                  width: 50.w,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                          "${widget.room.currentParticipants.length}/${widget.room.maxParticipants}"),
+                                    ],
+                                  ),
+                                ),
+                                widget.room.rideType == "편도"
+                                    ? Container(
+                                        width: 50.w,
+                                        // 컨테이너 크기
+                                        height: 20.h,
+                                        // 컨테이너 높이
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xff48ADE5),
+                                                Color(0xff76CB68)
+                                              ]),
+                                          // 컨테이너 색상
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Text(
+                                          "편도",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                    : Container(
+                                        width: 50.w,
+                                        // 컨테이너 크기
+                                        height: 20.h,
+                                        // 컨테이너 높이
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xffDCCB37),
+                                                Color(0xff44EB29)
+                                              ]),
+                                          // 컨테이너 색상
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Text(
+                                          "왕복",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 40.0).h,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.black12,
+                                ),
+                                child: KakaoMap(
+                                  onMapCreated: ((controller) async {
+                                    kakaoMapController = controller;
+
+                                    final departureLocation = LatLng(
+                                        widget.room.departureLocation[0]
+                                            as double,
+                                        widget.room.departureLocation[1]
+                                            as double);
+                                    final destinationLocation = LatLng(
+                                        widget.room.arrivalLocation[0]
+                                            as double,
+                                        widget.room.arrivalLocation[1]
+                                            as double);
+
+                                    // 출발지 마커 추가
+                                    markers.add(Marker(
+                                      markerId: UniqueKey().toString(),
+                                      latLng: departureLocation,
+                                    ));
+
+                                    markers.add(Marker(
+                                        markerId: UniqueKey().toString(),
+                                        latLng: destinationLocation));
+
+                                    kakaoMapController.panTo(departureLocation);
+                                    kakaoMapController.addMarker(
+                                        markers: markers.toList());
+
+                                    setState(() {});
+                                  }),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  color: Colors.transparent),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 40.h,
+                                  ),
+                                  Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    "${widget.room.date} 출발, " +
+                                        widget.room.trainingDays.toString() +
+                                        "일",
+                                    style: TextStyle(
+                                        fontSize: 13.sp,
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    height: 50.h,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      SizedBox(
+                                        width: 13.33.w,
+                                        height: 46.4.h,
+                                        child: Image.asset(
+                                          "assets/images/start_end.png",
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 215.w,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                                overflow: TextOverflow.ellipsis,
+                                                widget.room.departure,
+                                                style: TextStyle(
+                                                    fontSize: 13.sp,
+                                                    color: Colors.black54)),
+                                            Text(
+                                                overflow: TextOverflow.ellipsis,
+                                                widget.room.arrival,
+                                                style: TextStyle(
+                                                    fontSize: 13.sp,
+                                                    color: Colors.black54)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                              SizedBox(
-                                width: 8.w,
-                              ),
-                              const Icon(
-                                Icons.close,
-                                color: Colors.grey,
-                              ),
-                            ]),
+                            ),
+                          ),
+                        ],
                       ),
-                      const Divider(color: Colors.black12),
-                    ]),
-                ],
-              )),
+                    )),
               Container(
                 height: 50.h,
                 color: Color(0xFF355A50),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    InkWell(
-                      child: Icon(Icons.exit_to_app, color: Colors.white),
-                      onTap: () {
-                        // 방 나가기 버튼 눌렀을 때의 동작
-                        Navigator.of(context).pop(); // 예시로 Drawer 닫기
-                      },
+                    Row(
+                      children: [
+                        Column(
+                          children: [
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedIndex = 0;
+                                  });
+                                },
+                                child: Text(
+                                  "방정보",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                            Container(
+                              height: 2,
+                              width: 30,
+                              color: selectedIndex == 0
+                                  ? Colors.white
+                                  : Colors.transparent,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedIndex = 1;
+                                  });
+                                },
+                                child: Text(
+                                  "참가자",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                            Container(
+                              height: 2,
+                              width: 30,
+                              color: selectedIndex == 1
+                                  ? Colors.white
+                                  : Colors.transparent,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 8.w),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0).w,
+                      child: InkWell(
+                        child: Icon(Icons.exit_to_app, color: Colors.white),
+                        onTap: () {
+                          // 방 나가기 버튼 눌렀을 때의 동작
+                          Navigator.of(context).pop(); // 예시로 Drawer 닫기
+                        },
+                      ),
+                    ),
                   ],
                 ),
               )
