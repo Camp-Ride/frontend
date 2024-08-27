@@ -13,6 +13,7 @@ class Room {
   final String arrival;
 
   final List<dynamic> currentParticipants;
+  final int trainingDays;
   final int maxParticipants;
   final String createdAt;
 
@@ -32,6 +33,7 @@ class Room {
     required this.departure,
     required this.arrival,
     required this.currentParticipants,
+    required this.trainingDays,
     required this.maxParticipants,
     required this.createdAt,
     required this.latestMessageSender,
@@ -81,6 +83,7 @@ class Room {
       currentParticipants: json['participants']
           .map((participant) => Participant.fromJson(participant))
           .toList(),
+      trainingDays: json['trainingDays'],
       maxParticipants: json['maxParticipants'],
       createdAt: formatDate(List<int>.from(json['createdAt'])),
       latestMessageSender: latestMessage['sender'] ?? '',

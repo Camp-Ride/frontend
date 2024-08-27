@@ -53,17 +53,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
     '10'
   ];
 
-  List<String> dropDownList2 = [
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10'
-  ];
+  List<String> dropDownList2 = ['2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
   Future<void> postRoomData(
       String selectedTitle,
@@ -733,7 +723,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                       overflow:
                                                                           TextOverflow
                                                                               .ellipsis,
-                                                                      "${rooms[index].date} 출발",
+                                                                      "${rooms[index].date} 출발, " +
+                                                                          rooms[index]
+                                                                              .trainingDays
+                                                                              .toString() +
+                                                                          "일",
                                                                       style: TextStyle(
                                                                           fontSize: 13
                                                                               .sp,
@@ -878,7 +872,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         Text(
                                                           overflow: TextOverflow
                                                               .ellipsis,
-                                                          "${rooms[index].date} 출발",
+                                                          "${rooms[index].date} 출발, " +
+                                                              rooms[index]
+                                                                  .trainingDays
+                                                                  .toString() +
+                                                              "일",
                                                           style: TextStyle(
                                                               fontSize: 11.sp,
                                                               color:
