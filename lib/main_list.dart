@@ -160,9 +160,16 @@ class _CampRiderPageState extends State<CampRiderPage> {
             MaterialPageRoute(builder: (context) => ChatRoomPage(room: room)));
       } else {
         // 요청이 실패했을 때 처리
-        print('Failed to join room: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        _showFailureDialog(context, '방에 이미 참여 중입니다.');
+        String decodedBody = utf8.decode(response.bodyBytes);
+        var jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse['code'] == 4005) {
+          _showFailureDialog(context, "최대 참여 인원을 초과하였습니다.");
+        } else {
+          _showFailureDialog(context, '방에 이미 참여 중입니다.');
+        }
+
+        print('Failed to join room: ${jsonResponse}');
       }
     } catch (e) {
       // 요청 중 오류가 발생했을 때 처리
