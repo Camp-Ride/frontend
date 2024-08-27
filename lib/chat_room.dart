@@ -942,12 +942,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       child: InkWell(
                         child: Icon(Icons.exit_to_app, color: Colors.white),
                         onTap: () async {
-                          // 방 나가기 버튼 눌렀을 때의 동작
                           await exitRoom(widget.room.id);
-                          Navigator.of(context).pop(); // 예시로 Drawer 닫기
-                          Navigator.pop(context);
-
-
                         },
                       ),
                     ),
@@ -1028,28 +1023,58 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   Future<void> exitRoom(int roomId) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId/exit');
-    final jwtToken = await SecureStroageService.readAccessToken();
+    final response = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("정말 나가시겠습니까?"),
+          content: widget.room.name == userName
+              ? Text("방장이 방을 나가게 되면 자동으로 현재 방은 삭제됩니다.", style: TextStyle(fontSize: 10.sp),)
+              : null,
+          actions: <Widget>[
+            TextButton(
+              child: Text("확인"),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Yes 선택 시 true 반환
+              },
+            ),
+            TextButton(
+              child: Text("취소"),
+              onPressed: () {
+                Navigator.of(context).pop(false); // No 선택 시 false 반환
+              },
+            ),
+          ],
+        );
+      },
+    );
 
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $jwtToken',
-        },
-      );
+    if (response == true) {
+      final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId/exit');
+      final jwtToken = await SecureStroageService.readAccessToken();
 
-      if (response.statusCode == 200) {
-        print('Successfully exited the room.');
-      } else {
-        // 서버가 200이 아닌 응답을 반환한 경우
-        print('Failed to exit the room. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+      try {
+        final response = await http.put(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $jwtToken',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          print('Successfully exited the room.');
+          Navigator.of(context).pop(); // 예시로 Drawer 닫기
+          Navigator.pop(context);
+        } else {
+          // 서버가 200이 아닌 응답을 반환한 경우
+          print('Failed to exit the room. Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      } catch (e) {
+        // 네트워크 오류 또는 예외 처리
+        print('Error: $e');
       }
-    } catch (e) {
-      // 네트워크 오류 또는 예외 처리
-      print('Error: $e');
     }
   }
 }
