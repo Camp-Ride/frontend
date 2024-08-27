@@ -626,8 +626,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                         Navigator.of(context).pop(); // Drawer 닫기
                       },
                     ),
-                    const Text(
-                      "참가자",
+                    Text(
+                      selectedIndex == 1 ? "참가자" : "방정보",
                       style: TextStyle(color: Colors.white),
                     ),
                     SizedBox(width: 48.w), // 왼쪽에 공간을 추가하여 "참가자"를 가운데로 정렬
