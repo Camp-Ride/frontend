@@ -11,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'env_config.dart';
 
 class LoginPage extends StatefulWidget {
-
   const LoginPage({super.key});
 
   @override
@@ -49,7 +48,8 @@ class _LoginPageState extends State<LoginPage> {
 
     if (accessToken != null && refreshToken != null) {
       await SecureStroageService.saveTokens(accessToken, refreshToken);
-      await SecureStroageService.saveNickname(await getUserNicknameFromToken(accessToken));
+      await SecureStroageService.saveNickname(
+          await getUserNicknameFromToken(accessToken));
 
       String? nickname = await SecureStroageService.readNickname();
 
@@ -60,8 +60,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn(provider) async {
-    final prodUrl = Uri.parse(
-        '${EnvConfig().prodUrl}/oauth2/authorization/$provider');
+    final prodUrl =
+        Uri.parse('${EnvConfig().prodUrl}/oauth2/authorization/$provider');
 
     final localUrl =
         Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
@@ -156,13 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           width: 200.w,
                           child: IconButton(
-                              // onPressed: () => {signIn("google")},
-                              onPressed: () => {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => const MainPage()))
-                                  },
+                              onPressed: () => {signIn("google")},
                               icon: Image.asset("assets/images/google.png")),
                         ),
                       ],

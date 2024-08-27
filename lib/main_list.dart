@@ -29,6 +29,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
   var selectedTitle = "";
   var selectedDate = "";
   String? selectedValue;
+  String? selectedTrainingDate;
   var startAddress = "";
   var arriveAddress = "";
   var isOneWay = false;
@@ -38,8 +39,21 @@ class _CampRiderPageState extends State<CampRiderPage> {
 
   String mainStartAddress = "";
   String mainArriveAddress = "";
+
   List<String> dropDownList = [
     '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10'
+  ];
+
+  List<String> dropDownList2 = [
     '2',
     '3',
     '4',
@@ -54,6 +68,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
   Future<void> postRoomData(
       String selectedTitle,
       String selectedDate,
+      String selectedTrainingDate,
       String selectedValue,
       String startAddress,
       String arriveAddress,
@@ -84,6 +99,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       "departure": startAddress,
       "destination": arriveAddress,
       "departureTime": formattedDate,
+      "trainingDays": int.parse(selectedTrainingDate),
       "maxParticipants": int.parse(selectedValue),
       "roomType": roomType,
     });
@@ -1098,6 +1114,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                 selectedTitle = "";
                                                 selectedDate = "";
                                                 selectedValue = null;
+                                                selectedTrainingDate = null;
                                                 startAddress = "";
                                                 arriveAddress = "";
                                                 isOneWay = false;
@@ -1119,6 +1136,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                             await postRoomData(
                                                 selectedTitle,
                                                 selectedDate,
+                                                selectedTrainingDate!,
                                                 selectedValue!,
                                                 startAddress,
                                                 arriveAddress,
@@ -1129,6 +1147,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               selectedTitle = "";
                                               selectedDate = "";
                                               selectedValue = null;
+                                              selectedTrainingDate = null;
                                               startAddress = "";
                                               arriveAddress = "";
                                               isOneWay = false;
@@ -1483,6 +1502,58 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                             color: Colors.black54,
                                             fontSize: 14.sp),
                                         alignment: Alignment.center,
+                                        value: selectedTrainingDate,
+                                        underline: const SizedBox.shrink(),
+                                        icon: const SizedBox.shrink(),
+                                        hint: Text(
+                                          "며칠 동안 훈련을 받으시는지 선택해 주세요!",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontSize: 14.sp),
+                                        ),
+                                        items: dropDownList
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? value) {
+                                          setState(() {
+                                            selectedTrainingDate = value;
+                                          });
+                                        },
+                                      ),
+                                    )),
+                                Container(
+                                    width: 300.w,
+                                    height: 50.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.black54, // 테두리 색상
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color:
+                                              Colors.white70.withOpacity(0.5),
+                                          spreadRadius: 5,
+                                          blurRadius: 3,
+                                          offset: const Offset(0,
+                                              3), // changes position of shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                      child: DropdownButton(
+                                        style: TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 14.sp),
+                                        alignment: Alignment.center,
                                         value: selectedValue,
                                         underline: const SizedBox.shrink(),
                                         icon: const SizedBox.shrink(),
@@ -1493,7 +1564,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               color: Colors.black54,
                                               fontSize: 14.sp),
                                         ),
-                                        items: dropDownList
+                                        items: dropDownList2
                                             .map<DropdownMenuItem<String>>(
                                                 (String value) {
                                           return DropdownMenuItem<String>(
