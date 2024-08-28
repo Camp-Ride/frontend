@@ -668,9 +668,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           );
 
         case ChatMessageType.LEAVE:
-          return Center(child: Text("${message.userNickname}님이 채팅방을 떠나셨습니다."));
+          return  Padding(padding: EdgeInsets.only(top:5).h, child: Center(child: Text("${message.userNickname}님이 채팅방을 떠나셨습니다." , style: TextStyle(color: Colors.black54),)));
         case ChatMessageType.JOIN:
-          return Center(child: Text("${message.userNickname}님이 채팅방에 입장하였습니다."));
+          return Padding(padding: EdgeInsets.only(top:5).h, child: Center(child: Text("${message.userNickname}님이 채팅방에 입장하였습니다." , style: TextStyle(color: Colors.black54),)));
         default:
           return Container();
       }
