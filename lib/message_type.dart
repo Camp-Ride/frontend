@@ -1,5 +1,1 @@
-enum ChatMessageType { TEXT, IMAGE, LEAVE, JOIN }
-
-
-
-
+enum ChatMessageType { TEXT, IMAGE, LEAVE, JOIN, KICK }

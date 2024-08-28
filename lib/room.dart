@@ -54,7 +54,9 @@ class Room {
       return ChatMessageType.IMAGE;
     } else if (type == "LEAVE") {
       return ChatMessageType.LEAVE;
-    } else {
+    } else if (type == "KICK") {
+      return ChatMessageType.KICK;
+    }else{
       return ChatMessageType.JOIN;
     }
   }

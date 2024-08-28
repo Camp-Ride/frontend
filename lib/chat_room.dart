@@ -94,7 +94,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
-          if (message.chatMessageType == ChatMessageType.LEAVE &&
+          if ((message.chatMessageType == ChatMessageType.LEAVE ||
+                  message.chatMessageType == ChatMessageType.KICK) &&
               userId != message.text) {
             print("leaved user: " + message.text);
 
@@ -102,11 +103,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             if (response != null) {
               room = response;
             }
-
             Navigator.pop(context);
           }
 
-          if (message.chatMessageType == ChatMessageType.LEAVE &&
+          if ((message.chatMessageType == ChatMessageType.LEAVE ||
+                  message.chatMessageType == ChatMessageType.KICK) &&
               userId == message.text) {
             print("leaved user: " + message.text);
             Navigator.pop(context);
@@ -262,6 +263,27 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
     }
 
+    void sendKickUser(int leavedUserId, String leavedUserNickname,
+        ChatMessageType messageType) async {
+      Message message = Message(
+          id: null,
+          roomId: room.id.toInt(),
+          userId: userId,
+          userNickname: leavedUserNickname,
+          text: leavedUserId.toString(),
+          timestamp: now,
+          chatMessageType: messageType,
+          reactions: [],
+          isReply: false,
+          replyingMessage: "",
+          imageUrl: "");
+      ref.read(messagesProvider.notifier).addMessage(message);
+      _stompClient?.send(
+        destination: '/app/send/kick',
+        body: message.toString(),
+      );
+    }
+
     Future<void> exitRoom(int roomId) async {
       final response = await showDialog(
         context: context,
@@ -377,8 +399,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
 
       if (response == true) {
-        sendLeaveUser(
-            participant.id, participant.nickname, ChatMessageType.LEAVE);
+        sendKickUser(
+            participant.id, participant.nickname, ChatMessageType.KICK);
       }
     }
 
@@ -668,9 +690,30 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           );
 
         case ChatMessageType.LEAVE:
-          return  Padding(padding: EdgeInsets.only(top:5).h, child: Center(child: Text("${message.userNickname}님이 채팅방을 떠나셨습니다." , style: TextStyle(color: Colors.black54),)));
+          return Padding(
+              padding: EdgeInsets.only(top: 5).h,
+              child: Center(
+                  child: Text(
+                "${message.userNickname}님이 채팅방을 떠나셨습니다.",
+                style: TextStyle(color: Colors.black54),
+              )));
         case ChatMessageType.JOIN:
-          return Padding(padding: EdgeInsets.only(top:5).h, child: Center(child: Text("${message.userNickname}님이 채팅방에 입장하였습니다." , style: TextStyle(color: Colors.black54),)));
+          return Padding(
+              padding: EdgeInsets.only(top: 5).h,
+              child: Center(
+                  child: Text(
+                "${message.userNickname}님이 채팅방에 입장하였습니다.",
+                style: TextStyle(color: Colors.black54),
+              )));
+
+        case ChatMessageType.KICK:
+          return Padding(
+              padding: EdgeInsets.only(top: 5).h,
+              child: Center(
+                  child: Text(
+                "${message.userNickname}님이 채팅방에서 강제 퇴장당하였습니다.",
+                style: TextStyle(color: Colors.black54),
+              )));
         default:
           return Container();
       }

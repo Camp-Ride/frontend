@@ -429,6 +429,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     if (room.latestMessageType == ChatMessageType.JOIN) {
       return "${room.latestMessageNickname}님이 채팅방에 참가했습니다.";
     }
+    if (room.latestMessageType == ChatMessageType.KICK) {
+      return "${room.latestMessageNickname}님이 채팅방에서 강제 퇴장당하였습니다.";
+    }
 
     return "${room.latestMessageNickname} : ${room.latestMessageContent}";
   }
