@@ -115,12 +115,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           if (message.id == null) {
             ref.read(messagesProvider.notifier).updateMessage(message);
           } else {
-            if (userId != message.userId) {
+            if (userId != message.userId ||
+                message.chatMessageType == ChatMessageType.JOIN) {
               ref.read(messagesProvider.notifier).addMessage(message);
+              return;
             }
 
             if (userId == message.userId) {
               ref.read(messagesProvider.notifier).updateMessageId(message);
+              return;
             }
           }
         }
@@ -267,9 +270,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             title: Text("정말 나가시겠습니까?"),
             content: room.name == userName
                 ? Text(
-              "방장이 방을 나가게 되면 자동으로 현재 방은 삭제됩니다.",
-              style: TextStyle(fontSize: 10.sp),
-            )
+                    "방장이 방을 나가게 되면 자동으로 현재 방은 삭제됩니다.",
+                    style: TextStyle(fontSize: 10.sp),
+                  )
                 : null,
             actions: <Widget>[
               TextButton(
@@ -290,16 +293,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
 
       if (response == true) {
-
         sendLeaveUser(int.parse(userId), userName, ChatMessageType.LEAVE);
         Navigator.pop(context);
       }
     }
 
-    Future<void> kickUser(
-        int roomId, String leaderName, Participant participant, String currentName) async {
-
-      if(currentName != leaderName) {
+    Future<void> kickUser(int roomId, String leaderName,
+        Participant participant, String currentName) async {
+      if (currentName != leaderName) {
         final response = await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -321,7 +322,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         );
         return;
       }
-
 
       if (leaderName == participant.nickname) {
         final response = await showDialog(
@@ -669,6 +669,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         case ChatMessageType.LEAVE:
           return Center(child: Text("${message.userNickname}님이 채팅방을 떠나셨습니다."));
+        case ChatMessageType.JOIN:
+          return Center(child: Text("${message.userNickname}님이 채팅방에 입장하였습니다."));
         default:
           return Container();
       }
@@ -733,7 +735,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 Icons.more_vert,
                 color: Colors.white,
               ),
-              onPressed: () {
+              onPressed: () async {
+                room = (await fetchRoom(room.id))!;
                 Scaffold.of(context).openEndDrawer();
               },
             ),
@@ -843,8 +846,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        kickUser(
-                                            room.id, room.name, participant, userName);
+                                        kickUser(room.id, room.name,
+                                            participant, userName);
                                       },
                                       child: Icon(
                                         Icons.close,
@@ -1193,8 +1196,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       print('Error: $e');
     }
   }
-
-
 
   Future<Room?> fetchRoom(int roomId) async {
     String jwtToken = (await SecureStroageService.readAccessToken())!;

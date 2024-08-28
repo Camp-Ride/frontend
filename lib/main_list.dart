@@ -133,14 +133,11 @@ class _CampRiderPageState extends State<CampRiderPage> {
   }
 
   Future<void> joinRoom(Room room) async {
-    // JWT 토큰 가져오기
     final String jwtToken = (await SecureStroageService.readAccessToken())!;
 
     int roomId = room.id;
-// API 엔드포인트 URL
     final String url = 'http://localhost:8080/api/v1/room/$roomId/join';
 
-    // HTTP 헤더
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $jwtToken', // JWT 토큰 추가
@@ -156,8 +153,13 @@ class _CampRiderPageState extends State<CampRiderPage> {
       // 응답 상태 확인
       if (response.statusCode == 200) {
         print('Room joined successfully');
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatRoomPage(initialRoom: room)));
+
+        sendJoinRequest(roomId, jwtToken).then((value) => {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ChatRoomPage(initialRoom: room)))
+            });
       } else {
         // 요청이 실패했을 때 처리
         String decodedBody = utf8.decode(response.bodyBytes);
@@ -175,6 +177,39 @@ class _CampRiderPageState extends State<CampRiderPage> {
       // 요청 중 오류가 발생했을 때 처리
       print('Error: $e');
       _showFailureDialog(context, '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+
+  Future<void> sendJoinRequest(int roomId, String jwtToken) async {
+    final url =
+        Uri.parse('http://localhost:8080/api/v1/chat/send/join/$roomId');
+
+    String userId = (await SecureStroageService.readUserId())!;
+    String userNickname = (await SecureStroageService.readNickname())!;
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwtToken', // JWT 토큰을 헤더에 포함
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'userId': userId, 'userNickname': userNickname}),
+      );
+
+      if (response.statusCode == 200) {
+        // 성공적으로 요청이 처리된 경우
+        print('Join request sent successfully.');
+        var responseData = jsonDecode(response.body);
+        print('Response Data: $responseData');
+      } else {
+        // 오류가 발생한 경우
+        print(
+            'Failed to send join request. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      // 네트워크 오류 또는 예외 처리
+      print('An error occurred: $e');
     }
   }
 
