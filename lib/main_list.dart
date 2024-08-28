@@ -167,8 +167,12 @@ class _CampRiderPageState extends State<CampRiderPage> {
 
         if (jsonResponse['code'] == 4005) {
           _showFailureDialog(context, "최대 참여 인원을 초과하였습니다.");
-        } else {
+        } else if (jsonResponse['code'] == 3007) {
+          _showFailureDialog(context, '강제퇴장된 방에 다시 입장할 수 없습니다.');
+        } else if (jsonResponse['code'] == 3006) {
           _showFailureDialog(context, '방에 이미 참여 중입니다.');
+        } else {
+          _showFailureDialog(context, '알수 없는 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         }
 
         print('Failed to join room: ${jsonResponse}');
