@@ -368,12 +368,31 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     );
   }
 
+  void _showFailureDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> deleteRoom(int roomId) async {
     final response = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("정말 삭제하시겠습니까??"),
+          title: Text("정말 삭제하시겠습니까?", style: TextStyle(fontSize: 15.sp)),
           actions: <Widget>[
             TextButton(
               child: Text("확인"),
@@ -411,6 +430,15 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
             futureRooms = fetchRooms();
           });
         } else {
+
+          String decodedBody = utf8.decode(response.bodyBytes);
+          var jsonResponse = jsonDecode(decodedBody);
+
+          if (jsonResponse['code'] == 4001) {
+            _showFailureDialog(context, "방장이 아니기 때문에 삭제할 수 없습니다.");
+          } else {
+            _showFailureDialog(context, '알수 없는 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          }
           print(
               'Failed to delete the room. Status code: ${response.statusCode}');
           print('Response body: ${response.body}');
