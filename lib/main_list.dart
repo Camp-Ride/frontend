@@ -157,7 +157,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       if (response.statusCode == 200) {
         print('Room joined successfully');
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatRoomPage(room: room)));
+            MaterialPageRoute(builder: (context) => ChatRoomPage(initialRoom: room)));
       } else {
         // 요청이 실패했을 때 처리
         String decodedBody = utf8.decode(response.bodyBytes);

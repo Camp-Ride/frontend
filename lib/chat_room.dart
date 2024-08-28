@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/participants.dart';
 import 'package:campride/reaction_type.dart';
 import 'package:campride/reply_provider.dart';
 import 'package:campride/messages_provider.dart';
@@ -33,13 +34,13 @@ String formatDateTime(List<int> dateTimeParts) {
 }
 
 class ChatRoomPage extends ConsumerStatefulWidget {
-  final Room room;
+  final Room initialRoom;
 
-  const ChatRoomPage({super.key, required this.room});
+  const ChatRoomPage({super.key, required this.initialRoom});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ChatRoomPageState(room);
+      _ChatRoomPageState(initialRoom);
 }
 
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
@@ -51,6 +52,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   int startOffset = 0;
   double currentScrollPosition = 0.0;
   String userName = "";
+  String userId = "";
+  late Room room;
 
   int selectedIndex = 0;
 
@@ -60,7 +63,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   ScrollController scrollController = ScrollController();
   StompClient? _stompClient;
 
-  _ChatRoomPageState(Room room);
+  _ChatRoomPageState(Room initialRoom) {
+    room = initialRoom;
+  }
 
   void _connectStomp() {
     print("Connecting to STOMP server");
@@ -77,29 +82,45 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _stompClient?.activate();
   }
 
-  void _onConnect(StompFrame frame) {
+  void _onConnect(StompFrame frame)  {
     print('Connected to STOMP server');
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
-      destination: '/topic/messages/room/${widget.room.id}',
-      callback: (frame) {
-        // print('Received message: ${frame.body}');
+      destination: '/topic/messages/room/${room.id}',
+      callback: (frame) async {
+        print('Received message: ${frame.body}');
 
         if (mounted) {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
+          if (message.chatMessageType == ChatMessageType.LEAVE &&
+              userId != message.text) {
+            print("leaved user: " + message.text);
+
+            var response = await fetchRoom(room.id);
+            if(response != null) {
+              room = response;
+            }
+
+            Navigator.pop(context);
+          }
+
+          if (message.chatMessageType == ChatMessageType.LEAVE &&
+              userId == message.text) {
+            print("leaved user: " + message.text);
+            Navigator.pop(context);
+          }
+
           if (message.id == null) {
             ref.read(messagesProvider.notifier).updateMessage(message);
           } else {
-            if (userName != message.userId) {
-              // print("username not match" + message.toString());
+            if (userId != message.userId) {
               ref.read(messagesProvider.notifier).addMessage(message);
             }
 
-            if (userName == message.userId) {
+            if (userId == message.userId) {
               ref.read(messagesProvider.notifier).updateMessageId(message);
-              // print("<- updated Message");
             }
           }
         }
@@ -131,14 +152,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     );
   }
 
-  void initializeUserName() async {
+  void initializeUserInfo() async {
     userName = (await SecureStroageService.readNickname())!;
+    userId = (await SecureStroageService.readUserId())!;
   }
 
   @override
   void initState() {
     super.initState();
-    initializeUserName();
+    room = widget.initialRoom;
+    initializeUserInfo();
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
@@ -146,12 +169,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         ref
             .read(messagesProvider.notifier)
-            .getMessages(widget.room.id, startOffset, 5);
+            .getMessages(room.id, startOffset, 5);
       }
     });
     _connectStomp();
-    updateLastMessage(widget.room.id);
-    ref.read(messagesProvider.notifier).initMessages(widget.room.id);
+    updateLastMessage(room.id);
+    ref.read(messagesProvider.notifier).initMessages(room.id);
   }
 
   @override
@@ -179,11 +202,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }
 
     void onReact(var index, Message message, ChatReactionType reaction,
-        String userName) async {
+        String userId) async {
       final notifier = ref.read(messagesProvider.notifier);
 
       Message message =
-          await notifier.reactToMessage(index, reaction, userName);
+          await notifier.reactToMessage(index, reaction, userId);
 
       _stompClient?.send(
         destination: '/app/send/reaction',
@@ -195,8 +218,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         String imageUrl, ChatMessageType messageType) async {
       Message message = Message(
           id: null,
-          roomId: widget.room.id.toInt(),
-          userId: userName,
+          roomId: room.id.toInt(),
+          userId: userId,
           text: text,
           timestamp: now,
           chatMessageType: messageType,
@@ -212,6 +235,85 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
       if (isReplying) {
         stopReply();
+      }
+    }
+
+    void sendLeaveUser(int leavedUserId, ChatMessageType messageType) async {
+      Message message = Message(
+          id: null,
+          roomId: room.id.toInt(),
+          userId: userId,
+          text: leavedUserId.toString(),
+          timestamp: now,
+          chatMessageType: messageType,
+          reactions: [],
+          isReply: false,
+          replyingMessage: "",
+          imageUrl: "");
+      ref.read(messagesProvider.notifier).addMessage(message);
+      _stompClient?.send(
+        destination: '/app/send/leave',
+        body: message.toString(),
+      );
+    }
+
+    Future<void> kickUser(
+        int roomId, String leaderName, Participant participant) async {
+      if (leaderName == participant.nickname) {
+        final response = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                "본인은 내보낼 수 없습니다.",
+                style: TextStyle(fontSize: 15.sp),
+              ),
+              content: Text("방 삭제를 원하면 하단의 방 나가기를 선택해 주세요.",
+                  style: TextStyle(fontSize: 12.sp)),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("확인"),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Yes 선택 시 true 반환
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      final response = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "정말 ${participant.nickname}님을 내보내시겠습니까?",
+              style: TextStyle(fontSize: 15.sp),
+            ),
+            content: Text("한번 퇴장당한 유저는 다시 참여할 수 없습니다.",
+                style: TextStyle(fontSize: 12.sp)),
+            actions: <Widget>[
+              TextButton(
+                child: Text("확인"),
+                onPressed: () {
+                  Navigator.of(context).pop(true); // Yes 선택 시 true 반환
+                },
+              ),
+              TextButton(
+                child: Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop(false); // No 선택 시 false 반환
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      if (response == true) {
+        sendLeaveUser(participant.id, ChatMessageType.LEAVE);
       }
     }
 
@@ -276,7 +378,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               title: const Text('좋아요'),
               onTap: () {
                 Navigator.pop(context);
-                onReact(index, message, ChatReactionType.like, userName);
+                onReact(index, message, ChatReactionType.like, userId);
               },
             ),
           ),
@@ -286,7 +388,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               title: const Text('확인'),
               onTap: () {
                 Navigator.pop(context);
-                onReact(index, message, ChatReactionType.check, userName);
+                onReact(index, message, ChatReactionType.check, userId);
               },
             ),
           ),
@@ -296,7 +398,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               title: const Text('싫어요'),
               onTap: () {
                 Navigator.pop(context);
-                onReact(index, message, ChatReactionType.hate, userName);
+                onReact(index, message, ChatReactionType.hate, userId);
               },
             ),
           ),
@@ -306,16 +408,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     Widget buildMessageWidget(Message message) {
       final time = DateFormat('h:mm a').format(message.timestamp);
-      final alignment = userName == message.userId
+      final alignment = userId == message.userId
           ? MainAxisAlignment.end
           : MainAxisAlignment.start;
       final textColor =
-          userName == message.userId ? Colors.white : Colors.black;
+          userId == message.userId ? Colors.white : Colors.black;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
             ? Column(
-                crossAxisAlignment: userName == message.userId
+                crossAxisAlignment: userId == message.userId
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
@@ -325,12 +427,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       children: [
                         BubbleSpecialThree(
                           text: replyingMessage,
-                          color: userName == message.userId
+                          color: userId == message.userId
                               ? Colors.lightBlueAccent
                               : Colors.black12,
                           tail: false,
                           textStyle: TextStyle(color: textColor, fontSize: 16),
-                          isSender: userName == message.userId ? true : false,
+                          isSender: userId == message.userId ? true : false,
                         ),
 
                         // if (replyingMessage.imageUrl.isNotEmpty)
@@ -338,7 +440,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       ],
                     ),
                   ),
-                  userName == message.userId
+                  userId == message.userId
                       ? Padding(
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
@@ -360,7 +462,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 ],
               )
             : Column(
-                crossAxisAlignment: userName == message.userId
+                crossAxisAlignment: userId == message.userId
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
@@ -370,10 +472,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       image: _image(replyingMessage),
                       color: Colors.white,
                       tail: true,
-                      isSender: userName == message.userId ? true : false,
+                      isSender: userId == message.userId ? true : false,
                     ),
                   ),
-                  userName == message.userId
+                  userId == message.userId
                       ? Padding(
                           padding: const EdgeInsets.only(right: 20.0).w,
                           child: Transform.flip(
@@ -396,7 +498,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               );
       }
 
-      final reactionsWidget = userName == message.userId
+      final reactionsWidget = userId == message.userId
           ? Padding(
               padding: const EdgeInsets.only(left: 8.0).w,
               child: Container(
@@ -426,7 +528,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         style: TextStyle(color: Colors.black54, fontSize: 12.sp),
       );
 
-      final reactionAndTime = userName == message.userId
+      final reactionAndTime = userId == message.userId
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -449,24 +551,24 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       switch (message.chatMessageType) {
         case ChatMessageType.TEXT:
           return Column(
-            crossAxisAlignment: userName == message.userId
+            crossAxisAlignment: userId == message.userId
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
               if (message.isReply) buildReplyWidget(message.replyingMessage),
               BubbleSpecialThree(
                 text: message.text,
-                color: userName == message.userId
+                color: userId == message.userId
                     ? const Color(0xFF1B97F3)
                     : const Color(0xFFE8E8EE),
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
-                isSender: userName == message.userId ? true : false,
-                sent: message.id != null && message.userId == userName
+                isSender: userId == message.userId ? true : false,
+                sent: message.id != null && message.userId == userId
                     ? true
                     : false,
               ),
-              userName == message.userId
+              userId == message.userId
                   ? Padding(
                       padding: const EdgeInsets.only(right: 20.0).r,
                       child: reactionAndTime,
@@ -479,7 +581,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           );
         case ChatMessageType.IMAGE:
           return Column(
-            crossAxisAlignment: userName == message.userId
+            crossAxisAlignment: userId == message.userId
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
@@ -489,8 +591,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 image: _image(message.imageUrl),
                 color: Colors.white,
                 tail: true,
-                isSender: userName == message.userId ? true : false,
-                sent: message.id != null && message.userId == userName
+                isSender: userId == message.userId ? true : false,
+                sent: message.id != null && message.userId == userId
                     ? true
                     : false,
               ),
@@ -542,12 +644,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             color: Colors.white,
           ),
           onPressed: () async {
-            await updateLastMessage(widget.room.id);
+            await updateLastMessage(room.id);
             Navigator.pop(context);
           },
         ),
         title: Text(
-          widget.room.title,
+          room.title,
           style: const TextStyle(color: Colors.white),
         ),
         flexibleSpace: Container(
@@ -630,7 +732,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       selectedIndex == 1 ? "참가자" : "방정보",
                       style: TextStyle(color: Colors.white),
                     ),
-                    SizedBox(width: 48.w), // 왼쪽에 공간을 추가하여 "참가자"를 가운데로 정렬
+
+                    SizedBox(width: 48.w) // 왼쪽에 공간을 추가하여 "참가자"를 가운데로 정렬
                   ],
                 ),
               ),
@@ -638,7 +741,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                   ? Expanded(
                       child: ListView(
                       children: [
-                        for (var participant in widget.room.currentParticipants)
+                        for (var participant in room.currentParticipants)
                           Column(children: [
                             ListTile(
                               titleAlignment: ListTileTitleAlignment.center,
@@ -652,14 +755,14 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                         SizedBox(
                                           width: 4.w,
                                         ),
-                                        participant.nickname == widget.room.name
+                                        participant.id.toString() == userId
                                             ? const Icon(
                                                 Icons.star,
                                                 color: Colors.orangeAccent,
                                                 size: 15,
                                               )
                                             : const SizedBox.shrink(),
-                                        participant.nickname == userName
+                                        participant.id.toString() == userId
                                             ? const Icon(
                                                 Icons.circle,
                                                 color: Colors.blue,
@@ -671,9 +774,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     SizedBox(
                                       width: 8.w,
                                     ),
-                                    const Icon(
-                                      Icons.close,
-                                      color: Colors.grey,
+                                    InkWell(
+                                      onTap: () {
+                                        kickUser(
+                                            room.id, userName, participant);
+                                      },
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ]),
                             ),
@@ -691,7 +800,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  widget.room.title,
+                                  room.title,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 15.sp,
@@ -701,7 +810,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               const SizedBox(width: 10),
                               // Text 사이에 여유 공간을 추가할 수도 있습니다.
                               Text(
-                                widget.room.createdAt,
+                                room.createdAt,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 10.sp,
@@ -718,7 +827,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                               children: [
                                 Text(
                                   overflow: TextOverflow.ellipsis,
-                                  widget.room.name,
+                                  room.name,
                                   style: TextStyle(
                                       fontSize: 12.sp, color: Colors.black54),
                                 ),
@@ -728,11 +837,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                          "${widget.room.currentParticipants.length}/${widget.room.maxParticipants}"),
+                                          "${room.currentParticipants.length}/${room.maxParticipants}"),
                                     ],
                                   ),
                                 ),
-                                widget.room.rideType == "편도"
+                                room.rideType == "편도"
                                     ? Container(
                                         width: 50.w,
                                         // 컨테이너 크기
@@ -790,15 +899,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     kakaoMapController = controller;
 
                                     final departureLocation = LatLng(
-                                        widget.room.departureLocation[0]
-                                            as double,
-                                        widget.room.departureLocation[1]
-                                            as double);
+                                        room.departureLocation[0] as double,
+                                        room.departureLocation[1] as double);
                                     final destinationLocation = LatLng(
-                                        widget.room.arrivalLocation[0]
-                                            as double,
-                                        widget.room.arrivalLocation[1]
-                                            as double);
+                                        room.arrivalLocation[0] as double,
+                                        room.arrivalLocation[1] as double);
 
                                     // 출발지 마커 추가
                                     markers.add(Marker(
@@ -832,8 +937,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                   ),
                                   Text(
                                     overflow: TextOverflow.ellipsis,
-                                    "${widget.room.date} 출발, " +
-                                        widget.room.trainingDays.toString() +
+                                    "${room.date} 출발, " +
+                                        room.trainingDays.toString() +
                                         "일",
                                     style: TextStyle(
                                         fontSize: 13.sp,
@@ -863,13 +968,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                           children: [
                                             Text(
                                                 overflow: TextOverflow.ellipsis,
-                                                widget.room.departure,
+                                                room.departure,
                                                 style: TextStyle(
                                                     fontSize: 13.sp,
                                                     color: Colors.black54)),
                                             Text(
                                                 overflow: TextOverflow.ellipsis,
-                                                widget.room.arrival,
+                                                room.arrival,
                                                 style: TextStyle(
                                                     fontSize: 13.sp,
                                                     color: Colors.black54)),
@@ -942,7 +1047,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       child: InkWell(
                         child: Icon(Icons.exit_to_app, color: Colors.white),
                         onTap: () async {
-                          await exitRoom(widget.room.id);
+                          await exitRoom(room.id);
                         },
                       ),
                     ),
@@ -1028,8 +1133,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("정말 나가시겠습니까?"),
-          content: widget.room.name == userName
-              ? Text("방장이 방을 나가게 되면 자동으로 현재 방은 삭제됩니다.", style: TextStyle(fontSize: 10.sp),)
+          content: room.name == userName
+              ? Text(
+                  "방장이 방을 나가게 되면 자동으로 현재 방은 삭제됩니다.",
+                  style: TextStyle(fontSize: 10.sp),
+                )
               : null,
           actions: <Widget>[
             TextButton(
@@ -1075,6 +1183,40 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         // 네트워크 오류 또는 예외 처리
         print('Error: $e');
       }
+    }
+  }
+
+  Future<Room?> fetchRoom(int roomId) async {
+    String jwtToken = (await SecureStroageService.readAccessToken())!;
+    final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // 성공적으로 데이터를 가져온 경우
+        String decodedBody = utf8.decode(response.bodyBytes);
+        var data = jsonDecode(decodedBody);
+
+        print('Room data: $data');
+        return Room.fromJson(data);
+
+      } else {
+        // 에러 처리
+        print('Failed to fetch room data. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      // 예외 처리
+      print('An error occurred: $e');
+      return null;
     }
   }
 }

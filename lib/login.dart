@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  Future<String> getUserNicknameFromToken(String accessToken) async {
+  Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
     final url = Uri.parse('http://localhost:8080/api/v1/user');
     final response = await http.get(
       url,
@@ -35,7 +35,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
-      return data['nickname'];
+      print(data);
+
+      await SecureStroageService.saveUserId(data['userId']);
+      await SecureStroageService.saveNickname(data['nickname']);
     } else {
       throw Exception('Failed to load user info');
     }
@@ -48,14 +51,16 @@ class _LoginPageState extends State<LoginPage> {
 
     if (accessToken != null && refreshToken != null) {
       await SecureStroageService.saveTokens(accessToken, refreshToken);
-      await SecureStroageService.saveNickname(
-          await getUserNicknameFromToken(accessToken));
+      await saveUserNicknameAndUserIdFromToken(accessToken);
 
       String? nickname = await SecureStroageService.readNickname();
+      String? userId = await SecureStroageService.readUserId();
 
       print('Access Token: $accessToken');
       print('Refresh Token: $refreshToken');
       print('nickname: $nickname');
+      print('userId: $userId');
+
     }
   }
 

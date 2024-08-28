@@ -142,7 +142,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
             future: futureRooms,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator()); // 로딩 중일 때 표시
+                return const Center(
+                    child: CircularProgressIndicator()); // 로딩 중일 때 표시
               } else if (snapshot.hasError) {
                 return Center(
                     child: Text('Error: ${snapshot.error}')); // 에러 발생 시 표시
@@ -161,7 +162,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                             ?.push(
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    ChatRoomPage(room: rooms[index]),
+                                    ChatRoomPage(initialRoom: rooms[index]),
                               ),
                             )
                             .then((value) => setState(() {
@@ -210,16 +211,20 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                       .latestMessageCreatedAt ==
                                                   minDateTimeString
                                               ? ("최근 대화 없음")
-                                              : ("최근 대화 ${rooms[index]
-                                                      .latestMessageCreatedAt}")),
+                                              : ("최근 대화 ${rooms[index].latestMessageCreatedAt}")),
                                           style: TextStyle(
                                             fontSize: 11.sp,
                                             color: Colors.black54,
                                           ),
                                         )),
-                                        Icon(
-                                          Icons.close,
-                                          size: 14.r,
+                                        InkWell(
+                                          onTap: () {
+                                            deleteRoom(rooms[index].id);
+                                          },
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 14.r,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -260,9 +265,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                       .latestMessageSender
                                                       .isEmpty
                                                   ? "채팅방을 클릭해 대화를 시작해 보세요."
-                                                  : "${rooms[index]
-                                                          .latestMessageSender} : ${rooms[index]
-                                                          .latestMessageContent}",
+                                                  : "${rooms[index].latestMessageSender} : ${rooms[index].latestMessageContent}",
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 color: Colors.black54,
@@ -305,7 +308,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                   width: 50.w,
                                                   height: 20.h,
                                                   decoration: BoxDecoration(
-                                                    gradient: const LinearGradient(
+                                                    gradient:
+                                                        const LinearGradient(
                                                       colors: [
                                                         Color(0xff48ADE5),
                                                         Color(0xff76CB68)
@@ -324,7 +328,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                   width: 50.w,
                                                   height: 20.h,
                                                   decoration: BoxDecoration(
-                                                    gradient: const LinearGradient(
+                                                    gradient:
+                                                        const LinearGradient(
                                                       colors: [
                                                         Color(0xffDCCB37),
                                                         Color(0xff44EB29)
@@ -359,5 +364,58 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
         floatingActionButton: null,
       ),
     );
+  }
+
+  Future<void> deleteRoom(int roomId) async {
+    final response = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("정말 삭제하시겠습니까??"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("확인"),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Yes 선택 시 true 반환
+              },
+            ),
+            TextButton(
+              child: Text("취소"),
+              onPressed: () {
+                Navigator.of(context).pop(false); // No 선택 시 false 반환
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (response == true) {
+      String jwtToken = (await SecureStroageService.readAccessToken())!;
+      final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId');
+
+      try {
+        final response = await http.delete(
+          url,
+          headers: {
+            'Authorization': 'Bearer $jwtToken',
+            'Content-Type': 'application/json',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          print('Room deleted successfully');
+          setState(() {
+            futureRooms = fetchRooms();
+          });
+        } else {
+          print(
+              'Failed to delete the room. Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      } catch (e) {
+        print('An error occurred: $e');
+      }
+    }
   }
 }
