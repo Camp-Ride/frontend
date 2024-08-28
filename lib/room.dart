@@ -1,3 +1,4 @@
+import 'package:campride/message_type.dart';
 import 'package:campride/participants.dart';
 
 class Room {
@@ -18,7 +19,9 @@ class Room {
   final String createdAt;
 
   late String latestMessageSender;
+  late String latestMessageNickname;
   late String latestMessageContent;
+  late ChatMessageType latestMessageType;
   late String latestMessageCreatedAt;
   late int unreadMessageCount;
 
@@ -37,10 +40,24 @@ class Room {
     required this.maxParticipants,
     required this.createdAt,
     required this.latestMessageSender,
+    required this.latestMessageNickname,
     required this.latestMessageContent,
+    required this.latestMessageType,
     required this.latestMessageCreatedAt,
     required this.unreadMessageCount,
   });
+
+  static ChatMessageType fromType(String type) {
+    if (type == "TEXT") {
+      return ChatMessageType.TEXT;
+    } else if (type == "IMAGE") {
+      return ChatMessageType.IMAGE;
+    } else if (type == "LEAVE") {
+      return ChatMessageType.LEAVE;
+    } else {
+      return ChatMessageType.JOIN;
+    }
+  }
 
   factory Room.fromJson(Map<String, dynamic> json) {
     // createdAt 및 departureTime을 적절히 포맷팅
@@ -87,9 +104,13 @@ class Room {
       maxParticipants: json['maxParticipants'],
       createdAt: formatDate(List<int>.from(json['createdAt'])),
       latestMessageSender: latestMessage['sender'] ?? '',
+      latestMessageNickname: latestMessage['nickname'] ?? '',
       latestMessageContent: latestMessage['content'] ?? '',
+      latestMessageType: latestMessage['chatMessageType'] == null ? ChatMessageType.TEXT : fromType(latestMessage['chatMessageType']),
       latestMessageCreatedAt: latestMessageCreatedAtFormatted,
       unreadMessageCount: json['unreadMessageCount'] ?? 0,
     );
   }
+
+
 }

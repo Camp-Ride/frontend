@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:campride/chat_room.dart';
 import 'package:campride/main.dart';
+import 'package:campride/message_type.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/material.dart';
@@ -265,7 +266,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                                       .latestMessageSender
                                                       .isEmpty
                                                   ? "채팅방을 클릭해 대화를 시작해 보세요."
-                                                  : "${rooms[index].latestMessageSender} : ${rooms[index].latestMessageContent}",
+                                                  : createLatestChatMessage(
+                                                      rooms[index]),
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 color: Colors.black54,
@@ -417,5 +419,17 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
         print('An error occurred: $e');
       }
     }
+  }
+
+  String createLatestChatMessage(Room room) {
+    if (room.latestMessageType == ChatMessageType.LEAVE) {
+      return "${room.latestMessageNickname}님이 채팅방을 떠났습니다.";
+    }
+
+    if (room.latestMessageType == ChatMessageType.JOIN) {
+      return "${room.latestMessageNickname}님이 채팅방에 참가했습니다.";
+    }
+
+    return "${room.latestMessageNickname} : ${room.latestMessageContent}";
   }
 }

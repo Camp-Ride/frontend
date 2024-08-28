@@ -82,7 +82,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _stompClient?.activate();
   }
 
-  void _onConnect(StompFrame frame)  {
+  void _onConnect(StompFrame frame) {
     print('Connected to STOMP server');
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
@@ -99,7 +99,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             print("leaved user: " + message.text);
 
             var response = await fetchRoom(room.id);
-            if(response != null) {
+            if (response != null) {
               room = response;
             }
 
@@ -205,8 +205,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         String userId) async {
       final notifier = ref.read(messagesProvider.notifier);
 
-      Message message =
-          await notifier.reactToMessage(index, reaction, userId);
+      Message message = await notifier.reactToMessage(index, reaction, userId);
 
       _stompClient?.send(
         destination: '/app/send/reaction',
@@ -220,6 +219,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           id: null,
           roomId: room.id.toInt(),
           userId: userId,
+          userNickname: userName,
           text: text,
           timestamp: now,
           chatMessageType: messageType,
@@ -238,11 +238,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
     }
 
-    void sendLeaveUser(int leavedUserId, ChatMessageType messageType) async {
+    void sendLeaveUser(int leavedUserId, String leavedUserNickname,
+        ChatMessageType messageType) async {
       Message message = Message(
           id: null,
           roomId: room.id.toInt(),
           userId: userId,
+          userNickname: leavedUserNickname,
           text: leavedUserId.toString(),
           timestamp: now,
           chatMessageType: messageType,
@@ -258,7 +260,32 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }
 
     Future<void> kickUser(
-        int roomId, String leaderName, Participant participant) async {
+        int roomId, String leaderName, Participant participant, String currentName) async {
+
+      if(currentName != leaderName) {
+        final response = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                "방장만 유저를 내보낼 수 있습니다.",
+                style: TextStyle(fontSize: 15.sp),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("확인"),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Yes 선택 시 true 반환
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+
       if (leaderName == participant.nickname) {
         final response = await showDialog(
           context: context,
@@ -313,7 +340,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
 
       if (response == true) {
-        sendLeaveUser(participant.id, ChatMessageType.LEAVE);
+        sendLeaveUser(
+            participant.id, participant.nickname, ChatMessageType.LEAVE);
       }
     }
 
@@ -411,8 +439,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       final alignment = userId == message.userId
           ? MainAxisAlignment.end
           : MainAxisAlignment.start;
-      final textColor =
-          userId == message.userId ? Colors.white : Colors.black;
+      final textColor = userId == message.userId ? Colors.white : Colors.black;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
@@ -602,6 +629,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               ),
             ],
           );
+
+        case ChatMessageType.LEAVE:
+          return Center(child: Text("${message.userNickname}님이 채팅방을 떠나셨습니다."));
         default:
           return Container();
       }
@@ -755,7 +785,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                         SizedBox(
                                           width: 4.w,
                                         ),
-                                        participant.id.toString() == userId
+                                        room.name == participant.nickname
                                             ? const Icon(
                                                 Icons.star,
                                                 color: Colors.orangeAccent,
@@ -777,7 +807,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                                     InkWell(
                                       onTap: () {
                                         kickUser(
-                                            room.id, userName, participant);
+                                            room.id, room.name, participant, userName);
                                       },
                                       child: Icon(
                                         Icons.close,
@@ -1206,7 +1236,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         print('Room data: $data');
         return Room.fromJson(data);
-
       } else {
         // 에러 처리
         print('Failed to fetch room data. Status code: ${response.statusCode}');
