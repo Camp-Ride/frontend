@@ -120,6 +120,13 @@ class _CampRiderPageState extends State<CampRiderPage> {
       },
     );
 
+    print(response.toString());
+    print(response.bodyBytes);
+    print(response.body);
+    print(response.headers);
+    print(response.statusCode);
+    print(response.contentLength);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
 

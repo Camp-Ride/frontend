@@ -430,7 +430,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
             futureRooms = fetchRooms();
           });
         } else {
-
           String decodedBody = utf8.decode(response.bodyBytes);
           var jsonResponse = jsonDecode(decodedBody);
 
