@@ -406,26 +406,16 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     );
 
     if (response == true) {
-      String jwtToken = (await SecureStroageService.readAccessToken())!;
-      final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId');
+      var dio = await authDio(context);
 
-      try {
-        final response = await http.delete(
-          url,
-          headers: {
-            'Authorization': 'Bearer $jwtToken',
-            'Content-Type': 'application/json',
-          },
-        );
-
+      dio.delete('/room/$roomId').then((response) {
         if (response.statusCode == 200) {
           print('Room deleted successfully');
           setState(() {
             futureRooms = fetchRooms();
           });
         } else {
-          String decodedBody = utf8.decode(response.bodyBytes);
-          var jsonResponse = jsonDecode(decodedBody);
+          var jsonResponse = response.data;
 
           if (jsonResponse['code'] == 4001) {
             _showFailureDialog(context, "방장이 아니기 때문에 삭제할 수 없습니다.");
@@ -436,9 +426,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               'Failed to delete the room. Status code: ${response.statusCode}');
           print('Response body: ${response.body}');
         }
-      } catch (e) {
-        print('An error occurred: $e');
-      }
+      });
     }
   }
 
