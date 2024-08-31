@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 
+import 'auth_dio.dart';
 import 'comment.dart';
 import 'env_config.dart';
 import 'image_detail.dart';
@@ -59,18 +60,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> deleteComment(int commentId, int postId) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/comment/$commentId');
-    jwt = (await SecureStroageService.readAccessToken())!;
 
-    try {
-      final response = await http.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $jwt',
-        },
-      );
+    var dio = await authDio(context);
 
+    dio.delete('/comment/$commentId').then((response) {
       if (response.statusCode == 200) {
         print('댓글이 성공적으로 삭제되었습니다.');
         setState(() {
@@ -80,9 +73,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
       } else {
         print('댓글 삭제 실패: ${response.statusCode}');
       }
-    } catch (e) {
+    }).catchError((e) {
       print('삭제 중 오류 발생: $e');
-    }
+    });
   }
 
   Future<void> deletePost(
