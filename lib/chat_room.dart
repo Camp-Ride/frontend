@@ -13,12 +13,14 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:chat_bubbles/date_chips/date_chip.dart';
 import 'package:chat_bubbles/message_bars/message_bar.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'auth_dio.dart';
 import 'env_config.dart';
 import 'message.dart';
 import 'package:http/http.dart' as http;
@@ -409,24 +411,18 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       File? image = await ref.read(imageProvider);
       print(image);
 
-      String url = "http://localhost:8080/api/v1/images";
-      String jwt = (await SecureStroageService.readAccessToken())!;
+      var dio = await authDio(context);
 
-      String imageUrl = "";
+      final response = await dio.post(
+        'http://localhost:8080/api/v1/images',
+        data: FormData.fromMap({
+          'images': await MultipartFile.fromFile(image!.path),
+        }),
+      );
 
-      var headers = {
-        'Authorization': 'Bearer $jwt',
-      };
-      var request = http.MultipartRequest('POST', Uri.parse(url));
-      request.files
-          .add(await http.MultipartFile.fromPath('images', image!.path));
-      request.headers.addAll(headers);
+      final Map<String, dynamic> decodedJson = response.data;
 
-      http.StreamedResponse response = await request.send();
-
-      final Map<String, dynamic> decodedJson =
-          jsonDecode(await response.stream.bytesToString());
-      imageUrl = await decodedJson['imageNames'][0];
+      final imageUrl = await decodedJson['imageNames'][0];
       print(imageUrl);
 
       addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
