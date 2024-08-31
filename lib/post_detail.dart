@@ -132,32 +132,25 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> postComment(int postId, String content) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/comment');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
+    var dio = await authDio(context);
+
+    await dio.post('/comment', data: {
       'postId': postId,
       'content': content,
+    }).then((response) {
+      if (response.statusCode == 200) {
+        print('댓글이 성공적으로 작성되었습니다.');
+        setState(() {
+          futureComments = fetchComments(postId);
+          comment = "";
+          widget.post.commentCount++;
+        });
+      } else {
+        print('댓글 작성 실패: ${response.statusCode}');
+      }
+    }).catchError((e) {
+      print('댓글 작성 중 오류 발생: $e');
     });
-
-    print(postId);
-    print(content);
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      print('Comment posted successfully');
-      setState(() {
-        futureComments = fetchComments(widget.post.id);
-        comment = "";
-        widget.post.commentCount++;
-      });
-    } else {
-      print('Failed to post comment: ${response.statusCode}');
-    }
   }
 
   Future<void> like(int id, String type, Post post) async {
