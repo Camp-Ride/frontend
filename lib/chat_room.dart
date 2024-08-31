@@ -175,7 +175,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         ref
             .read(messagesProvider.notifier)
-            .getMessages(room.id, startOffset, 5);
+            .getMessages(room.id, startOffset, 5,context);
       }
     });
     _connectStomp();

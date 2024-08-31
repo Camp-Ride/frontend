@@ -108,27 +108,20 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     });
   }
 
-  Future<bool> getMessages(int roomId, int startOffset, int count) async {
-    String? jwtToken = (await SecureStroageService.readAccessToken());
-    final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count');
+  Future<bool> getMessages(int roomId, int startOffset, int count, BuildContext context) async {
 
-    // print(url);
+    var dio = await authDio(context);
 
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $jwtToken'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data =
-          await json.decode(utf8.decode(response.bodyBytes));
-      // print(data);
-      state = [...data.map((item) => Message.fromJson(item)), ...state];
-      return true;
-    } else {
-      throw Exception('Failed to load messages');
-    }
+    dio.get('/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count').then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        state = [...data.map((item) => Message.fromJson(item)), ...state];
+        return true;
+      } else {
+        throw Exception('Failed to load messages');
+      }
+    });
+    return false;
   }
 }
 
