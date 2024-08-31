@@ -69,9 +69,6 @@ class _CommunityPageState extends State<CommunityPage>
 
   Future<List<Post>> fetchPosts() async {
     currentNickname = (await SecureStroageService.readNickname())!;
-    jwt = (await SecureStroageService.readAccessToken())!;
-    print(jwt);
-    print(currentNickname);
 
     var dio = await authDio(context);
 
@@ -91,54 +88,43 @@ class _CommunityPageState extends State<CommunityPage>
   }
 
   Future<void> like(int id, String type, Post post) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
-      'likeType': type,
-    });
+    var dio = await authDio(context);
 
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
+    dio
+        .post('http://localhost:8080/api/v1/like/$id',
+            data: jsonEncode({
+              'likeType': type,
+            }))
+        .then((response) {
       print('Post liked successfully');
-
       setState(() {
         post.isLiked = true;
         post.likeCount += 1;
       });
-    } else {
-      print('Failed to like post: ${response.statusCode}');
-    }
+    }).catchError((e) {
+      print('Failed to like post: ${e.response?.statusCode}');
+    });
   }
 
   Future<void> unLike(int id, String type, Post post) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
-      'likeType': type,
-    });
 
-    final request = http.Request('DELETE', url)
-      ..headers.addAll(headers)
-      ..body = body;
 
-    final response = await request.send();
+    var dio = await authDio(context);
 
-    if (response.statusCode == 200) {
+    dio.delete('http://localhost:8080/api/v1/unlike/$id',
+        data: jsonEncode({
+          'likeType': type,
+        })).then((response) {
       print('Post unliked successfully');
       setState(() {
         post.isLiked = false;
         post.likeCount -= 1;
       });
-    } else {
-      print('Failed to unlike post: ${response.statusCode}');
-    }
+    }).catchError((e) {
+      print('Failed to unlike post: ${e.response?.statusCode}');
+    });
+
+
   }
 
   @override
