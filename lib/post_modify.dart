@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:campride/env_config.dart';
 import 'package:campride/secure_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+
+import 'auth_dio.dart';
 
 class PostModifyPage extends StatefulWidget {
   final int id;
@@ -52,40 +55,41 @@ class _PostingPageState extends State<PostModifyPage> {
   }
 
   Future<void> _updatePost() async {
-    jwt = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
     List<String> imageNames = [];
 
-    var uri = Uri.parse('http://localhost:8080/api/v1/post/${widget.id}');
-
-    var request = http.MultipartRequest('PUT', uri);
-    request.headers['Authorization'] = 'Bearer $jwt';
+    FormData formData = FormData();
 
     for (var image in images) {
       if (image is String) {
         imageNames.add(image);
       } else if (image is File) {
-        request.files
-            .add(await http.MultipartFile.fromPath('images', image.path));
+        formData.files
+            .add(MapEntry('images', await MultipartFile.fromFile(image.path)));
       }
     }
 
-    Map<String, dynamic> postRequest = {
+    Map<String, dynamic> postRequestData = {
       'title': _titleController.text,
       'contents': _contentsController.text,
       'imageNames': imageNames,
     };
-    request.fields['postRequest'] = json.encode(postRequest);
 
-    var response = await request.send();
+    formData.fields.add(MapEntry('postRequest', json.encode(postRequestData)));
 
-    if (response.statusCode == 200) {
+    dio
+        .put(
+      'http://localhost:8080/api/v1/post/${widget.id}',
+      data: formData,
+    )
+        .then((response) {
       print('Post updated successfully');
       Navigator.pop(context);
-    } else {
+    }).catchError((error) {
       print('Failed to update post');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${await response.stream.bytesToString()}');
-    }
+      print('Response status: ${error.response?.statusCode}');
+      print('Response body: ${error.response?.data}');
+    });
   }
 
   @override
@@ -217,10 +221,8 @@ class _PostingPageState extends State<PostModifyPage> {
                                     image: DecorationImage(
                                       image: images[index] is File
                                           ? FileImage(images[index] as File)
-                                          : NetworkImage(
-                                                  (EnvConfig().s3Url +
-                                                      images[index]))
-                                              as ImageProvider,
+                                          : NetworkImage((EnvConfig().s3Url +
+                                              images[index])) as ImageProvider,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
