@@ -1213,27 +1213,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   Future updateLastMessage(int roomId) async {
     String jwt = (await SecureStroageService.readAccessToken())!;
 
-    final url =
-        Uri.parse('http://localhost:8080/api/v1/room/$roomId/last-message');
+    var dio = await authDio(context);
 
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json',
-    };
-
-    try {
-      final response = await http.put(url, headers: headers);
-
-      if (response.statusCode == 200) {
-        var data = json.decode(utf8.decode(response.bodyBytes));
-        print('Last message: $data');
-      } else {
-        print(
-            'Failed to load last message. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
+    await dio
+        .put('http://localhost:8080/api/v1/room/$roomId/last-message')
+        .then((response) {
+      print('Last message: ${response.data}');
+    }).catchError((error) {
+      print('Failed to load last message. Error: $error');
+    });
   }
 
   Future<Room?> fetchRoom(int roomId) async {
