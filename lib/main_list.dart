@@ -66,12 +66,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
       String arriveAddress,
       bool isOneWay,
       bool isRoundTrip) async {
-    String jwt = (await SecureStroageService.readAccessToken())!;
 
     final formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss")
         .format(DateTime.parse(selectedDate));
-
-    final url = Uri.parse('http://localhost:8080/api/v1/room');
 
     String roomType = "";
     if (isOneWay) {
@@ -81,32 +78,26 @@ class _CampRiderPageState extends State<CampRiderPage> {
       roomType = "ROUND";
     }
 
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json',
-    };
 
-    final body = jsonEncode({
-      "title": selectedTitle,
-      "departure": startAddress,
-      "destination": arriveAddress,
-      "departureTime": formattedDate,
-      "trainingDays": int.parse(selectedTrainingDate),
-      "maxParticipants": int.parse(selectedValue),
-      "roomType": roomType,
-    });
+    var dio = await authDio(context);
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        print('요청 성공: ${response.body}');
-      } else {
-        print('요청 실패: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('에러 발생: $e');
+      final response = await dio.post('/room', data: {
+        'title': selectedTitle,
+        'departure': startAddress,
+        'destination': arriveAddress,
+        'departureTime': formattedDate,
+        'trainingDays': int.parse(selectedTrainingDate),
+        'maxParticipants': int.parse(selectedValue),
+        'roomType': roomType,
+      });
+      print('Room created successfully');
+    } on DioException catch (e) {
+      print('Error: $e');
+      print('Response: ${e.response}');
     }
+
+
   }
 
   Future<List<Room>> fetchRooms() async {
