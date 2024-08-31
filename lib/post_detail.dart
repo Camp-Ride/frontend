@@ -154,28 +154,23 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> like(int id, String type, Post post) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
+    var dio = await authDio(context);
+
+    dio.post('/like/$id', data: {
       'likeType': type,
+    }).then((response) {
+      if (response.statusCode == 200) {
+        print('게시물 좋아요 성공');
+        setState(() {
+          post.isLiked = true;
+          post.likeCount++;
+        });
+      } else {
+        print('게시물 좋아요 실패: ${response.statusCode}');
+      }
+    }).catchError((e) {
+      print('게시물 좋아요 중 오류 발생: $e');
     });
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      print('Post liked successfully');
-
-      setState(() {
-        post.isLiked = true;
-        post.likeCount += 1;
-      });
-    } else {
-      print('Failed to like post: ${response.statusCode}');
-    }
   }
 
   Future<void> unLike(int id, String type, Post post) async {
