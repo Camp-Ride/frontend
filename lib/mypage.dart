@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:campride/auth_dio.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -48,24 +51,23 @@ class _MyPageState extends State<MyPage> {
   }
 
   Future<void> _updateNicknameApi(String nickname) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/user');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $_token',
-    };
-    final body = jsonEncode({'nickname': nickname});
 
-    try {
-      final response = await http.put(url, headers: headers, body: body);
+
+    var dio = await authDio(context);
+
+    dio.put('/user', data: {'nickname': nickname}).then((response) {
       if (response.statusCode == 200) {
         SecureStroageService.saveNickname(nickname);
         print("Nickname updated to: $nickname");
       } else {
         print("Failed to update nickname: ${response.statusCode}");
       }
-    } catch (e) {
+    }).catchError((e) {
       print("Error: $e");
-    }
+    });
+
+
+
   }
 
   @override
