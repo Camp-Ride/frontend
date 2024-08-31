@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:dio/dio.dart';
 
+import 'auth_dio.dart';
 import 'message.dart';
 
 const String minDateTimeString = "-999999999-01-01 00:00";
@@ -94,26 +96,18 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   }
 
   Future<List<Room>> fetchRooms() async {
-    String jwt = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
 
-    final url = Uri.parse('http://localhost:8080/api/v1/room/joined');
+    return await dio.get('/room/joined').then((response) {
+      if (response.statusCode == 200) {
+        List<dynamic> content = response.data;
+        print(content);
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $jwt',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      List<dynamic> content = json.decode(utf8.decode(response.bodyBytes));
-      print(content);
-
-      return content.map((json) => Room.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load rooms');
-    }
+        return content.map((json) => Room.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load rooms');
+      }
+    });
   }
 
   @override
