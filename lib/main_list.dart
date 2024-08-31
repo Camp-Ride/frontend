@@ -5,6 +5,7 @@ import 'package:campride/chat_room.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
@@ -122,63 +123,47 @@ class _CampRiderPageState extends State<CampRiderPage> {
   }
 
   Future<void> joinRoom(Room room) async {
-    final String jwtToken = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
 
     int roomId = room.id;
-    final String url = 'http://localhost:8080/api/v1/room/$roomId/join';
 
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $jwtToken', // JWT 토큰 추가
-    };
 
     try {
-      // PUT 요청 보내기
-      final http.Response response = await http.put(
-        Uri.parse(url),
-        headers: headers,
-      );
-
-      // 응답 상태 확인
-      if (response.statusCode == 200) {
-        print('Room joined successfully');
-
-        sendJoinRequest(roomId, jwtToken).then((value) => {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ChatRoomPage(initialRoom: room)))
-            });
-      } else {
-        // 요청이 실패했을 때 처리
-        String decodedBody = utf8.decode(response.bodyBytes);
-        var jsonResponse = jsonDecode(decodedBody);
-
-        if (jsonResponse['code'] == 4005) {
-          _showFailureDialog(context, "최대 참여 인원을 초과하였습니다.");
-        } else if (jsonResponse['code'] == 3007) {
-          _showFailureDialog(context, '강제퇴장된 방에 다시 입장할 수 없습니다.');
-        } else if (jsonResponse['code'] == 3006) {
-          _showFailureDialog(context, '방에 이미 참여 중입니다.');
-        } else {
-          _showFailureDialog(context, '알수 없는 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-        }
-
-        print('Failed to join room: ${jsonResponse}');
-      }
-    } catch (e) {
-      // 요청 중 오류가 발생했을 때 처리
+      final response = await dio.put('/room/$roomId/join');
+      print('Room joined successfully');
+      sendJoinRequest(roomId).then((value) => {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatRoomPage(initialRoom: room)))
+          });
+    } on DioException catch (e) {
       print('Error: $e');
-      _showFailureDialog(context, '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      print('Response: ${e.response }');
+
+      Map<String,dynamic> response = jsonDecode(e.response.toString());
+      print(response['code']);
+
+      if (response['code'] == 4005) {
+        _showFailureDialog(context, "최대 참여 인원을 초과하였습니다.");
+      } else if (response['code'] == 3007) {
+        _showFailureDialog(context, '강제퇴장된 방에 다시 입장할 수 없습니다.');
+      } else if (response['code'] == 3006) {
+        _showFailureDialog(context, '방에 이미 참여 중입니다.');
+      } else {
+        _showFailureDialog(context, '알수 없는 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      }
     }
   }
 
-  Future<void> sendJoinRequest(int roomId, String jwtToken) async {
+  Future<void> sendJoinRequest(int roomId) async {
     final url =
         Uri.parse('http://localhost:8080/api/v1/chat/send/join/$roomId');
 
     String userId = (await SecureStroageService.readUserId())!;
     String userNickname = (await SecureStroageService.readNickname())!;
+    String jwtToken = (await SecureStroageService.readAccessToken())!;
+
     try {
       final response = await http.post(
         url,
