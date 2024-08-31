@@ -1211,8 +1211,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   Future updateLastMessage(int roomId) async {
-    String jwt = (await SecureStroageService.readAccessToken())!;
-
     var dio = await authDio(context);
 
     await dio
@@ -1225,35 +1223,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   Future<Room?> fetchRoom(int roomId) async {
-    String jwtToken = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/room/$roomId');
+    var dio = await authDio(context);
 
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $jwtToken',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // 성공적으로 데이터를 가져온 경우
-        String decodedBody = utf8.decode(response.bodyBytes);
-        var data = jsonDecode(decodedBody);
-
-        print('Room data: $data');
-        return Room.fromJson(data);
-      } else {
-        // 에러 처리
-        print('Failed to fetch room data. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        return null;
-      }
+      final response =
+          await dio.get('http://localhost:8080/api/v1/room/$roomId');
+      print('Room data: ${response.data}');
+      return Room.fromJson(response.data);
     } catch (e) {
-      // 예외 처리
-      print('An error occurred: $e');
-      return null;
+      print('Failed to load room. Error: $e');
     }
   }
 }
