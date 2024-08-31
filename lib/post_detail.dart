@@ -100,24 +100,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   Future<Post> fetchPost() async {
     int id = widget.post.id;
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final response = await http.get(
-      Uri.parse('http://localhost:8080/api/v1/post/$id'),
-      headers: {
-        'Authorization': 'Bearer $jwt',
-      },
-    );
 
-    if (response.statusCode == 200) {
-      String currentUserNickname = (await SecureStroageService.readNickname())!;
-      Map<String, dynamic> jsonDataMap =
-          json.decode(utf8.decode(response.bodyBytes));
-      Post post = Post.fromJson(jsonDataMap, currentUserNickname);
+    var dio = await authDio(context);
 
-      return post;
-    } else {
-      throw Exception('Failed to load post');
-    }
+    return await dio.get('/post/$id').then((response) {
+      if (response.statusCode == 200) {
+        String currentUserNickname = currentNickname;
+        Map<String, dynamic> jsonDataMap = response.data;
+        Post post = Post.fromJson(jsonDataMap, currentUserNickname);
+        return post;
+      } else {
+        throw Exception('Failed to load post');
+      }
+    }).catchError((e) {
+      print('게시물 로드 중 오류 발생: $e');
+    });
+
+
+
   }
 
   Future<List<Comment>> fetchComments(int postId) async {
