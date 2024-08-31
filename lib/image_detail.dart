@@ -12,7 +12,7 @@ class ImageDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        navigatorKey.currentState?.pop();
+        Navigator.of(context).pop();
       },
       child: Scaffold(
         body: Center(
