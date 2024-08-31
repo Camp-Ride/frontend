@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:campride/auth_dio.dart';
 import 'package:campride/chat_room.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
@@ -108,35 +109,16 @@ class _CampRiderPageState extends State<CampRiderPage> {
   }
 
   Future<List<Room>> fetchRooms() async {
-    String jwt = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
 
-    final url = Uri.parse('http://localhost:8080/api/v1/room?page=0&size=10');
+    final response = await dio.get('/room?page=0&size=10');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $jwt',
-      },
-    );
+    Map<String, dynamic> data = response.data;
 
-    print(response.toString());
-    print(response.bodyBytes);
-    print(response.body);
-    print(response.headers);
-    print(response.statusCode);
-    print(response.contentLength);
+    List<dynamic> content = data['content'];
+    print(content);
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-
-      List<dynamic> content = data['content'];
-      print(content);
-
-      return content.map((json) => Room.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load rooms');
-    }
+    return content.map((json) => Room.fromJson(json)).toList();
   }
 
   Future<void> joinRoom(Room room) async {
