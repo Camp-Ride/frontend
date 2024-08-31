@@ -174,31 +174,23 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> unLike(int id, String type, Post post) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
+    var dio = await authDio(context);
+
+    dio.delete('/unlike/$id', data: {
       'likeType': type,
+    }).then((response) {
+      if (response.statusCode == 200) {
+        print('게시물 좋아요 취소 성공');
+        setState(() {
+          post.isLiked = false;
+          post.likeCount--;
+        });
+      } else {
+        print('게시물 좋아요 취소 실패: ${response.statusCode}');
+      }
+    }).catchError((e) {
+      print('게시물 좋아요 취소 중 오류 발생: $e');
     });
-
-    final request = http.Request('DELETE', url)
-      ..headers.addAll(headers)
-      ..body = body;
-
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
-      print('Post unliked successfully');
-      setState(() {
-        post.isLiked = false;
-        post.likeCount -= 1;
-      });
-    } else {
-      print('Failed to unlike post: ${response.statusCode}');
-    }
   }
 
   Future<void> likeComment(Comment comment, String type) async {
