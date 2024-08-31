@@ -1,8 +1,8 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'
+    hide Options;
 
 import 'login.dart';
 
@@ -13,7 +13,6 @@ Future authDio(BuildContext context) async {
   dio.interceptors.clear();
 
   dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) async {
-
     // 기기에 저장된 AccessToken 로드
     final accessToken = await storage.read(key: 'access_token');
 
@@ -22,10 +21,13 @@ Future authDio(BuildContext context) async {
     options.headers['Authorization'] = 'Bearer $accessToken';
     return handler.next(options);
   }, onError: (error, handler) async {
+    print(error);
+    print(error.response);
+    print(error.response?.statusCode);
 
     // 인증 오류가 발생했을 경우: AccessToken의 만료
     if (error.response?.statusCode == 401) {
-
+      print("start refresh token");
       // 기기에 저장된 AccessToken과 RefreshToken 로드
       final accessToken = await storage.read(key: 'access_token');
       final refreshToken = await storage.read(key: 'refresh_token');
@@ -36,17 +38,17 @@ Future authDio(BuildContext context) async {
       refreshDio.interceptors.clear();
 
       refreshDio.interceptors
-          .add(InterceptorsWrapper(onError: (error, handler) async {
+          .add(InterceptorsWrapper( onError: (error, handler) async {
 
         // 다시 인증 오류가 발생했을 경우: RefreshToken의 만료
         if (error.response?.statusCode == 401) {
-
           // 기기의 자동 로그인 정보 삭제
           await storage.deleteAll();
 
           // . . .
           // 로그인 만료 dialog 발생 후 로그인 페이지로 이동
-          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => LoginPage()));
           // . . .
         }
         // return handler.next(error);
@@ -56,11 +58,14 @@ Future authDio(BuildContext context) async {
       // refreshDio.options.headers['Authorization'] = 'Bearer $accessToken';
       // refreshDio.options.headers['Refresh'] = 'Bearer $refreshToken';
 
+      print("1");
       // 토큰 갱신 API 요청
       refreshDio.options.baseUrl = "http://localhost:8080/api/v1";
-      final refreshResponse = await refreshDio.post('/token/refreshtoken', data:{
-        "refreshToken":refreshToken
-      });
+      final refreshResponse = await refreshDio
+          .post('/token/refreshtoken', data: {"refreshToken": refreshToken});
+
+      print(refreshResponse);
+      print(refreshResponse.data);
 
       // response로부터 새로 갱신된 AccessToken과 RefreshToken 파싱
       final newAccessToken = refreshResponse.data['accessToken'];
@@ -74,7 +79,7 @@ Future authDio(BuildContext context) async {
       error.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
       // 수행하지 못했던 API 요청 복사본 생성
       final clonedRequest = await dio.request(error.requestOptions.path,
-          options:Options(
+          options: Options(
               method: error.requestOptions.method,
               headers: error.requestOptions.headers),
           data: error.requestOptions.data,

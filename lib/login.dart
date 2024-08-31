@@ -18,9 +18,18 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  _asyncMethod() async {
+    if (await SecureStroageService.readAccessToken() != null) {
+      if (!mounted) return;
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MainPage()));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _asyncMethod();
   }
 
   Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
@@ -60,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
       print('Refresh Token: $refreshToken');
       print('nickname: $nickname');
       print('userId: $userId');
-
     }
   }
 
