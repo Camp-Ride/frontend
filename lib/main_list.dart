@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
 
 class CampRiderPage extends StatefulWidget {
   const CampRiderPage({super.key});
@@ -66,7 +65,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
       String arriveAddress,
       bool isOneWay,
       bool isRoundTrip) async {
-
     final formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss")
         .format(DateTime.parse(selectedDate));
 
@@ -77,7 +75,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
     if (isRoundTrip) {
       roomType = "ROUND";
     }
-
 
     var dio = await authDio(context);
 
@@ -96,8 +93,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
       print('Error: $e');
       print('Response: ${e.response}');
     }
-
-
   }
 
   Future<List<Room>> fetchRooms() async {

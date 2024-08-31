@@ -13,6 +13,9 @@ import 'package:campride/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+
+import 'auth_dio.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -51,29 +54,16 @@ class _CommunityPageState extends State<CommunityPage>
   Future<void> deletePost(
     int postId,
   ) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
+    var dio = await authDio(context);
 
     try {
-      final response = await http.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $jwt',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          futurePosts = fetchPosts();
-        });
-
-        print('Post deleted successfully');
-      } else {
-        print('Failed to delete post: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
+      await dio.delete('http://localhost:8080/api/v1/post/$postId');
+      setState(() {
+        futurePosts = fetchPosts();
+      });
+      print('Post deleted successfully');
+    } on DioError catch (e) {
+      print('Failed to delete post: ${e.response?.statusCode}');
     }
   }
 
@@ -83,24 +73,20 @@ class _CommunityPageState extends State<CommunityPage>
     print(jwt);
     print(currentNickname);
 
-    final response = await http.get(
-      Uri.parse(
-          'http://localhost:8080/api/v1/post/paging?page=0&size=13${_tabController.index == 1 ? '&sortType=like' : null}'),
-      headers: {
-        'Authorization': 'Bearer $jwt',
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    var dio = await authDio(context);
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+    try {
+      final response = await dio.get(
+          'http://localhost:8080/api/v1/post/paging?page=0&size=10${_tabController.index == 1 ? '&sortType=like' : null}');
+      Map<String, dynamic> data = response.data;
       List<dynamic> content = data['content'];
 
       return content
           .map((json) => Post.fromJson(json, currentNickname))
           .toList();
-    } else {
-      throw Exception('Failed to load posts');
+    } on DioException catch (e) {
+      print('Failed to fetch posts: ${e.response?.statusCode}');
+      throw new Exception('Failed to fetch posts');
     }
   }
 
@@ -186,7 +172,8 @@ class _CommunityPageState extends State<CommunityPage>
                   child: TabBar(
                     controller: _tabController,
                     indicator: UnderlineTabIndicator(
-                      borderSide: const BorderSide(color: Colors.green, width: 3.0),
+                      borderSide:
+                          const BorderSide(color: Colors.green, width: 3.0),
                       insets: EdgeInsets.symmetric(
                           horizontal: 30.0.w), // 밑줄 길이를 늘리기 위한 인셋 조정
                     ),
@@ -220,7 +207,8 @@ class _CommunityPageState extends State<CommunityPage>
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return const Center(child: Text('작성된 글이 없습니다.'));
+                                  return const Center(
+                                      child: Text('작성된 글이 없습니다.'));
                                 } else {
                                   List<Post> posts = snapshot.data!;
                                   return ListView.builder(
@@ -337,15 +325,18 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 PopupMenuEntry<
                                                                     int>>
                                                             menuItems = [
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 1,
                                                             child: Text('삭제'),
                                                           ),
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 2,
                                                             child: Text('신고'),
                                                           ),
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 0,
                                                             child: Text('수정'),
                                                           ),
@@ -415,9 +406,10 @@ class _CommunityPageState extends State<CommunityPage>
                                                                         CachedNetworkImage(
                                                                       fit: BoxFit
                                                                           .cover,
-                                                                      imageUrl:
-                                                                          (EnvConfig().s3Url +
-                                                                              posts[index].images[0]),
+                                                                      imageUrl: (EnvConfig()
+                                                                              .s3Url +
+                                                                          posts[index]
+                                                                              .images[0]),
                                                                       progressIndicatorBuilder: (context,
                                                                               url,
                                                                               downloadProgress) =>
@@ -571,7 +563,8 @@ class _CommunityPageState extends State<CommunityPage>
                                       child: Text('Error: ${snapshot.error}'));
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return const Center(child: Text('작성된 글이 없습니다.'));
+                                  return const Center(
+                                      child: Text('작성된 글이 없습니다.'));
                                 } else {
                                   List<Post> posts = snapshot.data!;
                                   return ListView.builder(
@@ -688,15 +681,18 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 PopupMenuEntry<
                                                                     int>>
                                                             menuItems = [
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 1,
                                                             child: Text('삭제'),
                                                           ),
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 2,
                                                             child: Text('신고'),
                                                           ),
-                                                          const PopupMenuItem<int>(
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 0,
                                                             child: Text('수정'),
                                                           ),
@@ -920,8 +916,10 @@ class _CommunityPageState extends State<CommunityPage>
             child: FloatingActionButton(
               backgroundColor: const Color(0xff154236),
               onPressed: () {
-                Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const PostingPage()))
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PostingPage()))
                     .then((value) => setState(() {
                           futurePosts = fetchPosts();
                         }));
