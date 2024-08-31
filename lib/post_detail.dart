@@ -156,7 +156,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Future<void> like(int id, String type, Post post) async {
     var dio = await authDio(context);
 
-    dio.post('/like/$id', data: {
+    await dio.post('/like/$id', data: {
       'likeType': type,
     }).then((response) {
       if (response.statusCode == 200) {
@@ -176,7 +176,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Future<void> unLike(int id, String type, Post post) async {
     var dio = await authDio(context);
 
-    dio.delete('/unlike/$id', data: {
+    await dio.delete('/unlike/$id', data: {
       'likeType': type,
     }).then((response) {
       if (response.statusCode == 200) {
@@ -194,58 +194,43 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> likeComment(Comment comment, String type) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    int id = comment.id;
-    final url = Uri.parse('http://localhost:8080/api/v1/like/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
+    var dio = await authDio(context);
+
+    await dio.post('/like/${comment.id}', data: {
       'likeType': type,
+    }).then((response) {
+      if (response.statusCode == 200) {
+        print('댓글 좋아요 성공');
+        setState(() {
+          comment.isLiked = true;
+          comment.likeCount++;
+        });
+      } else {
+        print('댓글 좋아요 실패: ${response.statusCode}');
+      }
+    }).catchError((e) {
+      print('댓글 좋아요 중 오류 발생: $e');
     });
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      print('Post liked successfully');
-
-      setState(() {
-        comment.isLiked = true;
-        comment.likeCount += 1;
-      });
-    } else {
-      print('Failed to like post: ${response.statusCode}');
-    }
   }
 
   Future<void> unLikeComment(Comment comment, String type) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    int id = comment.id;
-    final url = Uri.parse('http://localhost:8080/api/v1/unlike/$id');
-    final headers = {
-      'Authorization': 'Bearer $jwt',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
+    var dio = await authDio(context);
+
+    await dio.delete('/unlike/${comment.id}', data: {
       'likeType': type,
+    }).then((response) {
+      if (response.statusCode == 200) {
+        print('댓글 좋아요 취소 성공');
+        setState(() {
+          comment.isLiked = false;
+          comment.likeCount--;
+        });
+      } else {
+        print('댓글 좋아요 취소 실패: ${response.statusCode}');
+      }
+    }).catchError((e) {
+      print('댓글 좋아요 취소 중 오류 발생: $e');
     });
-
-    final request = http.Request('DELETE', url)
-      ..headers.addAll(headers)
-      ..body = body;
-
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
-      print('Post unliked successfully');
-      setState(() {
-        comment.isLiked = false;
-        comment.likeCount -= 1;
-      });
-    } else {
-      print('Failed to unlike post: ${response.statusCode}');
-    }
   }
 
   @override
