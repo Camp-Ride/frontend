@@ -180,7 +180,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     });
     _connectStomp();
     updateLastMessage(room.id);
-    ref.read(messagesProvider.notifier).initMessages(room.id);
+    ref.read(messagesProvider.notifier).initMessages(room.id,context);
   }
 
   @override

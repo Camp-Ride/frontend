@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:campride/reaction.dart';
 import 'package:campride/reaction_type.dart';
 import 'package:campride/secure_storage.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+import 'auth_dio.dart';
 import 'message.dart';
 
 List<Message> messageDatas = [];
@@ -93,24 +95,17 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     return updateMessage(updatedMessage);
   }
 
-  initMessages(int roomId) async {
-    String? jwtToken = (await SecureStroageService.readAccessToken());
-    final url = Uri.parse(
-        'http://localhost:8080/api/v1/chat/messages/latest?roomId=$roomId');
-    // print(url);
+  initMessages(int roomId, BuildContext context) async {
+    var dio = await authDio(context);
 
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $jwtToken'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-
-      state = data.map((item) => Message.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load messages');
-    }
+    dio.get('/chat/messages/latest?roomId=$roomId').then((response) {
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        state = data.map((item) => Message.fromJson(item)).toList();
+      } else {
+        throw Exception('Failed to load messages');
+      }
+    });
   }
 
   Future<bool> getMessages(int roomId, int startOffset, int count) async {
