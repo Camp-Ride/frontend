@@ -127,7 +127,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
 
     int roomId = room.id;
 
-
     try {
       final response = await dio.put('/room/$roomId/join');
       print('Room joined successfully');
@@ -139,9 +138,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
           });
     } on DioException catch (e) {
       print('Error: $e');
-      print('Response: ${e.response }');
+      print('Response: ${e.response}');
 
-      Map<String,dynamic> response = jsonDecode(e.response.toString());
+      Map<String, dynamic> response = jsonDecode(e.response.toString());
       print(response['code']);
 
       if (response['code'] == 4005) {
@@ -157,37 +156,19 @@ class _CampRiderPageState extends State<CampRiderPage> {
   }
 
   Future<void> sendJoinRequest(int roomId) async {
-    final url =
-        Uri.parse('http://localhost:8080/api/v1/chat/send/join/$roomId');
-
-    String userId = (await SecureStroageService.readUserId())!;
-    String userNickname = (await SecureStroageService.readNickname())!;
-    String jwtToken = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $jwtToken', // JWT 토큰을 헤더에 포함
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'userId': userId, 'userNickname': userNickname}),
-      );
-
-      if (response.statusCode == 200) {
-        // 성공적으로 요청이 처리된 경우
-        print('Join request sent successfully.');
-        var responseData = jsonDecode(response.body);
-        print('Response Data: $responseData');
-      } else {
-        // 오류가 발생한 경우
-        print(
-            'Failed to send join request. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-      }
-    } catch (e) {
-      // 네트워크 오류 또는 예외 처리
-      print('An error occurred: $e');
+      final response = await dio.post('/chat/send/join/$roomId', data: {
+        'userId': await SecureStroageService.readUserId(),
+        'userNickname': await SecureStroageService.readNickname(),
+      });
+      print('Join request sent successfully.');
+      print('Response Data: ${response.data}');
+    } on DioException catch (e) {
+      print(
+          'Failed to send join request. Status code: ${e.response?.statusCode}');
+      print('Response body: ${e.response?.data}');
     }
   }
 
