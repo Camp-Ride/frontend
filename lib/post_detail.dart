@@ -63,7 +63,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
     var dio = await authDio(context);
 
-    dio.delete('/comment/$commentId').then((response) {
+    await dio.delete('/comment/$commentId').then((response) {
       if (response.statusCode == 200) {
         print('댓글이 성공적으로 삭제되었습니다.');
         setState(() {
@@ -81,28 +81,21 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Future<void> deletePost(
     int postId,
   ) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final url = Uri.parse('http://localhost:8080/api/v1/post/$postId');
 
-    try {
-      final response = await http.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $jwt',
-        },
-      );
+    var dio = await authDio(context);
 
+    await dio.delete('/post/$postId').then((response) {
       if (response.statusCode == 200) {
         Navigator.pop(context);
-
-        print('Post deleted successfully');
+        print('게시물이 성공적으로 삭제되었습니다.');
       } else {
-        print('Failed to delete post: ${response.statusCode}');
+        print('게시물 삭제 실패: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Error: $e');
-    }
+    }).catchError((e) {
+      print('삭제 중 오류 발생: $e');
+    });
+
+
   }
 
   Future<Post> fetchPost() async {
