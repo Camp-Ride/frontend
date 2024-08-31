@@ -60,7 +60,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Future<void> deleteComment(int commentId, int postId) async {
-
     var dio = await authDio(context);
 
     await dio.delete('/comment/$commentId').then((response) {
@@ -81,7 +80,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
   Future<void> deletePost(
     int postId,
   ) async {
-
     var dio = await authDio(context);
 
     await dio.delete('/post/$postId').then((response) {
@@ -94,8 +92,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }).catchError((e) {
       print('삭제 중 오류 발생: $e');
     });
-
-
   }
 
   Future<Post> fetchPost() async {
@@ -115,30 +111,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }).catchError((e) {
       print('게시물 로드 중 오류 발생: $e');
     });
-
-
-
   }
 
   Future<List<Comment>> fetchComments(int postId) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
-    final response = await http.get(
-      Uri.parse('http://localhost:8080/api/v1/post/$postId'),
-      headers: {
-        'Authorization': 'Bearer $jwt',
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    var dio = await authDio(context);
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-      List<dynamic> commentsJson = data['commentResponses'];
-      return commentsJson
-          .map((json) => Comment.fromJson(json, currentNickname))
-          .toList();
-    } else {
-      throw Exception('Failed to load comments');
-    }
+    return await dio.get('/post/$postId').then((response) {
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = response.data;
+        List<dynamic> commentsJson = data['commentResponses'];
+        return commentsJson
+            .map((json) => Comment.fromJson(json, currentNickname))
+            .toList();
+      } else {
+        throw Exception('Failed to load comments');
+      }
+    }).catchError((e) {
+      print('댓글 로드 중 오류 발생: $e');
+    });
   }
 
   Future<void> postComment(int postId, String content) async {
@@ -319,7 +309,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
@@ -355,7 +346,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       PopupMenuButton<int>(
                                         padding: EdgeInsets.zero,
                                         color: Colors.white,
-                                        child: const Icon(Icons.more_vert, size: 15),
+                                        child: const Icon(Icons.more_vert,
+                                            size: 15),
                                         onSelected: (value) {
                                           switch (value) {
                                             case 0:
@@ -434,7 +426,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       itemBuilder:
                                           (BuildContext context, int imgIndex) {
                                         return Padding(
-                                          padding: const EdgeInsets.only(right: 8.0),
+                                          padding:
+                                              const EdgeInsets.only(right: 8.0),
                                           child: GestureDetector(
                                             onTap: () {
                                               Navigator.push(
@@ -478,8 +471,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                       Row(
                                         children: [
                                           const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 5.0),
+                                            padding:
+                                                EdgeInsets.only(right: 5.0),
                                             child: Icon(Icons.comment),
                                           ),
                                           Text(
@@ -548,7 +541,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         } else if (snapshot.hasError) {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
@@ -604,7 +598,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               onSelected: (value) {
                                                 switch (value) {
                                                   case 1:
-                                                    deleteComment(comments[index].id,widget.post.id);
+                                                    deleteComment(
+                                                        comments[index].id,
+                                                        widget.post.id);
                                                     print("Delete selected");
                                                     // Handle delete action
                                                     break;
