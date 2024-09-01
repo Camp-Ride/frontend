@@ -5,6 +5,7 @@ import 'package:campride/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'auth_dio.dart';
 import 'item.dart';
 
 class ReportDialog extends StatefulWidget {
@@ -35,28 +36,20 @@ class _ReportDialogState extends State<ReportDialog> {
     print(content);
     print(type);
 
-    final url = Uri.parse('http://localhost:8080/api/v1/report');
-    String jwt = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $jwt',
-      },
-      body: jsonEncode({
+    await dio.post(
+      '/report',
+      data: {
         'itemId': itemId,
         'content': content,
         'communityType': type.toString().split('.').last,
-      }),
-    );
-
-    if (response.statusCode == 200) {
+      },
+    ).then((response) {
       print('신고가 성공적으로 접수되었습니다.');
-    } else {
-      print(response);
-      print('신고 실패: ${response.statusCode}');
-    }
+    }).catchError((error) {
+      print('신고 실패: $error');
+    });
   }
 
   @override
