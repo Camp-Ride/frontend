@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/secure_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+
+import 'auth_dio.dart';
 
 class PostingPage extends StatefulWidget {
   const PostingPage({super.key});
@@ -38,42 +41,39 @@ class _PostingPageState extends State<PostingPage> {
   }
 
   Future<void> post(String title, String contents, List<File> images) async {
-    jwt = (await SecureStroageService.readAccessToken())!;
+    var dio = await authDio(context);
+    FormData formData = FormData();
 
     if (title.isEmpty || contents.isEmpty) {
       print("글을 작성하려면 글 제목이나 내용이 빠지면 안됩니다.");
       return;
     }
 
-    var uri = Uri.parse('http://localhost:8080/api/v1/post');
-    var request = http.MultipartRequest('POST', uri);
-
     for (var image in images) {
-      var stream = http.ByteStream(image.openRead());
-      var length = await image.length();
-      var multipartFile = http.MultipartFile(
-        'images',
-        stream,
-        length,
-        filename: image.path,
-      );
-      request.files.add(multipartFile);
+      formData.files
+          .add(MapEntry('images', await MultipartFile.fromFile(image.path)));
     }
 
-    request.fields['postRequest'] = jsonEncode({
-      "title": title,
-      "contents": contents,
-    });
+    Map<String, dynamic> postRequestData = {
+      'title': title,
+      'contents': contents,
+    };
 
-    request.headers['Authorization'] = 'Bearer $jwt';
+    formData.fields.add(MapEntry('postRequest', json.encode(postRequestData)));
 
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      print('Uploaded successfully!');
+    await dio
+        .post(
+      'http://localhost:8080/api/v1/post',
+      data: formData,
+    )
+        .then((response) {
+      print('Post created successfully');
       Navigator.pop(context);
-    } else {
-      print('Upload failed with status: ${response.statusCode}');
-    }
+    }).catchError((error) {
+      print('Failed to create post');
+      print('Response status: ${error.response?.statusCode}');
+      print('Response body: ${error.response?.data}');
+    });
   }
 
   @override
