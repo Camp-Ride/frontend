@@ -57,7 +57,7 @@ class _CommunityPageState extends State<CommunityPage>
     var dio = await authDio(context);
 
     try {
-      await dio.delete('http://localhost:8080/api/v1/post/$postId');
+      await dio.delete('/post/$postId');
       setState(() {
         futurePosts = fetchPosts();
       });
@@ -74,7 +74,7 @@ class _CommunityPageState extends State<CommunityPage>
 
     try {
       final response = await dio.get(
-          'http://localhost:8080/api/v1/post/paging?page=0&size=10${_tabController.index == 1 ? '&sortType=like' : null}');
+          '/post/paging?page=0&size=10${_tabController.index == 1 ? '&sortType=like' : null}');
       Map<String, dynamic> data = response.data;
       List<dynamic> content = data['content'];
 
@@ -91,7 +91,7 @@ class _CommunityPageState extends State<CommunityPage>
     var dio = await authDio(context);
 
     dio
-        .post('http://localhost:8080/api/v1/like/$id',
+        .post('/like/$id',
             data: jsonEncode({
               'likeType': type,
             }))
@@ -111,7 +111,7 @@ class _CommunityPageState extends State<CommunityPage>
 
     var dio = await authDio(context);
 
-    dio.delete('http://localhost:8080/api/v1/unlike/$id',
+    dio.delete('/unlike/$id',
         data: jsonEncode({
           'likeType': type,
         })).then((response) {

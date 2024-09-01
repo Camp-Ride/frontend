@@ -1,3 +1,4 @@
+import 'package:campride/Constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ Future authDio(BuildContext context) async {
     final accessToken = await storage.read(key: 'access_token');
 
     // 매 요청마다 헤더에 AccessToken을 포함
-    options.baseUrl = "http://localhost:8080/api/v1";
+    options.baseUrl = Constants.API + '/api/v1';
     options.headers['Authorization'] = 'Bearer $accessToken';
     return handler.next(options);
   }, onError: (error, handler) async {
@@ -60,7 +61,7 @@ Future authDio(BuildContext context) async {
 
       print("1");
       // 토큰 갱신 API 요청
-      refreshDio.options.baseUrl = "http://localhost:8080/api/v1";
+      refreshDio.options.baseUrl = Constants.API + '/api/v1';
       final refreshResponse = await refreshDio
           .post('/token/refreshtoken', data: {"refreshToken": refreshToken});
 

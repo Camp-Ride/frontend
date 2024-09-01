@@ -1,4 +1,5 @@
 
+import 'package:campride/Constants.dart';
 import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
@@ -19,6 +20,7 @@ import 'env_config.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
+  Constants.setEnvironment(Environment.PROD);
   await ScreenUtil.ensureScreenSize();
   await dotenv.load(fileName: "assets/env/.env");
   var key = dotenv.env['APP_KEY'];

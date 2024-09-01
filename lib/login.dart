@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
 
+import 'Constants.dart';
 import 'env_config.dart';
 
 class LoginPage extends StatefulWidget {
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
-    final url = Uri.parse('http://localhost:8080/api/v1/user');
+    final url = Uri.parse(Constants.API + '/api/v1/user');
     final response = await http.get(
       url,
       headers: {
@@ -77,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         Uri.parse('${EnvConfig().prodUrl}/oauth2/authorization/$provider');
 
     final localUrl =
-        Uri.parse('http://localhost:8080/oauth2/authorization/$provider');
+        Uri.parse( Constants.API + '/oauth2/authorization/$provider');
     late String status;
 
     print(localUrl);

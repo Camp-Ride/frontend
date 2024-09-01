@@ -63,7 +63,7 @@ class _PostingPageState extends State<PostingPage> {
 
     await dio
         .post(
-      'http://localhost:8080/api/v1/post',
+      '/post',
       data: formData,
     )
         .then((response) {
