@@ -32,6 +32,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     super.initState();
     futureRooms = fetchRooms();
     subscribeStomps(futureRooms);
+    print("initstate");
   }
 
   @override
@@ -156,6 +157,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () => {
+
+
                         navigatorKey.currentState
                             ?.push(
                               MaterialPageRoute(

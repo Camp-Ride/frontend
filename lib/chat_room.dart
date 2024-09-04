@@ -135,7 +135,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     );
   }
 
-  void _onDisconnect(StompFrame frame) {
+  void _onDisconnect(StompFrame frame) async {
     print('Disconnected from STOMP server');
   }
 
@@ -409,6 +409,28 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
     void sendImage() async {
       await ref.read(imageProvider.notifier).pickImageFromGallery();
+      File? image = await ref.read(imageProvider);
+      print(image);
+
+      var dio = await authDio(context);
+
+      final response = await dio.post(
+        '/images',
+        data: FormData.fromMap({
+          'images': await MultipartFile.fromFile(image!.path),
+        }),
+      );
+
+      final Map<String, dynamic> decodedJson = response.data;
+
+      final imageUrl = await decodedJson['imageNames'][0];
+      print(imageUrl);
+
+      addMessage("사진", false, "", imageUrl, ChatMessageType.IMAGE);
+    }
+
+    void sendImageWithCamera() async {
+      await ref.read(imageProvider.notifier).captureImageWithCamera();
       File? image = await ref.read(imageProvider);
       print(image);
 
@@ -787,6 +809,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         children: [
           Expanded(child: buildMessageList(messages)),
           MessageBar(
+            messageBarHintText: "메시지를 입력하세요",
+            messageBarHintStyle: const TextStyle(color: Colors.black54),
             replying: isReplying,
             replyingTo: replyingMessage,
             onTapCloseReply: stopReply,
@@ -808,13 +832,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 child: InkWell(
                   child: const Icon(
                     Icons.camera_alt,
-                    color: Colors.lightGreen,
+                    color: Colors.green,
                     size: 24,
                   ),
                   onTap: () {
-                    ref.read(imageProvider.notifier).captureImageWithCamera();
+                    sendImageWithCamera();
                   },
-                ),
+                )
               ),
             ],
           ),
