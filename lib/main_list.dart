@@ -185,6 +185,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
     late KakaoMapController kakaoMapController;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -285,6 +286,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       Scaffold(
+                                                        resizeToAvoidBottomInset: false,
                                                     appBar: AppBar(
                                                       title:
                                                           const Text("주소 검색"),
@@ -395,6 +397,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       Scaffold(
+                                                        resizeToAvoidBottomInset: false,
                                                     appBar: AppBar(
                                                       title:
                                                           const Text("주소 검색"),
@@ -466,8 +469,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                 child: Text('Error: ${snapshot.error}'));
                           } else if (!snapshot.hasData ||
                               snapshot.data!.isEmpty) {
-                            return const Center(
-                                child: Text('생성된 방이 없습니다.'));
+                            return const Center(child: Text('생성된 방이 없습니다.'));
                           } else {
                             final rooms = snapshot.data!;
                             return ListView.builder(
@@ -1077,24 +1079,58 @@ class _CampRiderPageState extends State<CampRiderPage> {
                 context: context,
                 barrierDismissible: true,
                 builder: ((context) {
-                  return SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child: StatefulBuilder(builder:
-                          (BuildContext context, StateSetter setState) {
-                        return Dialog(
-                          child: Padding(
-                            padding: const EdgeInsets.all(25.0).r,
-                            child: Container(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                        onTap: () => {
-                                              Navigator.of(context).pop(),
+                  return SingleChildScrollView(
+                    child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: StatefulBuilder(builder:
+                            (BuildContext context, StateSetter setState) {
+                          return Dialog(
+                            child: Padding(
+                              padding: const EdgeInsets.all(25.0).r,
+                              child: Container(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                          onTap: () => {
+                                                Navigator.of(context).pop(),
+                                                setState(() {
+                                                  selectedTitle = "";
+                                                  selectedDate = "";
+                                                  selectedValue = null;
+                                                  selectedTrainingDate = null;
+                                                  startAddress = "";
+                                                  arriveAddress = "";
+                                                  isOneWay = false;
+                                                  isRoundTrip = false;
+                                                }),
+                                              },
+                                          child: const Icon(Icons.close)),
+                                      const Text("방만들기"),
+                                      Center(
+                                        child: SizedBox(
+                                          width: 45.w,
+                                          height: 27.h,
+                                          child: TextButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color(0xFF355A50),
+                                            ),
+                                            onPressed: () async {
+                                              await postRoomData(
+                                                  selectedTitle,
+                                                  selectedDate,
+                                                  selectedTrainingDate!,
+                                                  selectedValue!,
+                                                  startAddress,
+                                                  arriveAddress,
+                                                  isOneWay,
+                                                  isRoundTrip);
+                                              Navigator.of(context).pop();
                                               setState(() {
                                                 selectedTitle = "";
                                                 selectedDate = "";
@@ -1104,526 +1140,515 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                 arriveAddress = "";
                                                 isOneWay = false;
                                                 isRoundTrip = false;
-                                              }),
-                                            },
-                                        child: const Icon(Icons.close)),
-                                    const Text("방만들기"),
-                                    Center(
-                                      child: SizedBox(
-                                        width: 45.w,
-                                        height: 27.h,
-                                        child: TextButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xFF355A50),
-                                          ),
-                                          onPressed: () async {
-                                            await postRoomData(
-                                                selectedTitle,
-                                                selectedDate,
-                                                selectedTrainingDate!,
-                                                selectedValue!,
-                                                startAddress,
-                                                arriveAddress,
-                                                isOneWay,
-                                                isRoundTrip);
-                                            Navigator.of(context).pop();
-                                            setState(() {
-                                              selectedTitle = "";
-                                              selectedDate = "";
-                                              selectedValue = null;
-                                              selectedTrainingDate = null;
-                                              startAddress = "";
-                                              arriveAddress = "";
-                                              isOneWay = false;
-                                              isRoundTrip = false;
-                                            });
-                                          },
-                                          child: Text(
-                                            '완료',
-                                            style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                TextField(
-                                  onChanged: (text) {
-                                    setState(() {
-                                      selectedTitle = text;
-                                    });
-                                  },
-                                  textAlign: TextAlign.center,
-                                  decoration: const InputDecoration(
-                                    hintText: '방 제목을 입력해 주세요!',
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey),
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black54),
-                                    ),
-                                  ),
-                                ),
-                                Column(
-                                  children: [
-                                    Container(
-                                      width: 300.w,
-                                      height: 51.h,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF355A50),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                    left: 10.0)
-                                                .w,
-                                            child: Text(
-                                              "출발지",
-                                              style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 8.0)
-                                                    .w,
-                                            child: SizedBox(
-                                                width: 16.w,
-                                                child: Image.asset(
-                                                  "assets/images/location.png",
-                                                  fit: BoxFit.fill,
-                                                )),
-                                          ),
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 50.h,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            Scaffold(
-                                                          appBar: AppBar(
-                                                            title: const Text(
-                                                                "주소 검색"),
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                          ),
-                                                          body:
-                                                              DaumPostcodeView(
-                                                            onComplete:
-                                                                (model) {
-                                                              setState(() {
-                                                                startAddress =
-                                                                    model
-                                                                        .address;
-                                                              });
-
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(model);
-                                                            },
-                                                            options:
-                                                                const DaumPostcodeOptions(
-                                                              animation: true,
-                                                              hideEngBtn: true,
-                                                              themeType:
-                                                                  DaumPostcodeThemeType
-                                                                      .defaultTheme,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ));
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                      WidgetStateProperty.all<
-                                                              Color>(
-                                                          Colors.transparent),
-                                                  overlayColor:
-                                                      WidgetStateProperty.all<
-                                                              Color>(
-                                                          Colors.transparent),
-                                                ),
-                                                child: Text(
-                                                  startAddress == ""
-                                                      ? "Where do you start?"
-                                                      : startAddress,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 13.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Container(
-                                        width: 40.w,
-                                        height: 40.h,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
-                                              spreadRadius: 1,
-                                              blurRadius: 3,
-                                              offset: const Offset(0,
-                                                  3), // changes position of shadow
-                                            ),
-                                          ],
-                                        ),
-                                        child: IconButton(
-                                          onPressed: () {
-                                            if (startAddress != "" &&
-                                                arriveAddress != "") {
-                                              String tempAddress = "";
-
-                                              setState(() {
-                                                tempAddress = startAddress;
-                                                startAddress = arriveAddress;
-                                                arriveAddress = tempAddress;
                                               });
-                                            }
-                                          },
-                                          icon: Image.asset(
-                                            "assets/images/change.png",
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 300.w,
-                                      height: 51.h,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF355A50),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                    left: 10.0)
-                                                .w,
+                                            },
                                             child: Text(
-                                              "도착지",
+                                              '완료',
                                               style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 8.0)
-                                                    .w,
-                                            child: SizedBox(
-                                                width: 16.w,
-                                                child: Image.asset(
-                                                  "assets/images/location.png",
-                                                  fit: BoxFit.fill,
-                                                )),
-                                          ),
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 50.h,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            Scaffold(
-                                                          appBar: AppBar(
-                                                            title: const Text(
-                                                                "주소 검색"),
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                          ),
-                                                          body:
-                                                              DaumPostcodeView(
-                                                            onComplete:
-                                                                (model) {
-                                                              setState(() {
-                                                                arriveAddress =
-                                                                    model
-                                                                        .address;
-                                                              });
-
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(model);
-                                                            },
-                                                            options:
-                                                                const DaumPostcodeOptions(
-                                                              animation: true,
-                                                              hideEngBtn: true,
-                                                              themeType:
-                                                                  DaumPostcodeThemeType
-                                                                      .defaultTheme,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ));
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                      WidgetStateProperty.all<
-                                                              Color>(
-                                                          Colors.transparent),
-                                                  overlayColor:
-                                                      WidgetStateProperty.all<
-                                                              Color>(
-                                                          Colors.transparent),
-                                                ),
-                                                child: Text(
-                                                  arriveAddress == ""
-                                                      ? "Where are you going?"
-                                                      : arriveAddress,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 13.sp,
-                                                  ),
-                                                ),
+                                                fontSize: 10.sp,
+                                                color: Colors.white,
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  width: 300.w,
-                                  height: 50.h,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                      color: Colors.black54, // 테두리 색상
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.white70.withOpacity(0.5),
-                                        spreadRadius: 5,
-                                        blurRadius: 3,
-                                        offset: const Offset(
-                                            0, 3), // changes position of shadow
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  child: TextButton(
-                                      onPressed: () {
-                                        DatePicker.showDateTimePicker(context,
-                                            showTitleActions: true,
-                                            onChanged: (date) {
-                                          print('change $date');
-                                        }, onConfirm: (date) {
-                                          print('confirm $date');
-
-                                          setState(() {
-                                            selectedDate =
-                                                DateFormat('yyyy-MM-dd HH:mm')
-                                                    .format(date)
-                                                    .toString();
-                                          });
-
-                                          print(selectedDate);
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  TextField(
+                                    onChanged: (text) {
+                                      setState(() {
+                                        selectedTitle = text;
+                                      });
+                                    },
+                                    textAlign: TextAlign.center,
+                                    decoration: const InputDecoration(
+                                      hintText: '방 제목을 입력해 주세요!',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.black54),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: 300.w,
+                                        height: 51.h,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF355A50),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                      left: 10.0)
+                                                  .w,
+                                              child: Text(
+                                                "출발지",
+                                                style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(left: 8.0)
+                                                      .w,
+                                              child: SizedBox(
+                                                  width: 16.w,
+                                                  child: Image.asset(
+                                                    "assets/images/location.png",
+                                                    fit: BoxFit.fill,
+                                                  )),
+                                            ),
+                                            Expanded(
+                                              child: SizedBox(
+                                                height: 50.h,
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Scaffold(
+                                                            resizeToAvoidBottomInset:
+                                                                false,
+                                                            appBar: AppBar(
+                                                              title: const Text(
+                                                                  "주소 검색"),
+                                                              backgroundColor:
+                                                                  Colors.white,
+                                                            ),
+                                                            body:
+                                                                DaumPostcodeView(
+                                                              onComplete:
+                                                                  (model) {
+                                                                setState(() {
+                                                                  startAddress =
+                                                                      model
+                                                                          .address;
+                                                                });
+                    
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(model);
+                                                              },
+                                                              options:
+                                                                  const DaumPostcodeOptions(
+                                                                animation: true,
+                                                                hideEngBtn: true,
+                                                                themeType:
+                                                                    DaumPostcodeThemeType
+                                                                        .defaultTheme,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ));
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStateProperty.all<
+                                                                Color>(
+                                                            Colors.transparent),
+                                                    overlayColor:
+                                                        WidgetStateProperty.all<
+                                                                Color>(
+                                                            Colors.transparent),
+                                                  ),
+                                                  child: Text(
+                                                    startAddress == ""
+                                                        ? "Where do you start?"
+                                                        : startAddress,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13.sp,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Container(
+                                          width: 40.w,
+                                          height: 40.h,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color:
+                                                    Colors.black.withOpacity(0.1),
+                                                spreadRadius: 1,
+                                                blurRadius: 3,
+                                                offset: const Offset(0,
+                                                    3), // changes position of shadow
+                                              ),
+                                            ],
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              if (startAddress != "" &&
+                                                  arriveAddress != "") {
+                                                String tempAddress = "";
+                    
+                                                setState(() {
+                                                  tempAddress = startAddress;
+                                                  startAddress = arriveAddress;
+                                                  arriveAddress = tempAddress;
+                                                });
+                                              }
+                                            },
+                                            icon: Image.asset(
+                                              "assets/images/change.png",
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 300.w,
+                                        height: 51.h,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF355A50),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                      left: 10.0)
+                                                  .w,
+                                              child: Text(
+                                                "도착지",
+                                                style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(left: 8.0)
+                                                      .w,
+                                              child: SizedBox(
+                                                  width: 16.w,
+                                                  child: Image.asset(
+                                                    "assets/images/location.png",
+                                                    fit: BoxFit.fill,
+                                                  )),
+                                            ),
+                                            Expanded(
+                                              child: SizedBox(
+                                                height: 50.h,
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Scaffold(
+                                                                resizeToAvoidBottomInset: false,
+                                                            appBar: AppBar(
+                                                              title: const Text(
+                                                                  "주소 검색"),
+                                                              backgroundColor:
+                                                                  Colors.white,
+                                                            ),
+                                                            body:
+                                                                DaumPostcodeView(
+                                                              onComplete:
+                                                                  (model) {
+                                                                setState(() {
+                                                                  arriveAddress =
+                                                                      model
+                                                                          .address;
+                                                                });
+                    
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(model);
+                                                              },
+                                                              options:
+                                                                  const DaumPostcodeOptions(
+                                                                animation: true,
+                                                                hideEngBtn: true,
+                                                                themeType:
+                                                                    DaumPostcodeThemeType
+                                                                        .defaultTheme,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ));
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStateProperty.all<
+                                                                Color>(
+                                                            Colors.transparent),
+                                                    overlayColor:
+                                                        WidgetStateProperty.all<
+                                                                Color>(
+                                                            Colors.transparent),
+                                                  ),
+                                                  child: Text(
+                                                    arriveAddress == ""
+                                                        ? "Where are you going?"
+                                                        : arriveAddress,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13.sp,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Container(
+                                    width: 300.w,
+                                    height: 50.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: Colors.black54, // 테두리 색상
+                                        width: 1.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white70.withOpacity(0.5),
+                                          spreadRadius: 5,
+                                          blurRadius: 3,
+                                          offset: const Offset(
+                                              0, 3), // changes position of shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: TextButton(
+                                        onPressed: () {
+                                          DatePicker.showDateTimePicker(context,
+                                              showTitleActions: true,
+                                              onChanged: (date) {
+                                            print('change $date');
+                                          }, onConfirm: (date) {
+                                            print('confirm $date');
+                    
+                                            setState(() {
+                                              selectedDate =
+                                                  DateFormat('yyyy-MM-dd HH:mm')
+                                                      .format(date)
+                                                      .toString();
+                                            });
+                    
+                                            print(selectedDate);
+                                          },
+                                              currentTime: DateTime.now(),
+                                              locale: LocaleType.ko);
                                         },
-                                            currentTime: DateTime.now(),
-                                            locale: LocaleType.ko);
-                                      },
+                                        child: Center(
+                                          child: Text(
+                                            selectedDate == ""
+                                                ? '출발할 날짜와 시간을 선택해 주세요!'
+                                                : selectedDate,
+                                            style: TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 14.sp),
+                                          ),
+                                        )),
+                                  ),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Container(
+                                      width: 300.w,
+                                      height: 50.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Colors.black54, // 테두리 색상
+                                          width: 1.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.white70.withOpacity(0.5),
+                                            spreadRadius: 5,
+                                            blurRadius: 3,
+                                            offset: const Offset(0,
+                                                3), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
                                       child: Center(
-                                        child: Text(
-                                          selectedDate == ""
-                                              ? '출발할 날짜와 시간을 선택해 주세요!'
-                                              : selectedDate,
+                                        child: DropdownButton(
                                           style: TextStyle(
                                               color: Colors.black54,
                                               fontSize: 14.sp),
+                                          alignment: Alignment.center,
+                                          value: selectedTrainingDate,
+                                          underline: const SizedBox.shrink(),
+                                          icon: const SizedBox.shrink(),
+                                          hint: Text(
+                                            "며칠 동안 훈련받으시나요?",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 14.sp),
+                                          ),
+                                          items: dropDownList
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
+                                          onChanged: (String? value) {
+                                            setState(() {
+                                              selectedTrainingDate = value;
+                                            });
+                                          },
                                         ),
                                       )),
-                                ),
-                                Container(
-                                    width: 300.w,
-                                    height: 50.h,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: Colors.black54, // 테두리 색상
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color:
-                                              Colors.white70.withOpacity(0.5),
-                                          spreadRadius: 5,
-                                          blurRadius: 3,
-                                          offset: const Offset(0,
-                                              3), // changes position of shadow
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Container(
+                                      width: 300.w,
+                                      height: 50.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: Colors.black54, // 테두리 색상
+                                          width: 1.0,
                                         ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: DropdownButton(
-                                        style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 14.sp),
-                                        alignment: Alignment.center,
-                                        value: selectedTrainingDate,
-                                        underline: const SizedBox.shrink(),
-                                        icon: const SizedBox.shrink(),
-                                        hint: Text(
-                                          "며칠 동안 훈련을 받으시는지 선택해 주세요!",
-                                          textAlign: TextAlign.center,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.white70.withOpacity(0.5),
+                                            spreadRadius: 5,
+                                            blurRadius: 3,
+                                            offset: const Offset(0,
+                                                3), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: DropdownButton(
                                           style: TextStyle(
                                               color: Colors.black54,
                                               fontSize: 14.sp),
+                                          alignment: Alignment.center,
+                                          value: selectedValue,
+                                          underline: const SizedBox.shrink(),
+                                          icon: const SizedBox.shrink(),
+                                          hint: Text(
+                                            "방 최대 참여 인원을 선택해 주세요!",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 14.sp),
+                                          ),
+                                          items: dropDownList2
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          }).toList(),
+                                          onChanged: (String? value) {
+                                            setState(() {
+                                              selectedValue = value;
+                                            });
+                                          },
                                         ),
-                                        items: dropDownList
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? value) {
+                                      )),
+                                  SizedBox(
+                                    height: 20.h,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Checkbox(
+                                        value: isRoundTrip,
+                                        onChanged: (bool? newValue) {
                                           setState(() {
-                                            selectedTrainingDate = value;
+                                            isRoundTrip = true;
+                                            isOneWay = false;
                                           });
                                         },
                                       ),
-                                    )),
-                                Container(
-                                    width: 300.w,
-                                    height: 50.h,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: Colors.black54, // 테두리 색상
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color:
-                                              Colors.white70.withOpacity(0.5),
-                                          spreadRadius: 5,
-                                          blurRadius: 3,
-                                          offset: const Offset(0,
-                                              3), // changes position of shadow
+                                      Container(
+                                        width: 50.w,
+                                        // 컨테이너 크기
+                                        height: 20.h,
+                                        // 컨테이너 높이
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(colors: [
+                                            Color(0xffDCCB37),
+                                            Color(0xff44EB29)
+                                          ]), // 컨테이너 색상
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
-                                      ],
-                                    ),
-                                    child: Center(
-                                      child: DropdownButton(
-                                        style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 14.sp),
-                                        alignment: Alignment.center,
-                                        value: selectedValue,
-                                        underline: const SizedBox.shrink(),
-                                        icon: const SizedBox.shrink(),
-                                        hint: Text(
-                                          "방 최대 참여 인원을 선택해 주세요!",
+                                        child: const Text(
+                                          "왕복",
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 14.sp),
                                         ),
-                                        items: dropDownList2
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? value) {
+                                      ),
+                                      Checkbox(
+                                        value: isOneWay,
+                                        onChanged: (bool? newValue) {
                                           setState(() {
-                                            selectedValue = value;
+                                            isOneWay = true;
+                                            isRoundTrip = false;
                                           });
                                         },
                                       ),
-                                    )),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Checkbox(
-                                      value: isRoundTrip,
-                                      onChanged: (bool? newValue) {
-                                        setState(() {
-                                          isRoundTrip = true;
-                                          isOneWay = false;
-                                        });
-                                      },
-                                    ),
-                                    Container(
-                                      width: 50.w,
-                                      // 컨테이너 크기
-                                      height: 20.h,
-                                      // 컨테이너 높이
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(colors: [
-                                          Color(0xffDCCB37),
-                                          Color(0xff44EB29)
-                                        ]), // 컨테이너 색상
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Text(
-                                        "왕복",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    Checkbox(
-                                      value: isOneWay,
-                                      onChanged: (bool? newValue) {
-                                        setState(() {
-                                          isOneWay = true;
-                                          isRoundTrip = false;
-                                        });
-                                      },
-                                    ),
-                                    Container(
-                                      width: 60.w, // 컨테이너 크기
-                                      height: 20.h, // 컨테이너 높이
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(colors: [
-                                          Color(0xff48ADE5),
-                                          Color(0xff76CB68)
-                                        ]), // 컨테이너 색상
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Text(
-                                        "편도",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
-                            )),
-                          ),
-                        );
-                      }));
+                                      Container(
+                                        width: 60.w, // 컨테이너 크기
+                                        height: 20.h, // 컨테이너 높이
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(colors: [
+                                            Color(0xff48ADE5),
+                                            Color(0xff76CB68)
+                                          ]), // 컨테이너 색상
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Text(
+                                          "편도",
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              )),
+                            ),
+                          );
+                        })),
+                  );
                 }),
               ).then((value) => {
                     setState(() {
