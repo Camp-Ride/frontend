@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
+import 'Constants.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -23,9 +24,35 @@ class _MyPageState extends State<MyPage> {
 
   final TextEditingController _controller = TextEditingController();
 
+  Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
+    final url = Uri.parse(Constants.API + '/api/v1/user');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      print(data);
+
+      await SecureStroageService.saveUserId(data['userId']);
+      await SecureStroageService.saveNickname(data['nickname']);
+    } else {
+      throw Exception('Failed to load user info');
+    }
+  }
+
   Future<void> getUserInfo() async {
-    String? nickname = await SecureStroageService.readNickname();
     String? token = await SecureStroageService.readAccessToken();
+    await saveUserNicknameAndUserIdFromToken(token!);
+    String? nickname = await SecureStroageService.readNickname();
+
+    print(nickname);
+    print(token);
+
     setState(() {
       _nickname = nickname!;
       _token = token!;
@@ -43,16 +70,20 @@ class _MyPageState extends State<MyPage> {
     setState(() {
       if (_isEditing) {
         // Save the nickname and call the API to update it
-        _nickname = _controller.text;
-        _updateNicknameApi(_nickname);
+
+        if (_controller.text != "") {
+          _nickname = _controller.text;
+          print("Nickname: $_nickname");
+          _updateNicknameApi(_nickname);
+        }
       }
       _isEditing = !_isEditing;
+
+      print("Nickname: $_nickname");
     });
   }
 
   Future<void> _updateNicknameApi(String nickname) async {
-
-
     var dio = await authDio(context);
 
     dio.put('/user', data: {'nickname': nickname}).then((response) {
@@ -65,9 +96,6 @@ class _MyPageState extends State<MyPage> {
     }).catchError((e) {
       print("Error: $e");
     });
-
-
-
   }
 
   @override
@@ -141,12 +169,14 @@ class _MyPageState extends State<MyPage> {
                                           decoration: InputDecoration(
                                             hintText: _nickname,
                                             border: InputBorder.none,
-                                            enabledBorder: const UnderlineInputBorder(
+                                            enabledBorder:
+                                                const UnderlineInputBorder(
                                               borderSide: BorderSide(
                                                   width: 1,
                                                   color: Colors.black),
                                             ),
-                                            focusedBorder: const UnderlineInputBorder(
+                                            focusedBorder:
+                                                const UnderlineInputBorder(
                                               borderSide: BorderSide(
                                                   width: 1,
                                                   color: Colors.black),
@@ -199,8 +229,8 @@ class _MyPageState extends State<MyPage> {
                             child: ElevatedButton(
                               onPressed: null,
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    Colors.transparent),
+                                backgroundColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                                 elevation:
                                     WidgetStateProperty.all(0), // 그림자 없애기
                               ),
@@ -224,8 +254,8 @@ class _MyPageState extends State<MyPage> {
                             child: ElevatedButton(
                               onPressed: null,
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    Colors.transparent),
+                                backgroundColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                                 elevation:
                                     WidgetStateProperty.all(0), // 그림자 없애기
                               ),
@@ -249,8 +279,8 @@ class _MyPageState extends State<MyPage> {
                             child: ElevatedButton(
                               onPressed: null,
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    Colors.transparent),
+                                backgroundColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                                 elevation:
                                     WidgetStateProperty.all(0), // 그림자 없애기
                               ),
@@ -274,8 +304,8 @@ class _MyPageState extends State<MyPage> {
                             child: ElevatedButton(
                               onPressed: null,
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    Colors.transparent),
+                                backgroundColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                                 elevation:
                                     WidgetStateProperty.all(0), // 그림자 없애기
                               ),
@@ -299,8 +329,8 @@ class _MyPageState extends State<MyPage> {
                             child: ElevatedButton(
                               onPressed: null,
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    Colors.transparent),
+                                backgroundColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                                 elevation:
                                     WidgetStateProperty.all(0), // 그림자 없애기
                               ),

@@ -32,7 +32,8 @@ void main() async {
   runApp(
     ProviderScope(
       child: DevicePreview(
-        enabled: !kReleaseMode,
+        // enabled: !kReleaseMode,
+        enabled: false,
         builder: (context) => MyApp(secureStroageService), // Wrap your app
       ),
     ),
