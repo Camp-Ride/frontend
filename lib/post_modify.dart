@@ -79,7 +79,7 @@ class _PostingPageState extends State<PostModifyPage> {
 
     dio
         .put(
-      'http://localhost:8080/api/v1/post/${widget.id}',
+      '/post/${widget.id}',
       data: formData,
     )
         .then((response) {
