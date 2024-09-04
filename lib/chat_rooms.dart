@@ -144,7 +144,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                     child: Text('Error: ${snapshot.error}')); // 에러 발생 시 표시
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(
-                    child: Text('No rooms available')); // 데이터가 없을 때 표시
+                    child: Text('참여 중인 방이 없습니다.')); // 데이터가 없을 때 표시
               } else {
                 List<Room> rooms = snapshot.data!; // 데이터가 존재할 때 처리
 

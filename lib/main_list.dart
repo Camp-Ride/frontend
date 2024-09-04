@@ -467,7 +467,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                           } else if (!snapshot.hasData ||
                               snapshot.data!.isEmpty) {
                             return const Center(
-                                child: Text('No rooms available'));
+                                child: Text('생성된 방이 없습니다.'));
                           } else {
                             final rooms = snapshot.data!;
                             return ListView.builder(

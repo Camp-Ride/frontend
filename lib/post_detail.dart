@@ -281,7 +281,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                           return Center(
                               child: Text('Error: ${snapshot.error}'));
                         } else if (!snapshot.hasData) {
-                          return const Center(child: Text('No data available'));
+                          return const Center(child: Text('표시할 글 내용이 없습니다.'));
                         } else {
                           var post = snapshot.data!;
 
