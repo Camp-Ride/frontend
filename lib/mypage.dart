@@ -349,7 +349,40 @@ class _MyPageState extends State<MyPage> {
                                   )
                                 ],
                               ),
-                            ))
+                            )),
+                        InkWell(
+                          onTap: () {
+                            SecureStroageService.deleteNickname();
+                            SecureStroageService.deleteTokens();
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/login', (route) => false);
+                          },
+                          child: SizedBox(
+                              width: screenWidth,
+                              child: ElevatedButton(
+                                onPressed: null,
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStateProperty.all(Colors.transparent),
+                                  elevation:
+                                      WidgetStateProperty.all(0), // 그림자 없애기
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "로그아웃",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Colors.black54,
+                                    )
+                                  ],
+                                ),
+                              )),
+                        )
                       ],
                     ),
                   ),

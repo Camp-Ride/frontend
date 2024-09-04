@@ -1,4 +1,3 @@
-
 import 'package:campride/Constants.dart';
 import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
@@ -16,6 +15,7 @@ import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 
 import 'community.dart';
 import 'env_config.dart';
+import 'login.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -55,11 +55,13 @@ class MyApp extends ConsumerWidget {
       builder: (context, child) {
         return ProviderScope(
           child: MaterialApp(
-            navigatorKey: navigatorKey,
-            home: SplashScreen(
-              secureStroageService: secureStroageService,
-            ),
-          ),
+              navigatorKey: navigatorKey,
+              home: SplashScreen(
+                secureStroageService: secureStroageService,
+              ),
+              routes: {
+                '/login': (context) => const LoginPage(),
+              }),
         );
       },
     );
@@ -101,8 +103,6 @@ class _MainPageState extends State<MainPage> {
       _selectedIndex = index;
     });
   }
-
-
 
   var selectedTitle = "";
 
