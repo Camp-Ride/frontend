@@ -22,8 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   _asyncMethod() async {
     if (await SecureStroageService.readAccessToken() != null) {
       if (!mounted) return;
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const MainPage()));
+      Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
     }
   }
 
@@ -78,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
         Uri.parse('${EnvConfig().prodUrl}/oauth2/authorization/$provider');
 
     final localUrl =
-        Uri.parse( Constants.API + '/oauth2/authorization/$provider');
+        Uri.parse(Constants.API + '/oauth2/authorization/$provider');
     late String status;
 
     print(localUrl);
@@ -94,9 +93,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       _extractAndSaveTokens(result);
-
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const MainPage()));
+      Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
     } catch (e) {
       setState(() {
         status = 'Got error: $e';

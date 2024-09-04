@@ -61,6 +61,7 @@ class MyApp extends ConsumerWidget {
               ),
               routes: {
                 '/login': (context) => const LoginPage(),
+                '/main': (context) => const MainPage(),
               }),
         );
       },
