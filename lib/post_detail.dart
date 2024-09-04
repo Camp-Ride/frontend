@@ -308,66 +308,70 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                             fontSize: 12,
                                             color: Colors.black54),
                                       ),
-                                      PopupMenuButton<int>(
-                                        padding: EdgeInsets.zero,
-                                        color: Colors.white,
-                                        child: const Icon(Icons.more_vert,
-                                            size: 15),
-                                        onSelected: (value) {
-                                          switch (value) {
-                                            case 0:
-                                              print("Edit selected");
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      PostModifyPage(
-                                                    id: post.id,
-                                                    title: post.title,
-                                                    contents: post.contents,
-                                                    imageNames: post.images,
+                                      SizedBox(
+                                        width: 30.w,
+                                        height: 15.h,
+                                        child: PopupMenuButton<int>(
+                                          padding: EdgeInsets.zero,
+                                          color: Colors.white,
+                                          child: const Icon(Icons.more_vert,
+                                              size: 20),
+                                          onSelected: (value) {
+                                            switch (value) {
+                                              case 0:
+                                                print("Edit selected");
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        PostModifyPage(
+                                                      id: post.id,
+                                                      title: post.title,
+                                                      contents: post.contents,
+                                                      imageNames: post.images,
+                                                    ),
                                                   ),
-                                                ),
-                                              ).then((value) => setState(() {
-                                                    futurePost = fetchPost();
-                                                  }));
-                                              break;
-                                            case 1:
-                                              deletePost(post.id);
-                                              print("Delete selected");
-                                              // Handle delete action
-                                              break;
-                                            case 2:
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return ReportDialog(
-                                                      item: post,
-                                                      type: CommunityType.POST);
-                                                },
-                                              );
-                                              print("Report selected");
-                                              // Handle report action
-                                              break;
-                                          }
-                                        },
-                                        itemBuilder: (BuildContext context) {
-                                          return [
-                                            const PopupMenuItem<int>(
-                                              value: 0,
-                                              child: Text('수정'),
-                                            ),
-                                            const PopupMenuItem<int>(
-                                              value: 1,
-                                              child: Text('삭제'),
-                                            ),
-                                            const PopupMenuItem<int>(
-                                              value: 2,
-                                              child: Text('신고'),
-                                            ),
-                                          ];
-                                        },
+                                                ).then((value) => setState(() {
+                                                      futurePost = fetchPost();
+                                                    }));
+                                                break;
+                                              case 1:
+                                                deletePost(post.id);
+                                                print("Delete selected");
+                                                // Handle delete action
+                                                break;
+                                              case 2:
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return ReportDialog(
+                                                        item: post,
+                                                        type: CommunityType.POST);
+                                                  },
+                                                );
+                                                print("Report selected");
+                                                // Handle report action
+                                                break;
+                                            }
+                                          },
+                                          itemBuilder: (BuildContext context) {
+                                            return [
+                                              const PopupMenuItem<int>(
+                                                value: 0,
+                                                child: Text('수정'),
+                                              ),
+                                              const PopupMenuItem<int>(
+                                                value: 1,
+                                                child: Text('삭제'),
+                                              ),
+                                              const PopupMenuItem<int>(
+                                                value: 2,
+                                                child: Text('신고'),
+                                              ),
+                                            ];
+                                          },
+                                        ),
                                       ),
                                     ],
                                   ),

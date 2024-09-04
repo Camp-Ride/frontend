@@ -107,14 +107,14 @@ class _CommunityPageState extends State<CommunityPage>
   }
 
   Future<void> unLike(int id, String type, Post post) async {
-
-
     var dio = await authDio(context);
 
-    dio.delete('/unlike/$id',
-        data: jsonEncode({
-          'likeType': type,
-        })).then((response) {
+    dio
+        .delete('/unlike/$id',
+            data: jsonEncode({
+              'likeType': type,
+            }))
+        .then((response) {
       print('Post unliked successfully');
       setState(() {
         post.isLiked = false;
@@ -123,8 +123,6 @@ class _CommunityPageState extends State<CommunityPage>
     }).catchError((e) {
       print('Failed to unlike post: ${e.response?.statusCode}');
     });
-
-
   }
 
   @override
@@ -245,91 +243,95 @@ class _CommunityPageState extends State<CommunityPage>
                                                           color:
                                                               Colors.black54),
                                                     ),
-                                                    PopupMenuButton<int>(
-                                                      padding: EdgeInsets.zero,
-                                                      color: Colors.white,
-                                                      child: Icon(
-                                                          Icons.more_vert,
-                                                          size: 15.r),
-                                                      onSelected: (value) {
-                                                        switch (value) {
-                                                          case 0:
-                                                            print(
-                                                                "Edit selected");
+                                                    SizedBox(
+                                                      width: 30.w,
+                                                      height: 15.h,
+                                                      child: PopupMenuButton<int>(
+                                                        padding: EdgeInsets.zero,
+                                                        color: Colors.white,
+                                                        child: Icon(
+                                                            Icons.more_vert,
+                                                            size: 20.r),
+                                                        onSelected: (value) {
+                                                          switch (value) {
+                                                            case 0:
+                                                              print(
+                                                                  "Edit selected");
 
-                                                            Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                    builder: (context) => PostModifyPage(
-                                                                        id: posts[index]
-                                                                            .id,
-                                                                        title: posts[index]
-                                                                            .title,
-                                                                        contents:
-                                                                            posts[index]
-                                                                                .contents,
-                                                                        imageNames:
-                                                                            posts[index].images))).then(
-                                                                (value) =>
-                                                                    setState(
-                                                                        () {
-                                                                      futurePosts =
-                                                                          fetchPosts();
-                                                                    }));
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) => PostModifyPage(
+                                                                          id: posts[index]
+                                                                              .id,
+                                                                          title: posts[index]
+                                                                              .title,
+                                                                          contents:
+                                                                              posts[index]
+                                                                                  .contents,
+                                                                          imageNames:
+                                                                              posts[index].images))).then(
+                                                                  (value) =>
+                                                                      setState(
+                                                                          () {
+                                                                        futurePosts =
+                                                                            fetchPosts();
+                                                                      }));
 
-                                                            break;
-                                                          case 1:
-                                                            deletePost(
-                                                                posts[index]
-                                                                    .id);
-                                                            print(
-                                                                "Delete selected");
-                                                            // Handle delete action
-                                                            break;
-                                                          case 2:
-                                                            showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (BuildContext
-                                                                      context) {
-                                                                return ReportDialog(
-                                                                    item: posts[
-                                                                        index],
-                                                                    type: CommunityType
-                                                                        .POST);
-                                                              },
-                                                            );
-                                                            print(
-                                                                "Report selected");
-                                                            // Handle report action
-                                                            break;
-                                                        }
-                                                      },
-                                                      itemBuilder: (BuildContext
-                                                          context) {
-                                                        List<
-                                                                PopupMenuEntry<
-                                                                    int>>
-                                                            menuItems = [
-                                                          const PopupMenuItem<
-                                                              int>(
-                                                            value: 1,
-                                                            child: Text('삭제'),
-                                                          ),
-                                                          const PopupMenuItem<
-                                                              int>(
-                                                            value: 2,
-                                                            child: Text('신고'),
-                                                          ),
-                                                          const PopupMenuItem<
-                                                              int>(
-                                                            value: 0,
-                                                            child: Text('수정'),
-                                                          ),
-                                                        ];
+                                                              break;
+                                                            case 1:
+                                                              deletePost(
+                                                                  posts[index]
+                                                                      .id);
+                                                              print(
+                                                                  "Delete selected");
+                                                              // Handle delete action
+                                                              break;
+                                                            case 2:
+                                                              showDialog(
+                                                                context: context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return ReportDialog(
+                                                                      item: posts[
+                                                                          index],
+                                                                      type: CommunityType
+                                                                          .POST);
+                                                                },
+                                                              );
+                                                              print(
+                                                                  "Report selected");
+                                                              // Handle report action
+                                                              break;
+                                                          }
+                                                        },
+                                                        itemBuilder: (BuildContext
+                                                            context) {
+                                                          List<
+                                                                  PopupMenuEntry<
+                                                                      int>>
+                                                              menuItems = [
+                                                            const PopupMenuItem<
+                                                                int>(
+                                                              value: 1,
+                                                              child: Text('삭제'),
+                                                            ),
+                                                            const PopupMenuItem<
+                                                                int>(
+                                                              value: 2,
+                                                              child: Text('신고'),
+                                                            ),
+                                                            const PopupMenuItem<
+                                                                int>(
+                                                              value: 0,
+                                                              child: Text('수정'),
+                                                            ),
+                                                          ];
 
-                                                        return menuItems;
-                                                      },
+                                                          return menuItems;
+                                                        },
+                                                      ),
                                                     ),
                                                     // Icon(
                                                     //   Icons.more_vert,
