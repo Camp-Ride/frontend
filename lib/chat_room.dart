@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campride/Constants.dart';
 import 'package:campride/participants.dart';
 import 'package:campride/reaction_type.dart';
 import 'package:campride/reply_provider.dart';
@@ -73,7 +74,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     print("Connecting to STOMP server");
     _stompClient = StompClient(
       config: StompConfig(
-        url: 'ws://localhost:8080/ws',
+        url: Constants.WS,
         // STOMP WebSocket URL
         onConnect: _onConnect,
         onDisconnect: _onDisconnect,
@@ -175,12 +176,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         ref
             .read(messagesProvider.notifier)
-            .getMessages(room.id, startOffset, 5,context);
+            .getMessages(room.id, startOffset, 5, context);
       }
     });
     _connectStomp();
     updateLastMessage(room.id);
-    ref.read(messagesProvider.notifier).initMessages(room.id,context);
+    ref.read(messagesProvider.notifier).initMessages(room.id, context);
   }
 
   @override
@@ -414,7 +415,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       var dio = await authDio(context);
 
       final response = await dio.post(
-        'http://localhost:8080/api/v1/images',
+        '/images',
         data: FormData.fromMap({
           'images': await MultipartFile.fromFile(image!.path),
         }),
@@ -1213,9 +1214,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   Future updateLastMessage(int roomId) async {
     var dio = await authDio(context);
 
-    await dio
-        .put('http://localhost:8080/api/v1/room/$roomId/last-message')
-        .then((response) {
+    await dio.put('/room/$roomId/last-message').then((response) {
       print('Last message: ${response.data}');
     }).catchError((error) {
       print('Failed to load last message. Error: $error');
@@ -1226,8 +1225,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     var dio = await authDio(context);
 
     try {
-      final response =
-          await dio.get('http://localhost:8080/api/v1/room/$roomId');
+      final response = await dio.get('/room/$roomId');
       print('Room data: ${response.data}');
       return Room.fromJson(response.data);
     } catch (e) {

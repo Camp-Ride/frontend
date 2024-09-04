@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:campride/Constants.dart';
 import 'package:campride/chat_room.dart';
 import 'package:campride/main.dart';
 import 'package:campride/message_type.dart';
@@ -51,9 +52,11 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   void _connectStomp(int roomId) {
     print("Connecting to STOMP server for room ID: $roomId");
 
+    print(Constants.WS);
+
     _stompClient = StompClient(
       config: StompConfig(
-        url: 'ws://localhost:8080/ws',
+        url: Constants.WS,
         // STOMP WebSocket URL
         onConnect: (StompFrame frame) => _onConnect(frame, roomId),
         onDisconnect: _onDisconnect,
