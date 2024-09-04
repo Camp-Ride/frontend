@@ -141,6 +141,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       if (response.statusCode == 200) {
         print('댓글이 성공적으로 작성되었습니다.');
         setState(() {
+          FocusScope.of(context).unfocus();
           futureComments = fetchComments(postId);
           comment = "";
           widget.post.commentCount++;
