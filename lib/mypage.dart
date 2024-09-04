@@ -106,6 +106,7 @@ class _MyPageState extends State<MyPage> {
 
     return MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: const Text(
             "마이페이지",
