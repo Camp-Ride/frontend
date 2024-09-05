@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'auth_dio.dart';
+import 'custom_message_bar.dart';
 import 'env_config.dart';
 import 'message.dart';
 import 'package:http/http.dart' as http;
@@ -42,8 +43,7 @@ class ChatRoomPage extends ConsumerStatefulWidget {
   const ChatRoomPage({super.key, required this.initialRoom});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ChatRoomPageState(initialRoom);
+  _ChatRoomPageState createState() => _ChatRoomPageState(initialRoom);
 }
 
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
@@ -119,17 +119,21 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           if (message.id == null) {
             ref.read(messagesProvider.notifier).updateMessage(message);
           } else {
+            print("0");
             if (userId != message.userId ||
                 message.chatMessageType == ChatMessageType.JOIN) {
               ref.read(messagesProvider.notifier).addMessage(message);
+              print("1");
               return;
             }
 
             if (userId == message.userId) {
               ref.read(messagesProvider.notifier).updateMessageId(message);
+              print("2");
               return;
             }
           }
+          print("3");
         }
       },
     );
@@ -190,8 +194,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _stompClient?.deactivate();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -809,7 +811,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       body: Column(
         children: [
           Expanded(child: buildMessageList(messages)),
-          MessageBar(
+          CustomMessageBar(
             messageBarHintText: "메시지를 입력하세요",
             messageBarHintStyle: const TextStyle(color: Colors.black54),
             replying: isReplying,

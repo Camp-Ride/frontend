@@ -21,6 +21,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   _asyncMethod() async {
     if (await SecureStroageService.readAccessToken() != null) {
+      print(await SecureStroageService.readAccessToken());
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
     }
