@@ -158,6 +158,7 @@ class _CustomMessageBarState extends State<CustomMessageBar> {
                           if (widget.onSend != null) {
                             widget.onSend!(_textController.text.trim());
                           }
+                          FocusScope.of(context).unfocus();
                           _textController.clear();
                         }
                       },

@@ -54,16 +54,21 @@ class MyApp extends ConsumerWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return ProviderScope(
-          child: MaterialApp(
-              navigatorKey: navigatorKey,
-              home: SplashScreen(
-                secureStroageService: secureStroageService,
-              ),
-              routes: {
-                '/login': (context) => const LoginPage(),
-                '/main': (context) => const MainPage(),
-                '/chatRooms': (context) => const ChatRoomsPage(),
-              }),
+          child: GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: MaterialApp(
+                navigatorKey: navigatorKey,
+                home: SplashScreen(
+                  secureStroageService: secureStroageService,
+                ),
+                routes: {
+                  '/login': (context) => const LoginPage(),
+                  '/main': (context) => const MainPage(),
+                  '/chatRooms': (context) => const ChatRoomsPage(),
+                }),
+          ),
         );
       },
     );
