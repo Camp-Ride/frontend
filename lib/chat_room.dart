@@ -684,6 +684,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 : CrossAxisAlignment.start,
             children: [
               if (message.isReply) buildReplyWidget(message.replyingMessage),
+
+              userId == message.userId
+                  ? Padding(
+                padding: const EdgeInsets.only(right: 20.0).r,
+                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
+              )
+                  : Padding(
+                padding: const EdgeInsets.only(left: 20.0).r,
+                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
+              ),
               BubbleSpecialThree(
                 text: message.text,
                 color: userId == message.userId
@@ -714,6 +724,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 : CrossAxisAlignment.start,
             children: [
               if (message.isReply) buildReplyWidget(message.replyingMessage),
+              userId == message.userId
+                  ? Padding(
+                padding: const EdgeInsets.only(right: 20.0).r,
+                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
+              )
+                  : Padding(
+                padding: const EdgeInsets.only(left: 20.0).r,
+                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
+              ),
               BubbleNormalImage(
                 id: message.userId,
                 image: _image(message.imageUrl),
