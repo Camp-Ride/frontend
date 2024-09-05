@@ -811,38 +811,43 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       body: Column(
         children: [
           Expanded(child: buildMessageList(messages)),
-          CustomMessageBar(
-            messageBarHintText: "메시지를 입력하세요",
-            messageBarHintStyle: const TextStyle(color: Colors.black54),
-            replying: isReplying,
-            replyingTo: replyingMessage,
-            onTapCloseReply: stopReply,
-            onSend: (String text) => addMessage(
-                text, isReplying, replyingMessage, "", ChatMessageType.TEXT),
-            actions: [
-              InkWell(
-                child: const Icon(
-                  Icons.image,
-                  color: Colors.lightBlueAccent,
-                  size: 24,
-                ),
-                onTap: () {
-                  sendImage();
-                },
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8),
-                  child: InkWell(
+          Container(
+            color: const Color(0xffF4F4F5),
+            child: SafeArea(
+              child: CustomMessageBar(
+                messageBarHintText: "메시지를 입력하세요",
+                messageBarHintStyle: const TextStyle(color: Colors.black54),
+                replying: isReplying,
+                replyingTo: replyingMessage,
+                onTapCloseReply: stopReply,
+                onSend: (String text) => addMessage(text, isReplying,
+                    replyingMessage, "", ChatMessageType.TEXT),
+                actions: [
+                  InkWell(
                     child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.green,
+                      Icons.image,
+                      color: Colors.lightBlueAccent,
                       size: 24,
                     ),
                     onTap: () {
-                      sendImageWithCamera();
+                      sendImage();
                     },
-                  )),
-            ],
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      child: InkWell(
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.green,
+                          size: 24,
+                        ),
+                        onTap: () {
+                          sendImageWithCamera();
+                        },
+                      )),
+                ],
+              ),
+            ),
           ),
         ],
       ),
