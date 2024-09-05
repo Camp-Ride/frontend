@@ -64,6 +64,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   late KakaoMapController kakaoMapController;
 
   ScrollController scrollController = ScrollController();
+
   StompClient? _stompClient;
 
   _ChatRoomPageState(Room initialRoom) {
@@ -97,6 +98,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
+          _scrollToBottom();
+
           if ((message.chatMessageType == ChatMessageType.LEAVE ||
                   message.chatMessageType == ChatMessageType.KICK) &&
               userId != message.text) {
@@ -119,21 +122,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           if (message.id == null) {
             ref.read(messagesProvider.notifier).updateMessage(message);
           } else {
-            print("0");
             if (userId != message.userId ||
                 message.chatMessageType == ChatMessageType.JOIN) {
               ref.read(messagesProvider.notifier).addMessage(message);
-              print("1");
               return;
             }
 
             if (userId == message.userId) {
               ref.read(messagesProvider.notifier).updateMessageId(message);
-              print("2");
               return;
             }
           }
-          print("3");
         }
       },
     );
@@ -168,6 +167,22 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     userId = (await SecureStroageService.readUserId())!;
   }
 
+  void _scrollToBottom() {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _scrollForGetMessages() {
+    double targetOffset = scrollController.position.minScrollExtent + 600.h;
+
+    scrollController.jumpTo(
+      targetOffset,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -180,7 +195,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         ref
             .read(messagesProvider.notifier)
-            .getMessages(room.id, startOffset, 5, context);
+            .getMessages(room.id, startOffset, 10, context)
+            .then((value) => {
+                  if (value.data != null && value.data.isNotEmpty)
+                    {_scrollForGetMessages()}
+                });
       }
     });
     _connectStomp();
@@ -762,12 +781,15 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         );
       }
 
-      return ListView.builder(
+      return Scrollbar(
         controller: scrollController,
-        itemCount: messageWidgets.length,
-        itemBuilder: (context, index) {
-          return messageWidgets[index];
-        },
+        child: ListView.builder(
+          controller: scrollController,
+          itemCount: messageWidgets.length,
+          itemBuilder: (context, index) {
+            return messageWidgets[index];
+          },
+        ),
       );
     }
 

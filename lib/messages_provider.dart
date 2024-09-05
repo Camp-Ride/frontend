@@ -108,20 +108,22 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     });
   }
 
-  Future<bool> getMessages(int roomId, int startOffset, int count, BuildContext context) async {
-
+  Future<dynamic> getMessages(
+      int roomId, int startOffset, int count, BuildContext context) async {
     var dio = await authDio(context);
 
-    dio.get('/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count').then((response) {
+    return dio
+        .get(
+            '/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count')
+        .then((response) {
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         state = [...data.map((item) => Message.fromJson(item)), ...state];
-        return true;
+        return response;
       } else {
         throw Exception('Failed to load messages');
       }
     });
-    return false;
   }
 }
 

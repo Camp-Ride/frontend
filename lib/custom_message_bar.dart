@@ -160,6 +160,7 @@ class _CustomMessageBarState extends State<CustomMessageBar> {
                           }
                           FocusScope.of(context).unfocus();
                           _textController.clear();
+
                         }
                       },
                     ),
