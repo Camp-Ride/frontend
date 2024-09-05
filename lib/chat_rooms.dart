@@ -76,6 +76,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     _stompClient?.subscribe(
       destination: '/topic/messages/room/$roomId',
       callback: (frame) {
+        if (!mounted) return;
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
 
@@ -105,12 +106,22 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     return await dio.get('/room/joined').then((response) {
       if (response.statusCode == 200) {
         List<dynamic> content = response.data;
-        print(content);
+        print("joinedRoomdata : " + content.toString());
 
         return content.map((json) => Room.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load rooms');
       }
+    });
+  }
+
+  Future updateLastMessage(int roomId) async {
+    var dio = await authDio(context);
+
+    await dio.put('/room/$roomId/last-message').then((response) {
+      print('Last message: ${response.data}');
+    }).catchError((error) {
+      print('Failed to load last message. Error: $error');
     });
   }
 
@@ -157,8 +168,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       onTap: () => {
-
-
+                        rooms[index].unreadMessageCount = 0,
                         navigatorKey.currentState
                             ?.push(
                               MaterialPageRoute(
@@ -166,9 +176,13 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                     ChatRoomPage(initialRoom: rooms[index]),
                               ),
                             )
-                            .then((value) => setState(() {
-                                  futureRooms = fetchRooms();
-                                })),
+                            .then((value) async => {
+                                  await updateLastMessage(rooms[index].id),
+                                  setState(() {
+                                    updateLastMessage(rooms[index].id);
+                                    futureRooms = fetchRooms();
+                                  })
+                                }),
                       },
                       child: Column(
                         children: [

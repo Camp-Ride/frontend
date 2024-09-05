@@ -185,11 +185,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     scrollController.dispose();
     _stompClient?.deactivate();
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -775,7 +777,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             color: Colors.white,
           ),
           onPressed: () async {
-            await updateLastMessage(room.id);
             Navigator.pop(context);
           },
         ),
@@ -828,18 +829,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: InkWell(
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Colors.green,
-                    size: 24,
-                  ),
-                  onTap: () {
-                    sendImageWithCamera();
-                  },
-                )
-              ),
+                  padding: const EdgeInsets.only(left: 8, right: 8),
+                  child: InkWell(
+                    child: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.green,
+                      size: 24,
+                    ),
+                    onTap: () {
+                      sendImageWithCamera();
+                    },
+                  )),
             ],
           ),
         ],
