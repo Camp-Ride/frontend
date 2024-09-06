@@ -21,10 +21,22 @@ class CampRiderPage extends StatefulWidget {
 }
 
 class _CampRiderPageState extends State<CampRiderPage> {
+  String mainStartAddress = "";
+  String mainArriveAddress = "";
+
   @override
   void initState() {
     super.initState();
+    start_controller.text = mainStartAddress;
+    arrive_controller.text = mainArriveAddress;
     futureRooms = fetchRooms();
+  }
+
+  @override
+  void dispose() {
+    start_controller.dispose();
+    arrive_controller.dispose();
+    super.dispose();
   }
 
   var selectedTitle = "";
@@ -38,8 +50,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
 
   late Future<List<Room>> futureRooms;
 
-  String mainStartAddress = "";
-  String mainArriveAddress = "";
+  TextEditingController start_controller = TextEditingController();
+  TextEditingController arrive_controller = TextEditingController();
 
   List<String> dropDownList = [
     '1',
@@ -177,6 +189,20 @@ class _CampRiderPageState extends State<CampRiderPage> {
     );
   }
 
+  Future<List<Room>> searchRoomsByAddress(
+      String mainStartAddress, String mainArriveAddress) async {
+    var dio = await authDio(context);
+
+    final response = await dio.get(
+        '/room/address?page=0&size=10&departure=$mainStartAddress&destination=$mainArriveAddress');
+
+    Map<String, dynamic> data = response.data;
+
+    List<dynamic> content = data['content'];
+
+    return content.map((json) => Room.fromJson(json)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -185,7 +211,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
     late KakaoMapController kakaoMapController;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: false,
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -279,57 +305,37 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                       child: SizedBox(
                                         width: 215.w,
                                         height: 50.h,
-                                        child: TextButton(
-                                          onPressed: () async {
-                                            var model = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Scaffold(
-                                                        resizeToAvoidBottomInset: false,
-                                                    appBar: AppBar(
-                                                      title:
-                                                          const Text("주소 검색"),
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                    ),
-                                                    body: DaumPostcodeView(
-                                                      onComplete: (model) {
-                                                        Navigator.of(context)
-                                                            .pop(model);
-                                                      },
-                                                      options:
-                                                          const DaumPostcodeOptions(
-                                                        animation: true,
-                                                        hideEngBtn: true,
-                                                        themeType:
-                                                            DaumPostcodeThemeType
-                                                                .defaultTheme,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ));
+                                        child: TextField(
+                                          controller: start_controller,
+                                          textAlign: TextAlign.center,
+                                          onChanged: (text) {
+                                            setState(() {
+                                              mainStartAddress = text;
+                                              start_controller.text =
+                                                  mainStartAddress;
+                                            });
 
                                             setState(() {
-                                              mainStartAddress = model.address;
+                                              futureRooms =
+                                                  searchRoomsByAddress(
+                                                      mainStartAddress,
+                                                      mainArriveAddress);
                                             });
                                           },
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                WidgetStateProperty.all<Color>(
-                                                    Colors.transparent),
-                                            overlayColor:
-                                                WidgetStateProperty.all<Color>(
-                                                    Colors.transparent),
-                                          ),
-                                          child: Text(
-                                            mainStartAddress == ""
-                                                ? "Where do you start?"
-                                                : mainStartAddress,
-                                            style: TextStyle(
+                                          decoration: InputDecoration(
+                                            hintText: 'Where do you start?',
+                                            hintStyle: TextStyle(
                                               color: Colors.white,
                                               fontSize: 13.sp,
                                             ),
+                                            filled: true,
+                                            fillColor: Colors.transparent,
+                                            border: InputBorder
+                                                .none, // Removes the default underline border
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13.sp,
                                           ),
                                         ),
                                       ),
@@ -350,6 +356,10 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         tempAddress = mainStartAddress;
                                         mainStartAddress = mainArriveAddress;
                                         mainArriveAddress = tempAddress;
+                                        start_controller.text =
+                                            mainStartAddress;
+                                        arrive_controller.text =
+                                            mainArriveAddress;
                                       });
                                     }
                                   },
@@ -390,56 +400,34 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                       child: SizedBox(
                                         width: 215.w,
                                         height: 50.h,
-                                        child: TextButton(
-                                          onPressed: () async {
-                                            var model = await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Scaffold(
-                                                        resizeToAvoidBottomInset: false,
-                                                    appBar: AppBar(
-                                                      title:
-                                                          const Text("주소 검색"),
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                    ),
-                                                    body: DaumPostcodeView(
-                                                      onComplete: (model) {
-                                                        Navigator.of(context)
-                                                            .pop(model);
-                                                      },
-                                                      options:
-                                                          const DaumPostcodeOptions(
-                                                        animation: true,
-                                                        hideEngBtn: true,
-                                                        themeType:
-                                                            DaumPostcodeThemeType
-                                                                .defaultTheme,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ));
+                                        child: TextField(
+                                          controller: arrive_controller,
+                                          onChanged: (text) {
                                             setState(() {
-                                              mainArriveAddress = model.address;
+                                              mainArriveAddress = text;
+                                              arrive_controller.text =
+                                                  mainArriveAddress;
+                                              futureRooms =
+                                                  searchRoomsByAddress(
+                                                      mainStartAddress,
+                                                      mainArriveAddress);
                                             });
                                           },
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                WidgetStateProperty.all<Color>(
-                                                    Colors.transparent),
-                                            overlayColor:
-                                                WidgetStateProperty.all<Color>(
-                                                    Colors.transparent),
-                                          ),
-                                          child: Text(
-                                            mainArriveAddress == ""
-                                                ? "Where are you going?"
-                                                : mainArriveAddress,
-                                            style: TextStyle(
+                                          textAlign: TextAlign.center,
+                                          decoration: InputDecoration(
+                                            hintText: 'Where are you going?',
+                                            hintStyle: TextStyle(
                                               color: Colors.white,
                                               fontSize: 13.sp,
                                             ),
+                                            filled: true,
+                                            fillColor: Colors.transparent,
+                                            border: InputBorder
+                                                .none, // Removes the default underline border
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13.sp,
                                           ),
                                         ),
                                       ),
@@ -481,344 +469,315 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: InkWell(
                                           onTap: () => {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: true,
-                                              builder: ((context) {
-                                                return SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.9,
-                                                  child: Dialog(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                                  25.0)
-                                                              .r,
-                                                      child: Container(
-                                                        child: Column(
-                                                          children: [
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
+                                            if (MediaQuery.of(context)
+                                                    .viewInsets
+                                                    .bottom ==
+                                                0)
+                                              {
+                                                showDialog(
+                                                  context: context,
+                                                  barrierDismissible: true,
+                                                  builder: ((context) {
+                                                    return SizedBox(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.9,
+                                                      child: Dialog(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .all(25.0)
+                                                                  .r,
+                                                          child: Container(
+                                                            child: Column(
                                                               children: [
-                                                                Expanded(
-                                                                  child: Text(
-                                                                    rooms[index]
-                                                                        .title,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          15.sp,
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Text(
+                                                                        rooms[index]
+                                                                            .title,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              15.sp,
+                                                                        ),
+                                                                      ),
                                                                     ),
-                                                                  ),
+                                                                    const SizedBox(
+                                                                        width:
+                                                                            10),
+                                                                    // Text 사이에 여유 공간을 추가할 수도 있습니다.
+                                                                    Text(
+                                                                      rooms[index]
+                                                                          .createdAt,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            10.sp,
+                                                                        color: Colors
+                                                                            .orange,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                                const SizedBox(
-                                                                    width: 10),
-                                                                // Text 사이에 여유 공간을 추가할 수도 있습니다.
-                                                                Text(
-                                                                  rooms[index]
-                                                                      .createdAt,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        10.sp,
-                                                                    color: Colors
-                                                                        .orange,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
+                                                                Padding(
+                                                                  padding: const EdgeInsets
                                                                           .only(
                                                                           top:
                                                                               4.0)
                                                                       .h,
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceBetween,
-                                                                children: [
-                                                                  Text(
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    rooms[index]
-                                                                        .name,
-                                                                    style: TextStyle(
-                                                                        fontSize: 12
-                                                                            .sp,
-                                                                        color: Colors
-                                                                            .black54),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 50.w,
-                                                                    child: Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        Text(
-                                                                            "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  rooms[index].rideType ==
-                                                                          "편도"
-                                                                      ? Container(
-                                                                          width:
-                                                                              50.w,
-                                                                          // 컨테이너 크기
-                                                                          height:
-                                                                              20.h,
-                                                                          // 컨테이너 높이
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            gradient:
-                                                                                const LinearGradient(colors: [
-                                                                              Color(0xff48ADE5),
-                                                                              Color(0xff76CB68)
-                                                                            ]),
-                                                                            // 컨테이너 색상
-                                                                            borderRadius:
-                                                                                BorderRadius.circular(10),
-                                                                          ),
-                                                                          child:
-                                                                              const Text(
-                                                                            "편도",
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        )
-                                                                      : Container(
-                                                                          width:
-                                                                              50.w,
-                                                                          // 컨테이너 크기
-                                                                          height:
-                                                                              20.h,
-                                                                          // 컨테이너 높이
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            gradient:
-                                                                                const LinearGradient(colors: [
-                                                                              Color(0xffDCCB37),
-                                                                              Color(0xff44EB29)
-                                                                            ]),
-                                                                            // 컨테이너 색상
-                                                                            borderRadius:
-                                                                                BorderRadius.circular(10),
-                                                                          ),
-                                                                          child:
-                                                                              const Text(
-                                                                            "왕복",
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceBetween,
+                                                                    children: [
+                                                                      Text(
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        rooms[index]
+                                                                            .name,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12.sp,
+                                                                            color: Colors.black54),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        width:
+                                                                            50.w,
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: [
+                                                                            Text("${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
+                                                                          ],
                                                                         ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Padding(
-                                                                padding: const EdgeInsets
-                                                                        .only(
-                                                                        top:
-                                                                            40.0)
-                                                                    .h,
-                                                                child:
-                                                                    Container(
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            20),
-                                                                    color: Colors
-                                                                        .black12,
+                                                                      ),
+                                                                      rooms[index].rideType ==
+                                                                              "편도"
+                                                                          ? Container(
+                                                                              width: 50.w,
+                                                                              // 컨테이너 크기
+                                                                              height: 20.h,
+                                                                              // 컨테이너 높이
+                                                                              decoration: BoxDecoration(
+                                                                                gradient: const LinearGradient(colors: [
+                                                                                  Color(0xff48ADE5),
+                                                                                  Color(0xff76CB68)
+                                                                                ]),
+                                                                                // 컨테이너 색상
+                                                                                borderRadius: BorderRadius.circular(10),
+                                                                              ),
+                                                                              child: const Text(
+                                                                                "편도",
+                                                                                textAlign: TextAlign.center,
+                                                                              ),
+                                                                            )
+                                                                          : Container(
+                                                                              width: 50.w,
+                                                                              // 컨테이너 크기
+                                                                              height: 20.h,
+                                                                              // 컨테이너 높이
+                                                                              decoration: BoxDecoration(
+                                                                                gradient: const LinearGradient(colors: [
+                                                                                  Color(0xffDCCB37),
+                                                                                  Color(0xff44EB29)
+                                                                                ]),
+                                                                                // 컨테이너 색상
+                                                                                borderRadius: BorderRadius.circular(10),
+                                                                              ),
+                                                                              child: const Text(
+                                                                                "왕복",
+                                                                                textAlign: TextAlign.center,
+                                                                              ),
+                                                                            ),
+                                                                    ],
                                                                   ),
+                                                                ),
+                                                                Expanded(
+                                                                  flex: 1,
                                                                   child:
-                                                                      KakaoMap(
-                                                                    onMapCreated:
-                                                                        ((controller) async {
-                                                                      kakaoMapController =
-                                                                          controller;
+                                                                      Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                            top:
+                                                                                40.0)
+                                                                        .h,
+                                                                    child:
+                                                                        Container(
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(20),
+                                                                        color: Colors
+                                                                            .black12,
+                                                                      ),
+                                                                      child:
+                                                                          KakaoMap(
+                                                                        onMapCreated:
+                                                                            ((controller) async {
+                                                                          kakaoMapController =
+                                                                              controller;
 
-                                                                      final departureLocation = LatLng(
-                                                                          rooms[index].departureLocation[0]
-                                                                              as double,
-                                                                          rooms[index].departureLocation[1]
-                                                                              as double);
-                                                                      final destinationLocation = LatLng(
-                                                                          rooms[index].arrivalLocation[0]
-                                                                              as double,
-                                                                          rooms[index].arrivalLocation[1]
-                                                                              as double);
+                                                                          final departureLocation = LatLng(
+                                                                              rooms[index].departureLocation[0] as double,
+                                                                              rooms[index].departureLocation[1] as double);
+                                                                          final destinationLocation = LatLng(
+                                                                              rooms[index].arrivalLocation[0] as double,
+                                                                              rooms[index].arrivalLocation[1] as double);
 
-                                                                      // 출발지 마커 추가
-                                                                      markers.add(
-                                                                          Marker(
-                                                                        markerId:
-                                                                            UniqueKey().toString(),
-                                                                        latLng:
-                                                                            departureLocation,
-                                                                      ));
+                                                                          // 출발지 마커 추가
+                                                                          markers
+                                                                              .add(Marker(
+                                                                            markerId:
+                                                                                UniqueKey().toString(),
+                                                                            latLng:
+                                                                                departureLocation,
+                                                                          ));
 
-                                                                      markers.add(Marker(
-                                                                          markerId: UniqueKey()
-                                                                              .toString(),
-                                                                          latLng:
-                                                                              destinationLocation));
+                                                                          markers.add(Marker(
+                                                                              markerId: UniqueKey().toString(),
+                                                                              latLng: destinationLocation));
 
-                                                                      kakaoMapController
-                                                                          .panTo(
-                                                                              departureLocation);
-                                                                      kakaoMapController.addMarker(
-                                                                          markers:
-                                                                              markers.toList());
+                                                                          kakaoMapController
+                                                                              .panTo(departureLocation);
+                                                                          kakaoMapController.addMarker(
+                                                                              markers: markers.toList());
 
-                                                                      setState(
-                                                                          () {});
-                                                                    }),
+                                                                          setState(
+                                                                              () {});
+                                                                        }),
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child: Container(
-                                                                decoration: const BoxDecoration(
-                                                                    color: Colors
-                                                                        .transparent),
-                                                                child: Column(
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height:
-                                                                          40.h,
-                                                                    ),
-                                                                    Text(
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      "${rooms[index].date} 출발, " +
-                                                                          rooms[index]
-                                                                              .trainingDays
-                                                                              .toString() +
-                                                                          "일",
-                                                                      style: TextStyle(
-                                                                          fontSize: 13
-                                                                              .sp,
-                                                                          color: Colors
-                                                                              .blue,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          50.h,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .spaceAround,
+                                                                Expanded(
+                                                                  flex: 1,
+                                                                  child:
+                                                                      Container(
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                            color:
+                                                                                Colors.transparent),
+                                                                    child:
+                                                                        Column(
                                                                       children: [
                                                                         SizedBox(
-                                                                          width:
-                                                                              13.33.w,
                                                                           height:
-                                                                              46.4.h,
-                                                                          child:
-                                                                              Image.asset(
-                                                                            "assets/images/start_end.png",
-                                                                            fit:
-                                                                                BoxFit.fill,
-                                                                          ),
+                                                                              40.h,
+                                                                        ),
+                                                                        Text(
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                          "${rooms[index].date} 출발, " +
+                                                                              rooms[index].trainingDays.toString() +
+                                                                              "일",
+                                                                          style: TextStyle(
+                                                                              fontSize: 13.sp,
+                                                                              color: Colors.blue,
+                                                                              fontWeight: FontWeight.bold),
                                                                         ),
                                                                         SizedBox(
-                                                                          width:
-                                                                              215.w,
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
-                                                                            children: [
-                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].departure, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
-                                                                              Text(overflow: TextOverflow.ellipsis, rooms[index].arrival, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
-                                                                            ],
-                                                                          ),
+                                                                          height:
+                                                                              50.h,
+                                                                        ),
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceAround,
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              width: 13.33.w,
+                                                                              height: 46.4.h,
+                                                                              child: Image.asset(
+                                                                                "assets/images/start_end.png",
+                                                                                fit: BoxFit.fill,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 215.w,
+                                                                              child: Column(
+                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  Text(overflow: TextOverflow.ellipsis, rooms[index].departure, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                                  Text(overflow: TextOverflow.ellipsis, rooms[index].arrival, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          ],
                                                                         ),
                                                                       ],
                                                                     ),
-                                                                  ],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ),
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                ElevatedButton(
-                                                                  style: ElevatedButton.styleFrom(
-                                                                      backgroundColor:
-                                                                          const Color(
-                                                                              0xFF355A50)),
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                    joinRoom(rooms[
-                                                                            index])
-                                                                        .then((onValue) =>
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    ElevatedButton(
+                                                                      style: ElevatedButton.styleFrom(
+                                                                          backgroundColor:
+                                                                              const Color(0xFF355A50)),
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                        joinRoom(rooms[index]).then((onValue) =>
                                                                             {
                                                                               setState(() {
                                                                                 futureRooms = fetchRooms();
                                                                               })
                                                                             });
-                                                                  },
-                                                                  child: const Text(
-                                                                      '참여',
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              Colors.white)),
-                                                                ),
-                                                                SizedBox(
-                                                                  width: 10.w,
-                                                                ),
-                                                                ElevatedButton(
-                                                                  onPressed:
-                                                                      () {
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop();
-                                                                  },
-                                                                  child:
-                                                                      const Text(
+                                                                      },
+                                                                      child: const Text(
+                                                                          '참여',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white)),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      width:
+                                                                          10.w,
+                                                                    ),
+                                                                    ElevatedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                      child: const Text(
                                                                           '닫기'),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ],
                                                             ),
-                                                          ],
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }),
-                                            )
+                                                    );
+                                                  }),
+                                                )
+                                              }
+                                            else
+                                              {
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus(),
+                                              }
                                           },
                                           child: Container(
                                             width: screenWidth,
@@ -1089,7 +1048,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                               padding: const EdgeInsets.all(25.0).r,
                               child: Container(
                                   child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   Row(
                                     mainAxisAlignment:
@@ -1187,7 +1147,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         height: 51.h,
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF355A50),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                         child: Row(
                                           children: [
@@ -1203,9 +1164,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               ),
                                             ),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.only(left: 8.0)
-                                                      .w,
+                                              padding: const EdgeInsets.only(
+                                                      left: 8.0)
+                                                  .w,
                                               child: SizedBox(
                                                   width: 16.w,
                                                   child: Image.asset(
@@ -1240,7 +1201,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                       model
                                                                           .address;
                                                                 });
-                    
+
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop(model);
@@ -1248,7 +1209,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                               options:
                                                                   const DaumPostcodeOptions(
                                                                 animation: true,
-                                                                hideEngBtn: true,
+                                                                hideEngBtn:
+                                                                    true,
                                                                 themeType:
                                                                     DaumPostcodeThemeType
                                                                         .defaultTheme,
@@ -1290,8 +1252,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color:
-                                                    Colors.black.withOpacity(0.1),
+                                                color: Colors.black
+                                                    .withOpacity(0.1),
                                                 spreadRadius: 1,
                                                 blurRadius: 3,
                                                 offset: const Offset(0,
@@ -1304,7 +1266,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               if (startAddress != "" &&
                                                   arriveAddress != "") {
                                                 String tempAddress = "";
-                    
+
                                                 setState(() {
                                                   tempAddress = startAddress;
                                                   startAddress = arriveAddress;
@@ -1324,7 +1286,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         height: 51.h,
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF355A50),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                         child: Row(
                                           children: [
@@ -1340,9 +1303,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                               ),
                                             ),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.only(left: 8.0)
-                                                      .w,
+                                              padding: const EdgeInsets.only(
+                                                      left: 8.0)
+                                                  .w,
                                               child: SizedBox(
                                                   width: 16.w,
                                                   child: Image.asset(
@@ -1360,7 +1323,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               Scaffold(
-                                                                resizeToAvoidBottomInset: false,
+                                                            resizeToAvoidBottomInset:
+                                                                false,
                                                             appBar: AppBar(
                                                               title: const Text(
                                                                   "주소 검색"),
@@ -1376,7 +1340,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                       model
                                                                           .address;
                                                                 });
-                    
+
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop(model);
@@ -1384,7 +1348,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                               options:
                                                                   const DaumPostcodeOptions(
                                                                 animation: true,
-                                                                hideEngBtn: true,
+                                                                hideEngBtn:
+                                                                    true,
                                                                 themeType:
                                                                     DaumPostcodeThemeType
                                                                         .defaultTheme,
@@ -1435,11 +1400,12 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                       borderRadius: BorderRadius.circular(10),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.white70.withOpacity(0.5),
+                                          color:
+                                              Colors.white70.withOpacity(0.5),
                                           spreadRadius: 5,
                                           blurRadius: 3,
-                                          offset: const Offset(
-                                              0, 3), // changes position of shadow
+                                          offset: const Offset(0,
+                                              3), // changes position of shadow
                                         ),
                                       ],
                                     ),
@@ -1451,14 +1417,14 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                             print('change $date');
                                           }, onConfirm: (date) {
                                             print('confirm $date');
-                    
+
                                             setState(() {
                                               selectedDate =
                                                   DateFormat('yyyy-MM-dd HH:mm')
                                                       .format(date)
                                                       .toString();
                                             });
-                    
+
                                             print(selectedDate);
                                           },
                                               currentTime: DateTime.now(),
@@ -1606,11 +1572,13 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         height: 20.h,
                                         // 컨테이너 높이
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [
-                                            Color(0xffDCCB37),
-                                            Color(0xff44EB29)
-                                          ]), // 컨테이너 색상
-                                          borderRadius: BorderRadius.circular(10),
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xffDCCB37),
+                                                Color(0xff44EB29)
+                                              ]), // 컨테이너 색상
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: const Text(
                                           "왕복",
@@ -1630,11 +1598,13 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                         width: 60.w, // 컨테이너 크기
                                         height: 20.h, // 컨테이너 높이
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [
-                                            Color(0xff48ADE5),
-                                            Color(0xff76CB68)
-                                          ]), // 컨테이너 색상
-                                          borderRadius: BorderRadius.circular(10),
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xff48ADE5),
+                                                Color(0xff76CB68)
+                                              ]), // 컨테이너 색상
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         child: const Text(
                                           "편도",
