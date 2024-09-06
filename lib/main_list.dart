@@ -4,6 +4,7 @@ import 'package:campride/auth_dio.dart';
 import 'package:campride/chat_room.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class CampRiderPage extends StatefulWidget {
   const CampRiderPage({super.key});
@@ -26,13 +28,8 @@ class _CampRiderPageState extends State<CampRiderPage> {
   int startOffset = 0;
   ScrollController scrollController = ScrollController();
 
-  void _scrollForGetMessages() {
-    double targetOffset = scrollController.position.minScrollExtent + 600.h;
-
-    scrollController.jumpTo(
-      targetOffset,
-    );
-  }
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -40,18 +37,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
     start_controller.text = mainStartAddress;
     arrive_controller.text = mainArriveAddress;
 
-    scrollController.addListener(() async {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        startOffset++;
-
-        final List<Room> rooms = await futureRooms;
-        rooms.addAll(await searchRoomsByAddress(
-            mainStartAddress, mainArriveAddress, startOffset));
-
-        setState(() {});
-      }
-    });
     futureRooms = fetchRooms();
   }
 
@@ -225,6 +210,28 @@ class _CampRiderPageState extends State<CampRiderPage> {
     List<dynamic> content = data['content'];
 
     return content.map((json) => Room.fromJson(json)).toList();
+  }
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+
+    startOffset++;
+
+    final List<Room> rooms = await futureRooms;
+    rooms.addAll(await searchRoomsByAddress(
+        mainStartAddress, mainArriveAddress, startOffset));
+
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
   }
 
   @override
@@ -488,558 +495,537 @@ class _CampRiderPageState extends State<CampRiderPage> {
                             final rooms = snapshot.data!;
                             return Scrollbar(
                               controller: scrollController,
-                              child: ListView.builder(
-                                  controller: scrollController,
-                                  itemCount: rooms.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: InkWell(
-                                            onTap: () => {
-                                              if (MediaQuery.of(context)
-                                                      .viewInsets
-                                                      .bottom ==
-                                                  0)
-                                                {
-                                                  showDialog(
-                                                    context: context,
-                                                    barrierDismissible: true,
-                                                    builder: ((context) {
-                                                      return SizedBox(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.9,
-                                                        child: Dialog(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .all(
-                                                                        25.0)
-                                                                    .r,
-                                                            child: Container(
-                                                              child: Column(
-                                                                children: [
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child:
-                                                                            Text(
+                              child: SmartRefresher(
+                                enablePullDown: false,
+                                enablePullUp: true,
+                                onRefresh: _onRefresh,
+                                onLoading: _onLoading,
+                                controller: _refreshController,
+                                header: ClassicHeader(),
+                                child: ListView.builder(
+                                    controller: scrollController,
+                                    itemCount: rooms.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: InkWell(
+                                              onTap: () => {
+                                                if (MediaQuery.of(context)
+                                                        .viewInsets
+                                                        .bottom ==
+                                                    0)
+                                                  {
+                                                    showDialog(
+                                                      context: context,
+                                                      barrierDismissible: true,
+                                                      builder: ((context) {
+                                                        return SizedBox(
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.9,
+                                                          child: Dialog(
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .all(
+                                                                          25.0)
+                                                                      .r,
+                                                              child: Container(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        Expanded(
+                                                                          child:
+                                                                              Text(
+                                                                            rooms[index].title,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 15.sp,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                            width:
+                                                                                10),
+                                                                        // Text 사이에 여유 공간을 추가할 수도 있습니다.
+                                                                        Text(
                                                                           rooms[index]
-                                                                              .title,
+                                                                              .createdAt,
                                                                           overflow:
                                                                               TextOverflow.ellipsis,
                                                                           style:
                                                                               TextStyle(
                                                                             fontSize:
-                                                                                15.sp,
+                                                                                10.sp,
+                                                                            color:
+                                                                                Colors.orange,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
                                                                           ),
                                                                         ),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                          width:
-                                                                              10),
-                                                                      // Text 사이에 여유 공간을 추가할 수도 있습니다.
-                                                                      Text(
-                                                                        rooms[index]
-                                                                            .createdAt,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              10.sp,
-                                                                          color:
-                                                                              Colors.orange,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                            top:
-                                                                                4.0)
-                                                                        .h,
-                                                                    child: Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .spaceBetween,
-                                                                      children: [
-                                                                        Text(
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis,
-                                                                          rooms[index]
-                                                                              .name,
-                                                                          style: TextStyle(
-                                                                              fontSize: 12.sp,
-                                                                              color: Colors.black54),
-                                                                        ),
-                                                                        SizedBox(
-                                                                          width:
-                                                                              50.w,
-                                                                          child:
-                                                                              Row(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
-                                                                            children: [
-                                                                              Text("${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                        rooms[index].rideType ==
-                                                                                "편도"
-                                                                            ? Container(
-                                                                                width: 50.w,
-                                                                                // 컨테이너 크기
-                                                                                height: 20.h,
-                                                                                // 컨테이너 높이
-                                                                                decoration: BoxDecoration(
-                                                                                  gradient: const LinearGradient(colors: [
-                                                                                    Color(0xff48ADE5),
-                                                                                    Color(0xff76CB68)
-                                                                                  ]),
-                                                                                  // 컨테이너 색상
-                                                                                  borderRadius: BorderRadius.circular(10),
-                                                                                ),
-                                                                                child: const Text(
-                                                                                  "편도",
-                                                                                  textAlign: TextAlign.center,
-                                                                                ),
-                                                                              )
-                                                                            : Container(
-                                                                                width: 50.w,
-                                                                                // 컨테이너 크기
-                                                                                height: 20.h,
-                                                                                // 컨테이너 높이
-                                                                                decoration: BoxDecoration(
-                                                                                  gradient: const LinearGradient(colors: [
-                                                                                    Color(0xffDCCB37),
-                                                                                    Color(0xff44EB29)
-                                                                                  ]),
-                                                                                  // 컨테이너 색상
-                                                                                  borderRadius: BorderRadius.circular(10),
-                                                                                ),
-                                                                                child: const Text(
-                                                                                  "왕복",
-                                                                                  textAlign: TextAlign.center,
-                                                                                ),
-                                                                              ),
                                                                       ],
                                                                     ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    flex: 1,
-                                                                    child:
-                                                                        Padding(
+                                                                    Padding(
                                                                       padding:
-                                                                          const EdgeInsets.only(top: 40.0)
+                                                                          const EdgeInsets.only(top: 4.0)
                                                                               .h,
                                                                       child:
-                                                                          Container(
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(20),
-                                                                          color:
-                                                                              Colors.black12,
-                                                                        ),
-                                                                        child:
-                                                                            KakaoMap(
-                                                                          onMapCreated:
-                                                                              ((controller) async {
-                                                                            kakaoMapController =
-                                                                                controller;
-
-                                                                            final departureLocation =
-                                                                                LatLng(rooms[index].departureLocation[0] as double, rooms[index].departureLocation[1] as double);
-                                                                            final destinationLocation =
-                                                                                LatLng(rooms[index].arrivalLocation[0] as double, rooms[index].arrivalLocation[1] as double);
-
-                                                                            // 출발지 마커 추가
-                                                                            markers.add(Marker(
-                                                                              markerId: UniqueKey().toString(),
-                                                                              latLng: departureLocation,
-                                                                            ));
-
-                                                                            markers.add(Marker(
-                                                                                markerId: UniqueKey().toString(),
-                                                                                latLng: destinationLocation));
-
-                                                                            kakaoMapController.panTo(departureLocation);
-                                                                            kakaoMapController.addMarker(markers: markers.toList());
-
-                                                                            setState(() {});
-                                                                          }),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    flex: 1,
-                                                                    child:
-                                                                        Container(
-                                                                      decoration:
-                                                                          const BoxDecoration(
-                                                                              color: Colors.transparent),
-                                                                      child:
-                                                                          Column(
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceBetween,
                                                                         children: [
-                                                                          SizedBox(
-                                                                            height:
-                                                                                40.h,
-                                                                          ),
                                                                           Text(
                                                                             overflow:
                                                                                 TextOverflow.ellipsis,
-                                                                            "${rooms[index].date} 출발, " +
-                                                                                rooms[index].trainingDays.toString() +
-                                                                                "일",
-                                                                            style: TextStyle(
-                                                                                fontSize: 13.sp,
-                                                                                color: Colors.blue,
-                                                                                fontWeight: FontWeight.bold),
+                                                                            rooms[index].name,
+                                                                            style:
+                                                                                TextStyle(fontSize: 12.sp, color: Colors.black54),
                                                                           ),
                                                                           SizedBox(
-                                                                            height:
-                                                                                50.h,
+                                                                            width:
+                                                                                50.w,
+                                                                            child:
+                                                                                Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                Text("${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
+                                                                              ],
+                                                                            ),
                                                                           ),
-                                                                          Row(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.spaceAround,
-                                                                            children: [
-                                                                              SizedBox(
-                                                                                width: 13.33.w,
-                                                                                height: 46.4.h,
-                                                                                child: Image.asset(
-                                                                                  "assets/images/start_end.png",
-                                                                                  fit: BoxFit.fill,
+                                                                          rooms[index].rideType == "편도"
+                                                                              ? Container(
+                                                                                  width: 50.w,
+                                                                                  // 컨테이너 크기
+                                                                                  height: 20.h,
+                                                                                  // 컨테이너 높이
+                                                                                  decoration: BoxDecoration(
+                                                                                    gradient: const LinearGradient(colors: [
+                                                                                      Color(0xff48ADE5),
+                                                                                      Color(0xff76CB68)
+                                                                                    ]),
+                                                                                    // 컨테이너 색상
+                                                                                    borderRadius: BorderRadius.circular(10),
+                                                                                  ),
+                                                                                  child: const Text(
+                                                                                    "편도",
+                                                                                    textAlign: TextAlign.center,
+                                                                                  ),
+                                                                                )
+                                                                              : Container(
+                                                                                  width: 50.w,
+                                                                                  // 컨테이너 크기
+                                                                                  height: 20.h,
+                                                                                  // 컨테이너 높이
+                                                                                  decoration: BoxDecoration(
+                                                                                    gradient: const LinearGradient(colors: [
+                                                                                      Color(0xffDCCB37),
+                                                                                      Color(0xff44EB29)
+                                                                                    ]),
+                                                                                    // 컨테이너 색상
+                                                                                    borderRadius: BorderRadius.circular(10),
+                                                                                  ),
+                                                                                  child: const Text(
+                                                                                    "왕복",
+                                                                                    textAlign: TextAlign.center,
+                                                                                  ),
                                                                                 ),
-                                                                              ),
-                                                                              SizedBox(
-                                                                                width: 215.w,
-                                                                                child: Column(
-                                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                                  children: [
-                                                                                    Text(overflow: TextOverflow.ellipsis, rooms[index].departure, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
-                                                                                    Text(overflow: TextOverflow.ellipsis, rooms[index].arrival, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
-                                                                                  ],
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
                                                                         ],
                                                                       ),
                                                                     ),
+                                                                    Expanded(
+                                                                      flex: 1,
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.only(top: 40.0).h,
+                                                                        child:
+                                                                            Container(
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(20),
+                                                                            color:
+                                                                                Colors.black12,
+                                                                          ),
+                                                                          child:
+                                                                              KakaoMap(
+                                                                            onMapCreated:
+                                                                                ((controller) async {
+                                                                              kakaoMapController = controller;
+
+                                                                              final departureLocation = LatLng(rooms[index].departureLocation[0] as double, rooms[index].departureLocation[1] as double);
+                                                                              final destinationLocation = LatLng(rooms[index].arrivalLocation[0] as double, rooms[index].arrivalLocation[1] as double);
+
+                                                                              // 출발지 마커 추가
+                                                                              markers.add(Marker(
+                                                                                markerId: UniqueKey().toString(),
+                                                                                latLng: departureLocation,
+                                                                              ));
+
+                                                                              markers.add(Marker(markerId: UniqueKey().toString(), latLng: destinationLocation));
+
+                                                                              kakaoMapController.panTo(departureLocation);
+                                                                              kakaoMapController.addMarker(markers: markers.toList());
+
+                                                                              setState(() {});
+                                                                            }),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      flex: 1,
+                                                                      child:
+                                                                          Container(
+                                                                        decoration:
+                                                                            const BoxDecoration(color: Colors.transparent),
+                                                                        child:
+                                                                            Column(
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              height: 40.h,
+                                                                            ),
+                                                                            Text(
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                              "${rooms[index].date} 출발, " + rooms[index].trainingDays.toString() + "일",
+                                                                              style: TextStyle(fontSize: 13.sp, color: Colors.blue, fontWeight: FontWeight.bold),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 50.h,
+                                                                            ),
+                                                                            Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                              children: [
+                                                                                SizedBox(
+                                                                                  width: 13.33.w,
+                                                                                  height: 46.4.h,
+                                                                                  child: Image.asset(
+                                                                                    "assets/images/start_end.png",
+                                                                                    fit: BoxFit.fill,
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  width: 215.w,
+                                                                                  child: Column(
+                                                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                                                    children: [
+                                                                                      Text(overflow: TextOverflow.ellipsis, rooms[index].departure, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                                      Text(overflow: TextOverflow.ellipsis, rooms[index].arrival, style: TextStyle(fontSize: 13.sp, color: Colors.black54)),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        ElevatedButton(
+                                                                          style:
+                                                                              ElevatedButton.styleFrom(backgroundColor: const Color(0xFF355A50)),
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                            joinRoom(rooms[index]).then((onValue) =>
+                                                                                {
+                                                                                  setState(() {
+                                                                                    futureRooms = fetchRooms();
+                                                                                  })
+                                                                                });
+                                                                          },
+                                                                          child: const Text(
+                                                                              '참여',
+                                                                              style: TextStyle(color: Colors.white)),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              10.w,
+                                                                        ),
+                                                                        ElevatedButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                          child:
+                                                                              const Text('닫기'),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }),
+                                                    )
+                                                  }
+                                                else
+                                                  {
+                                                    FocusManager
+                                                        .instance.primaryFocus
+                                                        ?.unfocus(),
+                                                  }
+                                              },
+                                              child: Container(
+                                                width: screenWidth,
+                                                height: 150.h,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      spreadRadius: 5,
+                                                      blurRadius: 7,
+                                                      offset: const Offset(0,
+                                                          3), // changes position of shadow
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                                13.0)
+                                                            .r,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              rooms[index].name,
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      11.sp,
+                                                                  color: Colors
+                                                                      .black54),
+                                                            ),
+                                                            Text(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              "${rooms[index].date} 출발, " +
+                                                                  rooms[index]
+                                                                      .trainingDays
+                                                                      .toString() +
+                                                                  "일",
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      11.sp,
+                                                                  color: Colors
+                                                                      .blue),
+                                                            ),
+                                                            Text(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              rooms[index]
+                                                                  .createdAt,
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      11.sp,
+                                                                  color: Colors
+                                                                      .orange),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5.h,
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          // 자식들 사이에 최대 공간 배치
+                                                          children: [
+                                                            Text(
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              rooms[index]
+                                                                  .title,
+                                                            ),
+                                                            // 왼쪽 텍스트
+
+                                                            rooms[index].rideType ==
+                                                                    "편도"
+                                                                ? Container(
+                                                                    width: 60
+                                                                        .w, // 컨테이너 크기
+                                                                    height: 20
+                                                                        .h, // 컨테이너 높이
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      gradient:
+                                                                          const LinearGradient(
+                                                                              colors: [
+                                                                            Color(0xff48ADE5),
+                                                                            Color(0xff76CB68)
+                                                                          ]),
+                                                                      // 컨테이너 색상
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                    child:
+                                                                        const Text(
+                                                                      "편도",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                    ),
+                                                                  )
+                                                                : Container(
+                                                                    width: 60
+                                                                        .w, // 컨테이너 크기
+                                                                    height: 20
+                                                                        .h, // 컨테이너 높이
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      gradient:
+                                                                          const LinearGradient(
+                                                                              colors: [
+                                                                            Color(0xffDCCB37),
+                                                                            Color(0xff44EB29)
+                                                                          ]),
+                                                                      // 컨테이너 색상
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                    child:
+                                                                        const Text(
+                                                                      "왕복",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                    ),
                                                                   ),
-                                                                  Row(
+                                                          ],
+                                                        ),
+                                                        Expanded(
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            children: [
+                                                              SizedBox(
+                                                                width: 13.33.w,
+                                                                height: 46.4.h,
+                                                                child:
+                                                                    Image.asset(
+                                                                  "assets/images/start_end.png",
+                                                                  fit: BoxFit
+                                                                      .fill,
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            8.0)
+                                                                    .w,
+                                                                child: SizedBox(
+                                                                  width: 210.w,
+                                                                  child: Column(
                                                                     mainAxisAlignment:
                                                                         MainAxisAlignment
                                                                             .center,
                                                                     children: [
-                                                                      ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                const Color(0xFF355A50)),
-                                                                        onPressed:
-                                                                            () {
-                                                                          Navigator.of(context)
-                                                                              .pop();
-                                                                          joinRoom(rooms[index]).then((onValue) =>
-                                                                              {
-                                                                                setState(() {
-                                                                                  futureRooms = fetchRooms();
-                                                                                })
-                                                                              });
-                                                                        },
-                                                                        child: const Text(
-                                                                            '참여',
-                                                                            style:
-                                                                                TextStyle(color: Colors.white)),
-                                                                      ),
-                                                                      SizedBox(
-                                                                        width:
-                                                                            10.w,
-                                                                      ),
-                                                                      ElevatedButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          Navigator.of(context)
-                                                                              .pop();
-                                                                        },
-                                                                        child: const Text(
-                                                                            '닫기'),
-                                                                      ),
+                                                                      Text(
+                                                                          overflow: TextOverflow
+                                                                              .ellipsis,
+                                                                          rooms[index]
+                                                                              .departure,
+                                                                          style: TextStyle(
+                                                                              fontSize: 13.sp,
+                                                                              color: Colors.black54)),
+                                                                      Text(
+                                                                          overflow: TextOverflow
+                                                                              .ellipsis,
+                                                                          rooms[index]
+                                                                              .arrival,
+                                                                          style: TextStyle(
+                                                                              fontSize: 13.sp,
+                                                                              color: Colors.black54)),
                                                                     ],
                                                                   ),
-                                                                ],
+                                                                ),
                                                               ),
-                                                            ),
+                                                              Padding(
+                                                                padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            0.0)
+                                                                    .w,
+                                                                child: SizedBox(
+                                                                  width: 35.w,
+                                                                  child: Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons
+                                                                            .people,
+                                                                        color: Colors
+                                                                            .black,
+                                                                        size:
+                                                                            24.0,
+                                                                        semanticLabel:
+                                                                            'Text to announce in accessibility modes',
+                                                                      ),
+                                                                      Text(
+                                                                          "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 40.w,
+                                                                height: 40.h,
+                                                                child: const IconButton(
+                                                                    onPressed:
+                                                                        null,
+                                                                    icon: Icon(Icons
+                                                                        .arrow_circle_left)),
+                                                              )
+                                                            ],
                                                           ),
-                                                        ),
-                                                      );
-                                                    }),
-                                                  )
-                                                }
-                                              else
-                                                {
-                                                  FocusManager
-                                                      .instance.primaryFocus
-                                                      ?.unfocus(),
-                                                }
-                                            },
-                                            child: Container(
-                                              width: screenWidth,
-                                              height: 150.h,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.5),
-                                                    spreadRadius: 5,
-                                                    blurRadius: 7,
-                                                    offset: const Offset(0,
-                                                        3), // changes position of shadow
-                                                  ),
-                                                ],
+                                                        )
+                                                      ],
+                                                    )),
                                               ),
-                                              child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(13.0)
-                                                          .r,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Text(
-                                                            rooms[index].name,
-                                                            style: TextStyle(
-                                                                fontSize: 11.sp,
-                                                                color: Colors
-                                                                    .black54),
-                                                          ),
-                                                          Text(
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            "${rooms[index].date} 출발, " +
-                                                                rooms[index]
-                                                                    .trainingDays
-                                                                    .toString() +
-                                                                "일",
-                                                            style: TextStyle(
-                                                                fontSize: 11.sp,
-                                                                color: Colors
-                                                                    .blue),
-                                                          ),
-                                                          Text(
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            rooms[index]
-                                                                .createdAt,
-                                                            style: TextStyle(
-                                                                fontSize: 11.sp,
-                                                                color: Colors
-                                                                    .orange),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        height: 5.h,
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        // 자식들 사이에 최대 공간 배치
-                                                        children: [
-                                                          Text(
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            rooms[index].title,
-                                                          ),
-                                                          // 왼쪽 텍스트
-
-                                                          rooms[index].rideType ==
-                                                                  "편도"
-                                                              ? Container(
-                                                                  width: 60
-                                                                      .w, // 컨테이너 크기
-                                                                  height: 20
-                                                                      .h, // 컨테이너 높이
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    gradient:
-                                                                        const LinearGradient(colors: [
-                                                                      Color(
-                                                                          0xff48ADE5),
-                                                                      Color(
-                                                                          0xff76CB68)
-                                                                    ]), // 컨테이너 색상
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    "편도",
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                  ),
-                                                                )
-                                                              : Container(
-                                                                  width: 60
-                                                                      .w, // 컨테이너 크기
-                                                                  height: 20
-                                                                      .h, // 컨테이너 높이
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    gradient:
-                                                                        const LinearGradient(colors: [
-                                                                      Color(
-                                                                          0xffDCCB37),
-                                                                      Color(
-                                                                          0xff44EB29)
-                                                                    ]), // 컨테이너 색상
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    "왕복",
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                  ),
-                                                                ),
-                                                        ],
-                                                      ),
-                                                      Expanded(
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            SizedBox(
-                                                              width: 13.33.w,
-                                                              height: 46.4.h,
-                                                              child:
-                                                                  Image.asset(
-                                                                "assets/images/start_end.png",
-                                                                fit:
-                                                                    BoxFit.fill,
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0)
-                                                                      .w,
-                                                              child: SizedBox(
-                                                                width: 210.w,
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    Text(
-                                                                        overflow:
-                                                                            TextOverflow
-                                                                                .ellipsis,
-                                                                        rooms[index]
-                                                                            .departure,
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                13.sp,
-                                                                            color: Colors.black54)),
-                                                                    Text(
-                                                                        overflow:
-                                                                            TextOverflow
-                                                                                .ellipsis,
-                                                                        rooms[index]
-                                                                            .arrival,
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                13.sp,
-                                                                            color: Colors.black54)),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              0.0)
-                                                                      .w,
-                                                              child: SizedBox(
-                                                                width: 35.w,
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    const Icon(
-                                                                      Icons
-                                                                          .people,
-                                                                      color: Colors
-                                                                          .black,
-                                                                      size:
-                                                                          24.0,
-                                                                      semanticLabel:
-                                                                          'Text to announce in accessibility modes',
-                                                                    ),
-                                                                    Text(
-                                                                        "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}"),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                              width: 40.w,
-                                                              height: 40.h,
-                                                              child: const IconButton(
-                                                                  onPressed:
-                                                                      null,
-                                                                  icon: Icon(Icons
-                                                                      .arrow_circle_left)),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  )),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
+                                        ],
+                                      );
+                                    }),
+                              ),
                             );
                           }
                         },
