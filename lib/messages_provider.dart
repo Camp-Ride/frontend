@@ -112,6 +112,8 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
       int roomId, int startOffset, int count, BuildContext context) async {
     var dio = await authDio(context);
 
+    print("getMessages");
+
     return dio
         .get(
             '/chat/messages?roomId=$roomId&startOffset=$startOffset&count=$count')

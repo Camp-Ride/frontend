@@ -188,18 +188,30 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     super.initState();
     room = widget.initialRoom;
     initializeUserInfo();
-    scrollController.addListener(() {
+    scrollController.addListener(() async {
       if (scrollController.position.pixels ==
           scrollController.position.minScrollExtent) {
+
+
+        setState(() {
+          isLoading = true;
+        });
+
+        await Future.delayed(Duration(milliseconds: 300));
+
+
+
         startOffset++;
 
-        ref
+        await ref
             .read(messagesProvider.notifier)
             .getMessages(room.id, startOffset, 10, context)
             .then((value) => {
                   if (value.data != null && value.data.isNotEmpty)
                     {_scrollForGetMessages()}
                 });
+
+        isLoading = await false;
       }
     });
     _connectStomp();
@@ -684,16 +696,19 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 : CrossAxisAlignment.start,
             children: [
               if (message.isReply) buildReplyWidget(message.replyingMessage),
-
               userId == message.userId
                   ? Padding(
-                padding: const EdgeInsets.only(right: 20.0).r,
-                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
-              )
+                      padding: const EdgeInsets.only(right: 20.0).r,
+                      child: Text(message.userNickname,
+                          style: TextStyle(
+                              color: Colors.black54, fontSize: 10.sp)),
+                    )
                   : Padding(
-                padding: const EdgeInsets.only(left: 20.0).r,
-                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
-              ),
+                      padding: const EdgeInsets.only(left: 20.0).r,
+                      child: Text(message.userNickname,
+                          style: TextStyle(
+                              color: Colors.black54, fontSize: 10.sp)),
+                    ),
               BubbleSpecialThree(
                 text: message.text,
                 color: userId == message.userId
@@ -726,13 +741,17 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               if (message.isReply) buildReplyWidget(message.replyingMessage),
               userId == message.userId
                   ? Padding(
-                padding: const EdgeInsets.only(right: 20.0).r,
-                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
-              )
+                      padding: const EdgeInsets.only(right: 20.0).r,
+                      child: Text(message.userNickname,
+                          style: TextStyle(
+                              color: Colors.black54, fontSize: 10.sp)),
+                    )
                   : Padding(
-                padding: const EdgeInsets.only(left: 20.0).r,
-                child: Text(message.userNickname, style: TextStyle(color: Colors.black54, fontSize: 10.sp)),
-              ),
+                      padding: const EdgeInsets.only(left: 20.0).r,
+                      child: Text(message.userNickname,
+                          style: TextStyle(
+                              color: Colors.black54, fontSize: 10.sp)),
+                    ),
               BubbleNormalImage(
                 id: message.userId,
                 image: _image(message.imageUrl),
@@ -851,6 +870,10 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       ),
       body: Column(
         children: [
+          isLoading ? Padding(
+            padding: const EdgeInsets.all(8.0).r,
+            child: SizedBox(width: 20.w, height: 20.h, child: CircularProgressIndicator(color:  Colors.lightBlue, strokeWidth: 3,)),
+          ) : Container(),
           Expanded(child: buildMessageList(messages)),
           Container(
             color: const Color(0xffF4F4F5),
