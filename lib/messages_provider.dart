@@ -95,7 +95,7 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
     return updateMessage(updatedMessage);
   }
 
-  initMessages(int roomId, BuildContext context) async {
+  Future<void> initMessages(int roomId, BuildContext context) async {
     var dio = await authDio(context);
 
     dio.get('/chat/messages/latest?roomId=$roomId').then((response) {

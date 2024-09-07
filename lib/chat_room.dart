@@ -57,6 +57,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   String userName = "";
   String userId = "";
   late Room room;
+  final GlobalKey _listViewKey = GlobalKey();
 
   int selectedIndex = 0;
 
@@ -190,16 +191,13 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     initializeUserInfo();
     scrollController.addListener(() async {
       if (scrollController.position.pixels ==
-          scrollController.position.minScrollExtent) {
-
-
+              scrollController.position.minScrollExtent &&
+          scrollController.hasClients) {
         setState(() {
           isLoading = true;
         });
 
         await Future.delayed(Duration(milliseconds: 300));
-
-
 
         startOffset++;
 
@@ -216,6 +214,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     });
     _connectStomp();
     updateLastMessage(room.id);
+
     ref.read(messagesProvider.notifier).initMessages(room.id, context);
   }
 
@@ -799,7 +798,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
     }
 
-    Widget buildMessageList(List<Message> messages) {
+    Future<Widget> buildMessageList(List<Message> messages) async {
       List<Widget> messageWidgets = [];
       DateTime? lastDate;
 
@@ -822,6 +821,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       return Scrollbar(
         controller: scrollController,
         child: ListView.builder(
+          key: _listViewKey,
           controller: scrollController,
           itemCount: messageWidgets.length,
           itemBuilder: (context, index) {
@@ -870,11 +870,55 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       ),
       body: Column(
         children: [
-          isLoading ? Padding(
-            padding: const EdgeInsets.all(8.0).r,
-            child: SizedBox(width: 20.w, height: 20.h, child: CircularProgressIndicator(color:  Colors.lightBlue, strokeWidth: 3,)),
-          ) : Container(),
-          Expanded(child: buildMessageList(messages)),
+          isLoading
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0).r,
+                  child: SizedBox(
+                      width: 20.w,
+                      height: 20.h,
+                      child: CircularProgressIndicator(
+                        color: Colors.lightBlue,
+                        strokeWidth: 3,
+                      )),
+                )
+              : Container(),
+          Expanded(
+            child: FutureBuilder<Widget>(
+              future: buildMessageList(messages), // Future를 여기에 넣습니다.
+              builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Future가 완료될 때까지 로딩 상태를 표시합니다.
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  // Future가 실패할 경우 에러 메시지를 표시합니다.
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+
+
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (scrollController.hasClients) {
+
+                      final keyContext = _listViewKey.currentContext;
+                      if (keyContext != null) {
+                        final RenderBox renderBox = keyContext.findRenderObject() as RenderBox;
+                        final size = renderBox.size;
+                        scrollController.animateTo(
+                          size.height,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeOut,
+                        );
+                      }
+
+
+
+                    }
+                  });
+                  return snapshot.data!;
+                }
+              },
+            ),
+          ),
           Container(
             color: const Color(0xffF4F4F5),
             child: SafeArea(
