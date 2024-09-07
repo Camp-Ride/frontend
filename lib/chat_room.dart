@@ -47,6 +47,8 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 }
 
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
+
+  bool firstInit = false;
   Duration duration = const Duration();
   Duration position = const Duration();
   bool isPlaying = false;
@@ -206,7 +208,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             .getMessages(room.id, startOffset, 10, context)
             .then((value) => {
                   if (value.data != null && value.data.isNotEmpty)
-                    {_scrollForGetMessages()}
+                    {print(value.data), _scrollForGetMessages()}
                 });
 
         isLoading = await false;
@@ -798,7 +800,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
     }
 
-    Future<Widget> buildMessageList(List<Message> messages) async {
+    Widget buildMessageList(List<Message> messages) {
       List<Widget> messageWidgets = [];
       DateTime? lastDate;
 
@@ -817,6 +819,24 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           ),
         );
       }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+
+        if (scrollController.hasClients && !firstInit) {
+          final keyContext = _listViewKey.currentContext;
+          if (keyContext != null) {
+            final RenderBox renderBox =
+                keyContext.findRenderObject() as RenderBox;
+            final size = renderBox.size;
+            scrollController.animateTo(
+              size.height,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+            );
+            firstInit = true;
+          }
+        }
+      });
 
       return Scrollbar(
         controller: scrollController,
@@ -882,43 +902,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                       )),
                 )
               : Container(),
-          Expanded(
-            child: FutureBuilder<Widget>(
-              future: buildMessageList(messages), // Future를 여기에 넣습니다.
-              builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Future가 완료될 때까지 로딩 상태를 표시합니다.
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  // Future가 실패할 경우 에러 메시지를 표시합니다.
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else {
-
-
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (scrollController.hasClients) {
-
-                      final keyContext = _listViewKey.currentContext;
-                      if (keyContext != null) {
-                        final RenderBox renderBox = keyContext.findRenderObject() as RenderBox;
-                        final size = renderBox.size;
-                        scrollController.animateTo(
-                          size.height,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.easeOut,
-                        );
-                      }
-
-
-
-                    }
-                  });
-                  return snapshot.data!;
-                }
-              },
-            ),
-          ),
+          Expanded(child: buildMessageList(messages)),
           Container(
             color: const Color(0xffF4F4F5),
             child: SafeArea(
