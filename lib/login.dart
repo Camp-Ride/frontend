@@ -20,8 +20,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   _asyncMethod() async {
-    if (await SecureStroageService.readAccessToken() != null) {
+    if (await SecureStroageService.readRefreshToken() != null) {
       print(await SecureStroageService.readAccessToken());
+
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
     }
@@ -35,6 +36,10 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
     final url = Uri.parse(Constants.API + '/api/v1/user');
+    print("first");
+    print(accessToken);
+    print(Constants.API + '/api/v1/user');
+
     final response = await http.get(
       url,
       headers: {
@@ -89,12 +94,16 @@ class _LoginPageState extends State<LoginPage> {
 
       print("callback result : $result");
 
+      print(await SecureStroageService.readRefreshToken());
+      print(await SecureStroageService.readAccessToken());
+
       setState(() {
         status = 'Got result: $result';
       });
 
-      _extractAndSaveTokens(result);
-      Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
+      await _extractAndSaveTokens(result);
+      await Navigator.pushNamedAndRemoveUntil(
+          context, '/main', (route) => false);
     } catch (e) {
       setState(() {
         status = 'Got error: $e';

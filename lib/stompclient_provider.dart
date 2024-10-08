@@ -1,10 +1,11 @@
+import 'package:campride/Constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 final stompClientProvider = Provider<StompClient>((ref) {
   final stompClient = StompClient(
-    config: StompConfig(
-      url: 'ws://localhost:8080/stomp',
+    config: StompConfig.sockJS(
+      url: Constants.PROD_WS,
       onConnect: (frame) {
         print('Connected to STOMP server');
       },

@@ -72,11 +72,13 @@ class _CommunityPageState extends State<CommunityPage>
 
     var dio = await authDio(context);
 
+
     try {
       final response = await dio.get(
           '/post/paging?page=0&size=10${_tabController.index == 1 ? '&sortType=like' : null}');
       Map<String, dynamic> data = response.data;
       List<dynamic> content = data['content'];
+
 
       return content
           .map((json) => Post.fromJson(json, currentNickname))
@@ -246,8 +248,10 @@ class _CommunityPageState extends State<CommunityPage>
                                                     SizedBox(
                                                       width: 30.w,
                                                       height: 15.h,
-                                                      child: PopupMenuButton<int>(
-                                                        padding: EdgeInsets.zero,
+                                                      child:
+                                                          PopupMenuButton<int>(
+                                                        padding:
+                                                            EdgeInsets.zero,
                                                         color: Colors.white,
                                                         child: Icon(
                                                             Icons.more_vert,
@@ -266,9 +270,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                                               .id,
                                                                           title: posts[index]
                                                                               .title,
-                                                                          contents:
-                                                                              posts[index]
-                                                                                  .contents,
+                                                                          contents: posts[index]
+                                                                              .contents,
                                                                           imageNames:
                                                                               posts[index].images))).then(
                                                                   (value) =>
@@ -289,7 +292,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                               break;
                                                             case 2:
                                                               showDialog(
-                                                                context: context,
+                                                                context:
+                                                                    context,
                                                                 builder:
                                                                     (BuildContext
                                                                         context) {
@@ -306,8 +310,9 @@ class _CommunityPageState extends State<CommunityPage>
                                                               break;
                                                           }
                                                         },
-                                                        itemBuilder: (BuildContext
-                                                            context) {
+                                                        itemBuilder:
+                                                            (BuildContext
+                                                                context) {
                                                           List<
                                                                   PopupMenuEntry<
                                                                       int>>

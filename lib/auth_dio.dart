@@ -20,14 +20,18 @@ Future authDio(BuildContext context) async {
     // 매 요청마다 헤더에 AccessToken을 포함
     options.baseUrl = Constants.API + '/api/v1';
     options.headers['Authorization'] = 'Bearer $accessToken';
+
+
     return handler.next(options);
   }, onError: (error, handler) async {
     print(error);
     print(error.response);
     print(error.response?.statusCode);
 
+
+
     // 인증 오류가 발생했을 경우: AccessToken의 만료
-    if (error.response?.statusCode == 401) {
+    if (error.response?.statusCode == 401 || error.response?.statusCode == 400) {
       print("start refresh token");
       // 기기에 저장된 AccessToken과 RefreshToken 로드
       final accessToken = await storage.read(key: 'access_token');
@@ -39,10 +43,10 @@ Future authDio(BuildContext context) async {
       refreshDio.interceptors.clear();
 
       refreshDio.interceptors
-          .add(InterceptorsWrapper( onError: (error, handler) async {
-
+          .add(InterceptorsWrapper(onError: (error, handler) async {
         // 다시 인증 오류가 발생했을 경우: RefreshToken의 만료
-        if (error.response?.statusCode == 401) {
+
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 301 || error.response?.statusCode == 400) {
           // 기기의 자동 로그인 정보 삭제
           await storage.deleteAll();
 
@@ -71,6 +75,9 @@ Future authDio(BuildContext context) async {
       // response로부터 새로 갱신된 AccessToken과 RefreshToken 파싱
       final newAccessToken = refreshResponse.data['accessToken'];
       final newRefreshToken = refreshResponse.data["refreshToken"];
+
+      print(newAccessToken);
+      print(newRefreshToken);
 
       // 기기에 저장된 AccessToken과 RefreshToken 갱신
       await storage.write(key: 'access_token', value: newAccessToken);

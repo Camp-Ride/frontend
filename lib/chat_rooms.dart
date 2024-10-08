@@ -53,11 +53,11 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
   void _connectStomp(int roomId) {
     print("Connecting to STOMP server for room ID: $roomId");
 
-    print(Constants.WS);
+    print(Constants.PROD_WS);
 
     _stompClient = StompClient(
-      config: StompConfig(
-        url: Constants.WS,
+      config: StompConfig.sockJS(
+        url: Constants.PROD_WS,
         // STOMP WebSocket URL
         onConnect: (StompFrame frame) => _onConnect(frame, roomId),
         onDisconnect: _onDisconnect,

@@ -8,12 +8,15 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:daum_postcode_view/daum_postcode_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import 'login.dart';
 
 class CampRiderPage extends StatefulWidget {
   const CampRiderPage({super.key});
@@ -119,14 +122,29 @@ class _CampRiderPageState extends State<CampRiderPage> {
   Future<List<Room>> fetchRooms() async {
     var dio = await authDio(context);
 
-    final response = await dio.get('/room?page=0&size=10');
+    try{
+      final response = await dio.get('/room?page=0&size=10');
 
-    Map<String, dynamic> data = response.data;
+      Map<String, dynamic> data = response.data;
 
-    List<dynamic> content = data['content'];
-    print(content);
+      List<dynamic> content = data['content'];
+      print(content);
 
-    return content.map((json) => Room.fromJson(json)).toList();
+      return content.map((json) => Room.fromJson(json)).toList();
+    }catch(e){
+      final storage = new FlutterSecureStorage();
+
+      await storage.deleteAll();
+
+      // . . .
+      // 로그인 만료 dialog 발생 후 로그인 페이지로 이동
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginPage()));
+    }
+    return [];
+
+
+
   }
 
   Future<void> joinRoom(Room room) async {

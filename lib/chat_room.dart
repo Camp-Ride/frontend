@@ -77,8 +77,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   void _connectStomp() {
     print("Connecting to STOMP server");
     _stompClient = StompClient(
-      config: StompConfig(
-        url: Constants.WS,
+      config: StompConfig.sockJS(
+        url: Constants.PROD_WS,
         // STOMP WebSocket URL
         onConnect: _onConnect,
         onDisconnect: _onDisconnect,
