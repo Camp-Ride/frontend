@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:campride/secure_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:campride/main.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+
     _asyncMethod();
   }
 
@@ -79,11 +82,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn(provider) async {
+    final token = await FirebaseMessaging.instance.getToken();
+
+    print("device token is " + token!);
+
     final prodUrl =
         Uri.parse('${EnvConfig().prodUrl}/oauth2/authorization/$provider');
 
-    final localUrl =
-        Uri.parse(Constants.API + '/oauth2/authorization/$provider');
+    final localUrl = Uri.parse(
+        Constants.API + '/api/v1/login?provider=$provider&deviceToken=$token');
+
+    // final localUrl = Uri.parse(
+    //     "http://localhost:8080/api/v1/login?provider=kakao&deviceToken=aacacca");
+
     late String status;
 
     print(localUrl);

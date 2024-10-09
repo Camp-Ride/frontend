@@ -26,10 +26,13 @@ class ChatRoomsPage extends StatefulWidget {
 
 class _ChatRoomsPageState extends State<ChatRoomsPage> {
   late Future<List<Room>> futureRooms;
+  late String userName;
+  late String userId;
 
   @override
   void initState() {
     super.initState();
+    initializeUserInfo();
     futureRooms = fetchRooms();
     subscribeStomps(futureRooms);
     print("initstate");
@@ -50,6 +53,11 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
 
   StompClient? _stompClient;
 
+  void initializeUserInfo() async {
+    userName = (await SecureStroageService.readNickname())!;
+    userId = (await SecureStroageService.readUserId())!;
+  }
+
   void _connectStomp(int roomId) {
     print("Connecting to STOMP server for room ID: $roomId");
 
@@ -58,11 +66,13 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     _stompClient = StompClient(
       config: StompConfig.sockJS(
         url: Constants.PROD_WS,
-        // STOMP WebSocket URL
+        stompConnectHeaders: {'userId': userId},
+        webSocketConnectHeaders: {'userId': userId},
         onConnect: (StompFrame frame) => _onConnect(frame, roomId),
         onDisconnect: _onDisconnect,
         onWebSocketError: (error) => print('WebSocket error: $error'),
         onStompError: (frame) => print('STOMP error: ${frame.body}'),
+
       ),
     );
 

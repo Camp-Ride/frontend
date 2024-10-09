@@ -47,7 +47,6 @@ class ChatRoomPage extends ConsumerStatefulWidget {
 }
 
 class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
-
   bool firstInit = false;
   Duration duration = const Duration();
   Duration position = const Duration();
@@ -79,13 +78,16 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     _stompClient = StompClient(
       config: StompConfig.sockJS(
         url: Constants.PROD_WS,
-        // STOMP WebSocket URL
+        stompConnectHeaders: {'userId': userId},
+        webSocketConnectHeaders: {'userId': userId},
         onConnect: _onConnect,
         onDisconnect: _onDisconnect,
         onWebSocketError: (error) => print('WebSocket error: $error'),
         onStompError: (frame) => print('STOMP error: ${frame.body}'),
+
       ),
     );
+
     _stompClient?.activate();
   }
 
@@ -94,6 +96,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
       destination: '/topic/messages/room/${room.id}',
+      headers: {'userId': '12345',
+        'username': 'yourUserName'},
       callback: (frame) async {
         print('Received message: ${frame.body}');
 
@@ -821,7 +825,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-
         if (scrollController.hasClients && !firstInit) {
           final keyContext = _listViewKey.currentContext;
           if (keyContext != null) {
