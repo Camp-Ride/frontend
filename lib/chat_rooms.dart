@@ -94,7 +94,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                   if (room.id == roomId) {
                     room.latestMessageSender = message.userId,
                     room.latestMessageContent = message.text,
-                    room.latestMessageCreatedAt = message.timestamp.toString(),
+                    room.latestMessageCreatedAt = message.timestamp.toString().substring(0,16),
                     room.latestMessageType = message.chatMessageType,
                     room.unreadMessageCount++,
                     message.chatMessageType == ChatMessageType.LEAVE ? room.currentParticipantsCount-- : room.currentParticipantsCount++,
