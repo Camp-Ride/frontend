@@ -72,7 +72,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
         onDisconnect: _onDisconnect,
         onWebSocketError: (error) => print('WebSocket error: $error'),
         onStompError: (frame) => print('STOMP error: ${frame.body}'),
-
       ),
     );
 
@@ -89,17 +88,18 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
         if (!mounted) return;
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
-
         setState(() {
           futureRooms.then((rooms) => {
-                rooms.forEach((room) {
+                for (var room in rooms) {
                   if (room.id == roomId) {
-                    room.latestMessageSender = message.userId;
-                    room.latestMessageContent = message.text;
-                    room.latestMessageCreatedAt = message.timestamp.toString();
-                    room.unreadMessageCount++;
+                    room.latestMessageSender = message.userId,
+                    room.latestMessageContent = message.text,
+                    room.latestMessageCreatedAt = message.timestamp.toString(),
+                    room.latestMessageType = message.chatMessageType,
+                    room.unreadMessageCount++,
+                    message.chatMessageType == ChatMessageType.LEAVE ? room.currentParticipantsCount-- : room.currentParticipantsCount++,
                   }
-                })
+                }
               });
         });
       },
@@ -270,7 +270,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             const Icon(Icons.people),
                                             SizedBox(width: 8.w),
                                             Text(
-                                              "${rooms[index].currentParticipants.length}/${rooms[index].maxParticipants}",
+                                              "${rooms[index].currentParticipantsCount}/${rooms[index].maxParticipants}",
                                             ),
                                           ],
                                         ),
