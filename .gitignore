@@ -47,3 +47,15 @@ app.*.map.json
 
 /lib/Constants.dart
 
+
+ios/Podfile
+ios/Podfile.lock
+
+ios/*
+
+android/*
+
+lib/firebase_options.dart
+
+macos/*
+windows/*

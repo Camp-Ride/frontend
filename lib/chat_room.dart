@@ -102,11 +102,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
-          if(!ref.read(messagesProvider.notifier).isAlreadyExist(message)){
+          if (!ref.read(messagesProvider.notifier).isAlreadyExist(message)) {
             _scrollToBottom();
           }
-
-
 
           if ((message.chatMessageType == ChatMessageType.LEAVE ||
                   message.chatMessageType == ChatMessageType.KICK) &&
@@ -575,7 +573,8 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       final alignment = userId == message.userId
           ? MainAxisAlignment.end
           : MainAxisAlignment.start;
-      final textColor = userId == message.userId ? Colors.white : Colors.black;
+      final textColor =
+          userId == message.userId ? Colors.white : Colors.black54;
 
       Widget buildReplyWidget(String replyingMessage) {
         return !replyingMessage.endsWith(".png")
@@ -736,7 +735,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
                 text: message.text,
                 color: userId == message.userId
                     ? const Color(0xFF1B97F3)
-                    : const Color(0xFFE8E8EE),
+                    : const Color(0xFFE8E8E6),
                 tail: false,
                 textStyle: TextStyle(color: textColor, fontSize: 16),
                 isSender: userId == message.userId ? true : false,
