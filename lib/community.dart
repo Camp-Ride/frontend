@@ -29,6 +29,7 @@ class _CommunityPageState extends State<CommunityPage>
   List<File> images = [];
   String jwt = "";
   String currentNickname = "";
+  String currentUserId = "";
   late Future<List<Post>> futurePosts;
 
   late TabController _tabController;
@@ -72,13 +73,11 @@ class _CommunityPageState extends State<CommunityPage>
 
     var dio = await authDio(context);
 
-
     try {
       final response = await dio.get(
           '/post/paging?page=0&size=10${_tabController.index == 1 ? '&sortType=like' : null}');
       Map<String, dynamic> data = response.data;
       List<dynamic> content = data['content'];
-
 
       return content
           .map((json) => Post.fromJson(json, currentNickname))
@@ -126,7 +125,24 @@ class _CommunityPageState extends State<CommunityPage>
       print('Failed to unlike post: ${e.response?.statusCode}');
     });
   }
-
+  void _showFailureDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -256,30 +272,40 @@ class _CommunityPageState extends State<CommunityPage>
                                                         child: Icon(
                                                             Icons.more_vert,
                                                             size: 20.r),
-                                                        onSelected: (value) {
+                                                        onSelected:
+                                                            (value) async {
                                                           switch (value) {
                                                             case 0:
                                                               print(
                                                                   "Edit selected");
+                                                              int authorId = int.parse(
+                                                                  (await SecureStroageService
+                                                                      .readUserId())!);
 
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) => PostModifyPage(
-                                                                          id: posts[index]
-                                                                              .id,
-                                                                          title: posts[index]
-                                                                              .title,
-                                                                          contents: posts[index]
-                                                                              .contents,
-                                                                          imageNames:
-                                                                              posts[index].images))).then(
-                                                                  (value) =>
-                                                                      setState(
-                                                                          () {
-                                                                        futurePosts =
-                                                                            fetchPosts();
-                                                                      }));
+                                                              if (posts[index]
+                                                                      .authorId ==
+                                                                  authorId) {
+                                                                Navigator.push(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                        builder: (context) => PostModifyPage(
+                                                                            id: posts[index]
+                                                                                .id,
+                                                                            title: posts[index]
+                                                                                .title,
+                                                                            contents: posts[index]
+                                                                                .contents,
+                                                                            imageNames:
+                                                                                posts[index].images))).then(
+                                                                    (value) =>
+                                                                        setState(
+                                                                            () {
+                                                                          futurePosts =
+                                                                              fetchPosts();
+                                                                        }));
+                                                              }else{
+                                                                _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                              }
 
                                                               break;
                                                             case 1:
@@ -614,31 +640,41 @@ class _CommunityPageState extends State<CommunityPage>
                                                       child: Icon(
                                                           Icons.more_vert,
                                                           size: 15.r),
-                                                      onSelected: (value) {
+                                                      onSelected:
+                                                          (value) async {
                                                         switch (value) {
                                                           case 0:
                                                             print(
                                                                 "Edit selected");
 
-                                                            Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                    builder: (context) => PostModifyPage(
-                                                                        id: posts[index]
-                                                                            .id,
-                                                                        title: posts[index]
-                                                                            .title,
-                                                                        contents:
-                                                                            posts[index]
-                                                                                .contents,
-                                                                        imageNames:
-                                                                            posts[index].images))).then(
-                                                                (value) =>
-                                                                    setState(
-                                                                        () {
-                                                                      futurePosts =
-                                                                          fetchPosts();
-                                                                    }));
+                                                            int authorId = int.parse(
+                                                                (await SecureStroageService
+                                                                    .readUserId())!);
+
+                                                            if (posts[index]
+                                                                    .authorId ==
+                                                                authorId) {
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) => PostModifyPage(
+                                                                          id: posts[index]
+                                                                              .id,
+                                                                          title: posts[index]
+                                                                              .title,
+                                                                          contents: posts[index]
+                                                                              .contents,
+                                                                          imageNames:
+                                                                              posts[index].images))).then(
+                                                                  (value) =>
+                                                                      setState(
+                                                                          () {
+                                                                        futurePosts =
+                                                                            fetchPosts();
+                                                                      }));
+                                                            }else{
+                                                              _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                            }
 
                                                             break;
                                                           case 1:

@@ -233,7 +233,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
       print('댓글 좋아요 취소 중 오류 발생: $e');
     });
   }
-
+  void _showFailureDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -317,24 +334,36 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                           color: Colors.white,
                                           child: const Icon(Icons.more_vert,
                                               size: 20),
-                                          onSelected: (value) {
+                                          onSelected: (value) async {
                                             switch (value) {
                                               case 0:
                                                 print("Edit selected");
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PostModifyPage(
-                                                      id: post.id,
-                                                      title: post.title,
-                                                      contents: post.contents,
-                                                      imageNames: post.images,
+
+                                                int authorId = int.parse(
+                                                    (await SecureStroageService
+                                                        .readUserId())!);
+
+                                                if (post.authorId ==
+                                                    authorId) {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          PostModifyPage(
+                                                        id: post.id,
+                                                        title: post.title,
+                                                        contents: post.contents,
+                                                        imageNames: post.images,
+                                                      ),
                                                     ),
-                                                  ),
-                                                ).then((value) => setState(() {
-                                                      futurePost = fetchPost();
-                                                    }));
+                                                  ).then(
+                                                      (value) => setState(() {
+                                                            futurePost =
+                                                                fetchPost();
+                                                          }));
+                                                }else{
+                                                  _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                }
                                                 break;
                                               case 1:
                                                 deletePost(post.id);
@@ -348,7 +377,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                       (BuildContext context) {
                                                     return ReportDialog(
                                                         item: post,
-                                                        type: CommunityType.POST);
+                                                        type:
+                                                            CommunityType.POST);
                                                   },
                                                 );
                                                 print("Report selected");

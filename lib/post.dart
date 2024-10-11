@@ -4,6 +4,7 @@ import 'item.dart';
 class Post extends Item {
   @override
   final int id;
+  final int authorId;
   final String name;
   final String date;
   final String title;
@@ -15,6 +16,7 @@ class Post extends Item {
 
   Post({
     required this.id,
+    required this.authorId,
     required this.name,
     required this.date,
     required this.title,
@@ -42,6 +44,7 @@ class Post extends Item {
 
     return Post(
       id: json['id'],
+      authorId: json['authorId'],
       name: json['name'],
       date: formattedDate,
       title: json['title'],
