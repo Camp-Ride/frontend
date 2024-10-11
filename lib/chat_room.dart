@@ -115,12 +115,12 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             if (response != null) {
               room = response;
             }
-            Navigator.pop(context);
+            ref.read(messagesProvider.notifier).addMessage(message);
+
             return;
           }
 
-          if ((message.chatMessageType == ChatMessageType.LEAVE ||
-                  message.chatMessageType == ChatMessageType.KICK) &&
+          if ((message.chatMessageType == ChatMessageType.KICK) &&
               userId == message.text) {
             print("leaved user: " + message.text);
             Navigator.pop(context);
@@ -142,7 +142,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
             }
 
             if (userId != message.userId ||
-                message.chatMessageType == ChatMessageType.JOIN) {
+                message.chatMessageType == ChatMessageType.JOIN || message.chatMessageType == ChatMessageType.LEAVE) {
               print("message id is different");
               ref.read(messagesProvider.notifier).addMessage(message);
               return;
@@ -374,7 +374,9 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       );
 
       if (response == true) {
+        print("exit room");
         sendLeaveUser(int.parse(userId), userName, ChatMessageType.LEAVE);
+        Navigator.pop(context);
         Navigator.pop(context);
       }
     }
