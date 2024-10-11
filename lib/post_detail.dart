@@ -74,6 +74,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('삭제 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -91,6 +93,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('삭제 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -110,6 +114,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('게시물 로드 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -128,6 +134,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('댓글 로드 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -151,6 +159,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('댓글 작성 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -171,6 +181,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('게시물 좋아요 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -191,6 +203,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('게시물 좋아요 취소 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -211,6 +225,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('댓글 좋아요 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
@@ -231,6 +247,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       }
     }).catchError((e) {
       print('댓글 좋아요 취소 중 오류 발생: $e');
+      Navigator.pop(context);
+      _showFailureDialog(context, "해당 게시물은 삭제되었습니다.");
     });
   }
 
