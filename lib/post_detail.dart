@@ -233,6 +233,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       print('댓글 좋아요 취소 중 오류 발생: $e');
     });
   }
+
   void _showFailureDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -251,6 +252,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -343,8 +345,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                     (await SecureStroageService
                                                         .readUserId())!);
 
-                                                if (post.authorId ==
-                                                    authorId) {
+                                                if (post.authorId == authorId) {
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -361,12 +362,21 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                             futurePost =
                                                                 fetchPost();
                                                           }));
-                                                }else{
-                                                  _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                } else {
+                                                  _showFailureDialog(
+                                                      context, '글쓴이가 아닙니다.');
                                                 }
                                                 break;
                                               case 1:
-                                                deletePost(post.id);
+                                                int authorId = int.parse(
+                                                    (await SecureStroageService
+                                                        .readUserId())!);
+                                                if (post.authorId == authorId) {
+                                                  deletePost(post.id);
+                                                } else {
+                                                  _showFailureDialog(
+                                                      context, "글쓴이가 아닙니다.");
+                                                }
                                                 print("Delete selected");
                                                 // Handle delete action
                                                 break;

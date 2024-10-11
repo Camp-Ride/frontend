@@ -125,6 +125,7 @@ class _CommunityPageState extends State<CommunityPage>
       print('Failed to unlike post: ${e.response?.statusCode}');
     });
   }
+
   void _showFailureDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -143,6 +144,7 @@ class _CommunityPageState extends State<CommunityPage>
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -303,15 +305,26 @@ class _CommunityPageState extends State<CommunityPage>
                                                                           futurePosts =
                                                                               fetchPosts();
                                                                         }));
-                                                              }else{
-                                                                _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                              } else {
+                                                                _showFailureDialog(
+                                                                    context,
+                                                                    '글쓴이가 아닙니다.');
                                                               }
 
                                                               break;
                                                             case 1:
-                                                              deletePost(
-                                                                  posts[index]
-                                                                      .id);
+                                                              int authorId = int.parse(
+                                                                  (await SecureStroageService
+                                                                      .readUserId())!);
+                                                              if (posts[index]
+                                                                      .authorId ==
+                                                                  authorId) {
+                                                                deletePost(
+                                                                    posts[index]
+                                                                        .id);
+                                                              } else {
+                                                                _showFailureDialog(context, "글쓴이가 아닙니다.");
+                                                              }
                                                               print(
                                                                   "Delete selected");
                                                               // Handle delete action
@@ -672,15 +685,26 @@ class _CommunityPageState extends State<CommunityPage>
                                                                         futurePosts =
                                                                             fetchPosts();
                                                                       }));
-                                                            }else{
-                                                              _showFailureDialog(context, '글쓴이가 아닙니다.');
+                                                            } else {
+                                                              _showFailureDialog(
+                                                                  context,
+                                                                  '글쓴이가 아닙니다.');
                                                             }
 
                                                             break;
                                                           case 1:
-                                                            deletePost(
-                                                                posts[index]
-                                                                    .id);
+                                                            int authorId = int.parse(
+                                                                (await SecureStroageService
+                                                                    .readUserId())!);
+                                                            if (posts[index]
+                                                                .authorId ==
+                                                                authorId) {
+                                                              deletePost(
+                                                                  posts[index]
+                                                                      .id);
+                                                            } else {
+                                                              _showFailureDialog(context, "글쓴이가 아닙니다.");
+                                                            }
                                                             print(
                                                                 "Delete selected");
                                                             // Handle delete action
