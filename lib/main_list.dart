@@ -122,7 +122,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
   Future<List<Room>> fetchRooms() async {
     var dio = await authDio(context);
 
-    try{
+    try {
       final response = await dio.get('/room?page=0&size=10');
 
       Map<String, dynamic> data = response.data;
@@ -131,7 +131,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
       print(content);
 
       return content.map((json) => Room.fromJson(json)).toList();
-    }catch(e){
+    } catch (e) {
       final storage = new FlutterSecureStorage();
 
       await storage.deleteAll();
@@ -142,9 +142,6 @@ class _CampRiderPageState extends State<CampRiderPage> {
           context, MaterialPageRoute(builder: (context) => LoginPage()));
     }
     return [];
-
-
-
   }
 
   Future<void> joinRoom(Room room) async {
@@ -157,9 +154,12 @@ class _CampRiderPageState extends State<CampRiderPage> {
       print('Room joined successfully');
       sendJoinRequest(roomId).then((value) => {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChatRoomPage(initialRoom: room)))
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChatRoomPage(initialRoom: room)))
+                .then((value) => setState(() {
+                      futureRooms = fetchRooms();
+                    }))
           });
     } on DioException catch (e) {
       print('Error: $e');
@@ -760,12 +760,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                           onPressed:
                                                                               () {
                                                                             Navigator.of(context).pop();
-                                                                            joinRoom(rooms[index]).then((onValue) =>
-                                                                                {
-                                                                                  setState(() {
-                                                                                    futureRooms = fetchRooms();
-                                                                                  })
-                                                                                });
+                                                                            joinRoom(rooms[index]);
                                                                           },
                                                                           child: const Text(
                                                                               '참여',
