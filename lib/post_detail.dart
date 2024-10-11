@@ -605,12 +605,25 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               color: Colors.white,
                                               child: Icon(Icons.more_vert,
                                                   size: 15.r),
-                                              onSelected: (value) {
+                                              onSelected: (value) async {
                                                 switch (value) {
                                                   case 1:
-                                                    deleteComment(
-                                                        comments[index].id,
-                                                        widget.post.id);
+                                                    int authorId = int.parse(
+                                                        (await SecureStroageService
+                                                            .readUserId())!);
+
+                                                    if (authorId ==
+                                                        comments[index]
+                                                            .authorId) {
+                                                      deleteComment(
+                                                          comments[index].id,
+                                                          widget.post.id);
+                                                    } else {
+                                                      _showFailureDialog(
+                                                          context,
+                                                          '댓글 작성자가 아닙니다.');
+                                                    }
+
                                                     print("Delete selected");
                                                     // Handle delete action
                                                     break;

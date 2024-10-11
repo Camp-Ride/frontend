@@ -3,6 +3,7 @@ import 'item.dart';
 class Comment extends Item {
   @override
   final int id;
+  final int authorId;
   final String name;
   final String date;
   final String comment;
@@ -11,6 +12,7 @@ class Comment extends Item {
 
   Comment({
     required this.id,
+    required this.authorId,
     required this.name,
     required this.date,
     required this.comment,
@@ -31,6 +33,7 @@ class Comment extends Item {
 
     return Comment(
       id: json['id'],
+      authorId: json['authorId'],
       name: json['nickname'],
       date: formattedDate,
       comment: json['content'],
