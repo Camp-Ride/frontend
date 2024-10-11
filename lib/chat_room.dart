@@ -84,7 +84,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         onDisconnect: _onDisconnect,
         onWebSocketError: (error) => print('WebSocket error: $error'),
         onStompError: (frame) => print('STOMP error: ${frame.body}'),
-
       ),
     );
 
@@ -96,8 +95,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     // Subscribe to a topic or queue
     _stompClient?.subscribe(
       destination: '/topic/messages/room/${room.id}',
-      headers: {'userId': '12345',
-        'username': 'yourUserName'},
       callback: (frame) async {
         print('Received message: ${frame.body}');
 
@@ -105,7 +102,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
           Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
           Message message = Message.fromJson(jsonMap);
 
-          _scrollToBottom();
+          if(!ref.read(messagesProvider.notifier).isAlreadyExist(message)){
+            _scrollToBottom();
+          }
+
+
 
           if ((message.chatMessageType == ChatMessageType.LEAVE ||
                   message.chatMessageType == ChatMessageType.KICK) &&
@@ -117,6 +118,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               room = response;
             }
             Navigator.pop(context);
+            return;
           }
 
           if ((message.chatMessageType == ChatMessageType.LEAVE ||
@@ -124,19 +126,35 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
               userId == message.text) {
             print("leaved user: " + message.text);
             Navigator.pop(context);
+            return;
           }
 
           if (message.id == null) {
             ref.read(messagesProvider.notifier).updateMessage(message);
+            print("message id is null");
+            print(message);
+            return;
           } else {
+            print(userId + " " + message.userId);
+
+            if (ref.read(messagesProvider.notifier).isAlreadyExist(message)) {
+              print("already exist");
+              ref.read(messagesProvider.notifier).updateMessage(message);
+              return;
+            }
+
             if (userId != message.userId ||
                 message.chatMessageType == ChatMessageType.JOIN) {
+              print("message id is different");
               ref.read(messagesProvider.notifier).addMessage(message);
               return;
             }
 
             if (userId == message.userId) {
               ref.read(messagesProvider.notifier).updateMessageId(message);
+              print("message id is not null");
+              print("userId == message.userId");
+              print(message);
               return;
             }
           }

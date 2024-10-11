@@ -92,7 +92,7 @@ class Message {
       dateParts[2],
       dateParts[3],
       dateParts[4],
-      dateParts[5],
+      dateParts.length <= 5 ? 0 : dateParts[5],
     );
     // print("timestamp : " + timestamp.toString());
     // print("reactions : " + reactions.toString());

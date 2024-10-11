@@ -127,6 +127,10 @@ class MessagesNotifier extends StateNotifier<List<Message>> {
       }
     });
   }
+
+  bool isAlreadyExist(Message message) {
+    return state.any((element) => element.id == message.id);
+  }
 }
 
 //   void reactToMessage(int index, String reaction, String userName) {
