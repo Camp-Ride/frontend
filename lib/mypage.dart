@@ -145,53 +145,8 @@ class _MyPageState extends State<MyPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "환영합니다!",
+                                    _nickname + "님 환영합니다!",
                                     style: TextStyle(fontSize: 14.sp),
-                                  ),
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: _nickname.length * 13.0,
-                                        height: 50.h,
-                                        child: TextField(
-                                          enabled: _isEditing,
-                                          controller: _controller,
-                                          cursorColor: Colors.transparent,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                10),
-                                          ],
-                                          style: const TextStyle(
-                                            color: Color(0xFF333333),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Apple SD Gothic Neo',
-                                          ),
-                                          decoration: InputDecoration(
-                                            hintText: _nickname,
-                                            border: InputBorder.none,
-                                            enabledBorder:
-                                                const UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: 1,
-                                                  color: Colors.black),
-                                            ),
-                                            focusedBorder:
-                                                const UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: 1,
-                                                  color: Colors.black),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(_isEditing
-                                            ? Icons.check
-                                            : Icons.edit),
-                                        onPressed: _toggleEdit,
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),
@@ -362,8 +317,8 @@ class _MyPageState extends State<MyPage> {
                               child: ElevatedButton(
                                 onPressed: null,
                                 style: ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStateProperty.all(Colors.transparent),
+                                  backgroundColor: WidgetStateProperty.all(
+                                      Colors.transparent),
                                   elevation:
                                       WidgetStateProperty.all(0), // 그림자 없애기
                                 ),
