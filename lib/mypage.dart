@@ -144,10 +144,23 @@ class _MyPageState extends State<MyPage> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    _nickname + "님 환영합니다!",
-                                    style: TextStyle(fontSize: 14.sp),
-                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        _nickname + "님",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.sp,
+                                            color: Colors.black),
+                                      ),
+                                      Text(
+                                        " 환영합니다!",
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                               Text(
