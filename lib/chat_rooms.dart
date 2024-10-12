@@ -7,6 +7,7 @@ import 'package:campride/message_type.dart';
 import 'package:campride/room.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp_dart_client.dart';
@@ -14,17 +15,18 @@ import 'package:dio/dio.dart';
 
 import 'auth_dio.dart';
 import 'message.dart';
+import 'messages_provider.dart';
 
 const String minDateTimeString = "-999999999-01-01 00:00";
 
-class ChatRoomsPage extends StatefulWidget {
+class ChatRoomsPage extends ConsumerStatefulWidget {
   const ChatRoomsPage({super.key});
 
   @override
   _ChatRoomsPageState createState() => _ChatRoomsPageState();
 }
 
-class _ChatRoomsPageState extends State<ChatRoomsPage> {
+class _ChatRoomsPageState extends ConsumerState<ChatRoomsPage> {
   late Future<List<Room>> futureRooms;
   late String userName;
   late String userId;
@@ -90,16 +92,22 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
         Message message = Message.fromJson(jsonMap);
         setState(() {
           futureRooms.then((rooms) => {
-                for (var room in rooms) {
-                  if (room.id == roomId) {
-                    room.latestMessageSender = message.userId,
-                    room.latestMessageContent = message.text,
-                    room.latestMessageCreatedAt = message.timestamp.toString().substring(0,16),
-                    room.latestMessageType = message.chatMessageType,
-                    room.unreadMessageCount++,
-                    message.chatMessageType == ChatMessageType.LEAVE ? room.currentParticipantsCount-- : room.currentParticipantsCount++,
+                for (var room in rooms)
+                  {
+                    if (room.id == roomId)
+                      {
+                        room.latestMessageSender = message.userId,
+                        room.latestMessageNickname = message.userNickname,
+                        room.latestMessageContent = message.text,
+                        room.latestMessageCreatedAt =
+                            message.timestamp.toString().substring(0, 16),
+                        room.latestMessageType = message.chatMessageType,
+                        room.unreadMessageCount++,
+                        message.chatMessageType == ChatMessageType.LEAVE
+                            ? room.currentParticipantsCount--
+                            : room.currentParticipantsCount++,
+                      }
                   }
-                }
               });
         });
       },
@@ -244,7 +252,8 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                         )),
                                         InkWell(
                                           onTap: () {
-                                            deleteRoom(rooms[index].id);
+                                            deleteRoom(rooms[index].id,
+                                                rooms[index].leaderId);
                                           },
                                           child: Icon(
                                             Icons.close,
@@ -411,12 +420,39 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     );
   }
 
-  Future<void> deleteRoom(int roomId) async {
+  Future<void> sendLeaveUser(int leavedUserId, String leavedUserNickname,
+      ChatMessageType messageType, int roomId) async {
+    Room currentRoom = await futureRooms
+        .then((rooms) => rooms.firstWhere((room) => room.id == roomId));
+    final now = DateTime.now();
+
+    Message message = Message(
+        id: null,
+        roomId: currentRoom.id,
+        userId: userId,
+        userNickname: leavedUserNickname,
+        text: leavedUserId.toString(),
+        timestamp: now,
+        chatMessageType: messageType,
+        reactions: [],
+        isReply: false,
+        replyingMessage: "",
+        imageUrl: "");
+    ref.read(messagesProvider.notifier).addMessage(message);
+    _stompClient?.send(
+      destination: '/app/send/leave',
+      body: message.toString(),
+    );
+  }
+
+  Future<void> deleteRoom(int roomId, int leaderId) async {
     final response = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("정말 삭제하시겠습니까?", style: TextStyle(fontSize: 15.sp)),
+          title: Text("정말 방을 나가시겠습니까?", style: TextStyle(fontSize: 15.sp)),
+          content:
+              leaderId.toString() == userId ? Text("방장이 나가면 방이 삭제됩니다.") : null,
           actions: <Widget>[
             TextButton(
               child: Text("확인"),
@@ -436,26 +472,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
     );
 
     if (response == true) {
-      var dio = await authDio(context);
-
-      dio.delete('/room/$roomId').then((response) {
-        if (response.statusCode == 200) {
-          print('Room deleted successfully');
-          setState(() {
-            futureRooms = fetchRooms();
-          });
-        } else {
-          var jsonResponse = response.data;
-
-          if (jsonResponse['code'] == 4001) {
-            _showFailureDialog(context, "방장이 아니기 때문에 삭제할 수 없습니다.");
-          } else {
-            _showFailureDialog(context, '알수 없는 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-          }
-          print(
-              'Failed to delete the room. Status code: ${response.statusCode}');
-          print('Response body: ${response.body}');
-        }
+      sendLeaveUser(int.parse(userId), userName, ChatMessageType.LEAVE, roomId);
+      setState(() {
+        futureRooms = fetchRooms();
       });
     }
   }

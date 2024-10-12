@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campride/Constants.dart';
+import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/participants.dart';
 import 'package:campride/reaction_type.dart';
@@ -60,6 +61,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
   String userId = "";
   late Room room;
   final GlobalKey _listViewKey = GlobalKey();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int selectedIndex = 0;
 
@@ -379,7 +381,6 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
         print("exit room");
         sendLeaveUser(int.parse(userId), userName, ChatMessageType.LEAVE);
         Navigator.pushReplacementNamed(context, '/main');
-
       }
     }
 
@@ -876,6 +877,7 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     }
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(
@@ -1368,6 +1370,25 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
     });
   }
 
+  void _showFailureDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<Room?> fetchRoom(int roomId) async {
     var dio = await authDio(context);
 
@@ -1377,6 +1398,11 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
       return Room.fromJson(response.data);
     } catch (e) {
       print('Failed to load room. Error: $e');
+      if (_scaffoldKey.currentState!.isEndDrawerOpen) {
+        Navigator.of(context).pop();
+      }
+      Navigator.of(context).pop();
+      _showFailureDialog(context, "방 정보를 불러오는데 실패했습니다.");
     }
   }
 }

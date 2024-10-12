@@ -3,6 +3,7 @@ import 'package:campride/participants.dart';
 
 class Room {
   final int id;
+  final int leaderId;
   final String name;
   final String date;
   final String title;
@@ -28,6 +29,7 @@ class Room {
 
   Room({
     required this.id,
+    required this.leaderId,
     required this.name,
     required this.date,
     required this.title,
@@ -93,6 +95,7 @@ class Room {
 
     return Room(
       id: json['id'],
+      leaderId: json['leaderId'],
       name: json['leaderNickname'],
       date: formatDateTime(List<int>.from(json['departureTime'])),
       title: json['title'],
