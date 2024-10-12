@@ -19,6 +19,7 @@ import 'community.dart';
 import 'env_config.dart';
 import 'firebase_options.dart';
 import 'login.dart';
+import 'nickname_update.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -114,6 +115,7 @@ class MyApp extends ConsumerWidget {
                 ),
                 routes: {
                   '/login': (context) => const LoginPage(),
+                  '/nickname': (context) => const NicknameUpdatePage(),
                   '/main': (context) => const MainPage(),
                   '/chatRooms': (context) => const ChatRoomsPage(),
                 }),
@@ -123,6 +125,8 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
+
+
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

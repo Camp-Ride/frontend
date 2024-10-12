@@ -26,7 +26,19 @@ class _LoginPageState extends State<LoginPage> {
       print(await SecureStroageService.readAccessToken());
 
       if (!mounted) return;
-      Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
+
+      String? isNicknameUpdated =
+          await SecureStroageService.readIsNicknameUpdated();
+
+      print(isNicknameUpdated);
+
+      if (isNicknameUpdated == "false" || isNicknameUpdated == null) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/nickname', (route) => false);
+      } else {
+        await Navigator.pushNamedAndRemoveUntil(
+            context, '/main', (route) => false);
+      }
     }
   }
 
@@ -81,6 +93,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  _extractIsNicknameUpdated(String result) {
+    Uri uri = Uri.parse(result);
+    String? isNicknameUpdated = uri.queryParameters['isNicknameUpdated'];
+    SecureStroageService.saveIsNicknameUpdated(isNicknameUpdated);
+    print(isNicknameUpdated);
+  }
+
   Future<void> signIn(provider) async {
     final token = await FirebaseMessaging.instance.getToken();
 
@@ -113,8 +132,20 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       await _extractAndSaveTokens(result);
-      await Navigator.pushNamedAndRemoveUntil(
-          context, '/main', (route) => false);
+      await _extractIsNicknameUpdated(result);
+
+      String? isNicknameUpdated =
+          await SecureStroageService.readIsNicknameUpdated();
+
+      print(isNicknameUpdated);
+
+      if (isNicknameUpdated == "false" || isNicknameUpdated == null) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/nickname', (route) => false);
+      } else {
+        await Navigator.pushNamedAndRemoveUntil(
+            context, '/main', (route) => false);
+      }
     } catch (e) {
       setState(() {
         status = 'Got error: $e';

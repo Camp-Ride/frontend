@@ -1,4 +1,5 @@
 import 'package:campride/Constants.dart';
+import 'package:campride/secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,57 @@ Future authDio(BuildContext context) async {
     print(error);
     print(error.response);
     print(error.response?.statusCode);
+
+
+    if(error.response?.data['code'] == 3016){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("닉네임 설정 실패"),
+            content: const Text("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+
+    if(error.response?.data['code']==3001 || error.response == null || error.response?.statusCode == "502"){
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("알 수 없는 에러"),
+            content: const Text("잠시 뒤 다시 시도해 주세요."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+      await SecureStroageService.deleteNickname();
+      await SecureStroageService.deleteTokens();
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/login', (route) => false);
+
+      return;
+    }
+
+
 
     // 인증 오류가 발생했을 경우: AccessToken의 만료
     if (error.response?.statusCode == 401) {

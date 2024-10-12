@@ -41,4 +41,12 @@ class SecureStroageService {
   static Future<void> deleteNickname() async {
     await _storage.delete(key: 'nickname');
   }
+
+  static Future<void> saveIsNicknameUpdated(String? isNicknameUpdated) async {
+    await _storage.write(key: 'isNicknameUpdated', value: isNicknameUpdated);
+  }
+
+  static Future<String?> readIsNicknameUpdated() async {
+    return await _storage.read(key: 'isNicknameUpdated');
+  }
 }
