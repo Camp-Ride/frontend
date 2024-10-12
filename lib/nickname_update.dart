@@ -26,6 +26,7 @@ class _NicknameUpdatePageState extends State<NicknameUpdatePage> {
 
   void initializeNickname() async {
     nickname = (await SecureStroageService.readNickname())!;
+    inputNickname = nickname; // inputNickname을 현재 닉네임으로 초기화
     setState(() {});
     print(nickname);
   }
@@ -37,6 +38,8 @@ class _NicknameUpdatePageState extends State<NicknameUpdatePage> {
       if (response.statusCode == 200) {
         SecureStroageService.saveNickname(nickname);
         print("Nickname updated to: $nickname");
+        SecureStroageService.saveIsNicknameUpdated("true");
+
         Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
       } else {
         print("Failed to update nickname: ${response.statusCode}");
@@ -87,7 +90,11 @@ class _NicknameUpdatePageState extends State<NicknameUpdatePage> {
   void updateValidationMessage(String value) {
     setState(() {
       inputNickname = value;
-      if (value.length < 2) {
+      if (value.isEmpty) {
+        // 입력값이 비어있을 때 처리 추가
+        validationMessage = "현재 닉네임을 유지합니다.";
+        validationColor = Colors.green;
+      } else if (value.length < 2) {
         validationMessage = "닉네임은 2자 이상 입력해주세요.";
         validationColor = Colors.red;
       } else if (value.length > 8) {
@@ -168,7 +175,7 @@ class _NicknameUpdatePageState extends State<NicknameUpdatePage> {
               foregroundColor: Colors.white,
               backgroundColor: Colors.green,
             ),
-            onPressed: inputNickname.length >= 2 && inputNickname.length <= 8
+            onPressed: (inputNickname.isEmpty || (inputNickname.length >= 2 && inputNickname.length <= 8))
                 ? () {
                     _updateNicknameApi(inputNickname);
                   }

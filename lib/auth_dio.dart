@@ -50,8 +50,13 @@ Future authDio(BuildContext context) async {
     }
 
 
-    if(error.response?.data['code']==3001 || error.response == null || error.response?.statusCode == "502"){
+    if(error.response?.data['code']==3001 || error.response == null || error.response?.statusCode == 502){
 
+
+      await SecureStroageService.deleteNickname();
+      await SecureStroageService.deleteTokens();
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/login', (route) => false);
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -69,10 +74,6 @@ Future authDio(BuildContext context) async {
           );
         },
       );
-      await SecureStroageService.deleteNickname();
-      await SecureStroageService.deleteTokens();
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/login', (route) => false);
 
       return;
     }
