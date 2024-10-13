@@ -287,6 +287,7 @@ class _MyPageState extends State<MyPage> {
                                 ],
                               ),
                             )),
+
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
@@ -302,7 +303,7 @@ class _MyPageState extends State<MyPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "알림 설정",
+                                    "서비스 이용약관",
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   Icon(
@@ -327,7 +328,7 @@ class _MyPageState extends State<MyPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "서비스 이용약관",
+                                    "개인정보활용방침",
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   Icon(

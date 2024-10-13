@@ -60,6 +60,28 @@ class _PostingPageState extends State<PostModifyPage> {
 
     FormData formData = FormData();
 
+    if (title.isEmpty || contents.isEmpty) {
+      print("글을 작성하려면 글 제목이나 내용이 빠지면 안됩니다.");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("글 작성 실패"),
+            content: const Text("글을 작성하려면 글 제목이나 내용이 빠지면 안됩니다."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     for (var image in images) {
       if (image is String) {
         imageNames.add(image);

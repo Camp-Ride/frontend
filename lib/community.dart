@@ -32,6 +32,33 @@ class _CommunityPageState extends State<CommunityPage>
   String currentUserId = "";
   late Future<List<Post>> futurePosts;
 
+  List<Post> notifications = [
+    Post(
+      id: 2,
+      authorId: 1002,
+      name: "운영자",
+      date: "2024-10-14",
+      title: "자주 묻는 질문",
+      contents: "이것은 첫 번째 리스트의 두 번째 게시물입니다.",
+      images: ["image2_1.jpg", "image2_2.jpg"],
+      commentCount: 0,
+      likeCount: 0,
+      isLiked: false,
+    ),
+    // Post(
+    //   id: 3,
+    //   authorId: 1003,
+    //   name: "운영자",
+    //   date: "2024-10-15",
+    //   title: "예비군 정보",
+    //   contents: "https://opendata.mnd.go.kr/openinf/sheetview2.jsp?infId=OA-9465",
+    //   images: ["image3_1.jpg", "image3_2.jpg"],
+    //   commentCount: 0,
+    //   likeCount: 0,
+    //   isLiked: false,
+    // ),
+  ];
+
   late TabController _tabController;
 
   @override
@@ -195,6 +222,7 @@ class _CommunityPageState extends State<CommunityPage>
                 child: Container(
                   color: Colors.white,
                   child: TabBarView(
+                    controller: _tabController,
                     children: [
                       Column(
                         children: [
@@ -323,7 +351,9 @@ class _CommunityPageState extends State<CommunityPage>
                                                                     posts[index]
                                                                         .id);
                                                               } else {
-                                                                _showFailureDialog(context, "글쓴이가 아닙니다.");
+                                                                _showFailureDialog(
+                                                                    context,
+                                                                    "글쓴이가 아닙니다.");
                                                               }
                                                               print(
                                                                   "Delete selected");
@@ -697,13 +727,15 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 (await SecureStroageService
                                                                     .readUserId())!);
                                                             if (posts[index]
-                                                                .authorId ==
+                                                                    .authorId ==
                                                                 authorId) {
                                                               deletePost(
                                                                   posts[index]
                                                                       .id);
                                                             } else {
-                                                              _showFailureDialog(context, "글쓴이가 아닙니다.");
+                                                              _showFailureDialog(
+                                                                  context,
+                                                                  "글쓴이가 아닙니다.");
                                                             }
                                                             print(
                                                                 "Delete selected");
@@ -955,6 +987,7 @@ class _CommunityPageState extends State<CommunityPage>
                           )
                         ],
                       ),
+
                     ],
                   ),
                 ),
