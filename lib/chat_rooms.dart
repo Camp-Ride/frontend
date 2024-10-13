@@ -90,6 +90,14 @@ class _ChatRoomsPageState extends ConsumerState<ChatRoomsPage> {
         if (!mounted) return;
         Map<String, dynamic> jsonMap = jsonDecode(frame.body!);
         Message message = Message.fromJson(jsonMap);
+
+        if(message.chatMessageType == ChatMessageType.LEAVE) {
+          setState(() {
+            futureRooms = fetchRooms();
+          });
+          return;
+        }
+
         setState(() {
           futureRooms.then((rooms) => {
                 for (var room in rooms)
