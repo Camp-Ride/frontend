@@ -170,6 +170,9 @@ class _CampRiderPageState extends State<CampRiderPage> {
 
       if (response['code'] == 4005) {
         _showFailureDialog(context, "최대 참여 인원을 초과하였습니다.");
+        setState(() {
+          futureRooms = fetchRooms();
+        });
       } else if (response['code'] == 3007) {
         _showFailureDialog(context, '강제퇴장된 방에 다시 입장할 수 없습니다.');
       } else if (response['code'] == 3006) {
