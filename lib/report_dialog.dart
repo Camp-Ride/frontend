@@ -55,6 +55,7 @@ class _ReportDialogState extends State<ReportDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       title: const Center(child: Text('신고하기')),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -62,13 +63,14 @@ class _ReportDialogState extends State<ReportDialog> {
       content: Container(
         width: 300,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
         ),
         child: TextField(
           textAlign: TextAlign.center,
           controller: _controller,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
+            hintStyle: TextStyle(color: Colors.grey[500]),
             hintText: '신고 내용을 입력하세요',
             border: InputBorder.none,
             contentPadding: EdgeInsets.all(16),
@@ -77,13 +79,21 @@ class _ReportDialogState extends State<ReportDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('취소'),
-        ),
-        ElevatedButton(
-          onPressed: _submitReport,
-          child: const Text('확인'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('취소', style: TextStyle(color: Colors.black)),
+            ),
+            TextButton(
+              onPressed: _submitReport,
+              child: const Text(
+                '확인',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
         ),
       ],
     );
