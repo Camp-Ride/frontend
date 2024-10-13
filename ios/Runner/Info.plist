@@ -35,12 +35,10 @@
 		<key>NSAllowsLocalNetworking&gt;</key>
 		<true/>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>Used to demonstrate image picker plugin</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Used to capture audio for image picker plugin</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Used to demonstrate image picker plugin</string>
+    <key>NSCameraUsageDescription</key>
+    <string>사진 촬영 기능을 사용하여 채팅에서 이미지를 보내거나 게시물에 사진을 추가하는 데 사용됩니다.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>기기의 사진 라이브러리에서 이미지를 선택하여 채팅에서 이미지를 보내거나 게시물에 추가하는 데 사용됩니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
