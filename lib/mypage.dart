@@ -193,60 +193,79 @@ class _MyPageState extends State<MyPage> {
                           height: 0.5.h,
                           color: Colors.black54,
                         ),
+                        // SizedBox(
+                        //     width: screenWidth,
+                        //     child: ElevatedButton(
+                        //       onPressed: null,
+                        //       style: ButtonStyle(
+                        //         backgroundColor:
+                        //             WidgetStateProperty.all(Colors.transparent),
+                        //         elevation:
+                        //             WidgetStateProperty.all(0), // 그림자 없애기
+                        //       ),
+                        //       child: const Row(
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceBetween,
+                        //         children: [
+                        //           Text(
+                        //             "공지사항",
+                        //             style: TextStyle(color: Colors.black),
+                        //           ),
+                        //           Icon(
+                        //             Icons.arrow_forward_ios,
+                        //             color: Colors.black54,
+                        //           )
+                        //         ],
+                        //       ),
+                        //     )),
+                        // SizedBox(
+                        //     width: screenWidth,
+                        //     child: ElevatedButton(
+                        //       onPressed: null,
+                        //       style: ButtonStyle(
+                        //         backgroundColor:
+                        //             WidgetStateProperty.all(Colors.transparent),
+                        //         elevation:
+                        //             WidgetStateProperty.all(0), // 그림자 없애기
+                        //       ),
+                        //       child: const Row(
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceBetween,
+                        //         children: [
+                        //           Text(
+                        //             "자주 묻는 질문",
+                        //             style: TextStyle(color: Colors.black),
+                        //           ),
+                        //           Icon(
+                        //             Icons.arrow_forward_ios,
+                        //             color: Colors.black54,
+                        //           )
+                        //         ],
+                        //       ),
+                        //     )),
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
-                              onPressed: null,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all(Colors.transparent),
-                                elevation:
-                                    WidgetStateProperty.all(0), // 그림자 없애기
-                              ),
-                              child: const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "공지사항",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black54,
-                                  )
-                                ],
-                              ),
-                            )),
-                        SizedBox(
-                            width: screenWidth,
-                            child: ElevatedButton(
-                              onPressed: null,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all(Colors.transparent),
-                                elevation:
-                                    WidgetStateProperty.all(0), // 그림자 없애기
-                              ),
-                              child: const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "자주 묻는 질문",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black54,
-                                  )
-                                ],
-                              ),
-                            )),
-                        SizedBox(
-                            width: screenWidth,
-                            child: ElevatedButton(
-                              onPressed: null,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("문의하기"),
+                                      content: Text("ggprgrkjh2@gmail.com"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            _toggleEdit();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("닫기"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                               style: ButtonStyle(
                                 backgroundColor:
                                     WidgetStateProperty.all(Colors.transparent),

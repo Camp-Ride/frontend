@@ -1018,6 +1018,7 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                                                   ),
                                                                 ),
                                                               ),
+
                                                               SizedBox(
                                                                 width: 40.w,
                                                                 height: 40.h,
@@ -1075,8 +1076,10 @@ class _CampRiderPageState extends State<CampRiderPage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
+
                                       InkWell(
                                           onTap: () => {
+
                                                 Navigator.of(context).pop(),
                                                 setState(() {
                                                   selectedTitle = "";
