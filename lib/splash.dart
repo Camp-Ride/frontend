@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:campride/agreement.dart';
 import 'package:campride/login.dart';
 import 'package:campride/secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,16 +16,23 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+    Timer(const Duration(seconds: 3), () async {
+      final String? access_token = await SecureStroageService.readAccessToken();
+
+      if (access_token != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AgreementScreen()),
+        );
+      }
     });
   }
 

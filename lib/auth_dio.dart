@@ -59,7 +59,7 @@ Future authDio(BuildContext context) async {
       await SecureStroageService.deleteNickname();
       await SecureStroageService.deleteTokens();
       Navigator.pushNamedAndRemoveUntil(
-          context, '/login', (route) => false);
+          context, '/agreement', (route) => false);
       showDialog(
         context: context,
         builder: (BuildContext context) {

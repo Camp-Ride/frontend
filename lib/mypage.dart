@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'Constants.dart';
 
@@ -18,11 +19,30 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  bool _isNotificationEnabled = false;
+
   bool _isEditing = false;
   String _nickname = "";
   String _token = "";
+  final String privacyPolicyUrl =
+      'https://plip.kr/pcc/2f21868a-ec36-4ca8-8be9-dfb265843338/privacy/1.html';
+  final String termsAndConditionsUrl =
+      'https://relic-baboon-412.notion.site/11f766a8bb4680868878f35fcda207fc?pvs=4';
 
   final TextEditingController _controller = TextEditingController();
+
+  Future<void> _loadNotificationSettings() async {
+    String? pushPermission = await SecureStroageService.readPushPermission();
+    setState(() {
+      _isNotificationEnabled = pushPermission == 'true';
+    });
+  }
+
+  Future<void> _launchUrl(String url) async {
+    if (!await launchUrl(Uri.parse(url))) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   Future<void> saveUserNicknameAndUserIdFromToken(String accessToken) async {
     final url = Uri.parse(Constants.API + '/api/v1/user');
@@ -64,6 +84,7 @@ class _MyPageState extends State<MyPage> {
     super.initState();
     getUserInfo();
     _controller.text = _nickname;
+    _loadNotificationSettings();
   }
 
   void _toggleEdit() {
@@ -218,31 +239,7 @@ class _MyPageState extends State<MyPage> {
                         //         ],
                         //       ),
                         //     )),
-                        // SizedBox(
-                        //     width: screenWidth,
-                        //     child: ElevatedButton(
-                        //       onPressed: null,
-                        //       style: ButtonStyle(
-                        //         backgroundColor:
-                        //             WidgetStateProperty.all(Colors.transparent),
-                        //         elevation:
-                        //             WidgetStateProperty.all(0), // 그림자 없애기
-                        //       ),
-                        //       child: const Row(
-                        //         mainAxisAlignment:
-                        //             MainAxisAlignment.spaceBetween,
-                        //         children: [
-                        //           Text(
-                        //             "자주 묻는 질문",
-                        //             style: TextStyle(color: Colors.black),
-                        //           ),
-                        //           Icon(
-                        //             Icons.arrow_forward_ios,
-                        //             color: Colors.black54,
-                        //           )
-                        //         ],
-                        //       ),
-                        //     )),
+
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
@@ -291,7 +288,9 @@ class _MyPageState extends State<MyPage> {
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
-                              onPressed: null,
+                              onPressed: () async {
+                                await _launchUrl(termsAndConditionsUrl);
+                              },
                               style: ButtonStyle(
                                 backgroundColor:
                                     WidgetStateProperty.all(Colors.transparent),
@@ -316,7 +315,9 @@ class _MyPageState extends State<MyPage> {
                         SizedBox(
                             width: screenWidth,
                             child: ElevatedButton(
-                              onPressed: null,
+                              onPressed: () async {
+                                await _launchUrl(privacyPolicyUrl);
+                              },
                               style: ButtonStyle(
                                 backgroundColor:
                                     WidgetStateProperty.all(Colors.transparent),
@@ -328,7 +329,7 @@ class _MyPageState extends State<MyPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "개인정보활용방침",
+                                    "개인정보처리방침",
                                     style: TextStyle(color: Colors.black),
                                   ),
                                   Icon(
@@ -338,12 +339,56 @@ class _MyPageState extends State<MyPage> {
                                 ],
                               ),
                             )),
+                        // SizedBox(
+                        //   width: screenWidth,
+                        //   child: ElevatedButton(
+                        //     onPressed: () {
+                        //       // 버튼 전체를 눌렀을 때의 동작을 여기에 추가할 수 있습니다.
+                        //     },
+                        //     style: ButtonStyle(
+                        //       backgroundColor:
+                        //           MaterialStateProperty.all(Colors.transparent),
+                        //       elevation: MaterialStateProperty.all(0),
+                        //       padding: MaterialStateProperty.all(
+                        //           EdgeInsets.symmetric(
+                        //               horizontal: 16, vertical: 8)),
+                        //     ),
+                        //     child: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         Padding(
+                        //           padding: const EdgeInsets.only(left: 8.5).w,
+                        //           child: Text(
+                        //             "알림 설정",
+                        //             style: TextStyle(color: Colors.black),
+                        //           ),
+                        //         ),
+                        //         Row(
+                        //           children: [
+                        //             Switch(
+                        //               value: _isNotificationEnabled,
+                        //               onChanged: (bool value) {
+                        //                 setState(() {
+                        //                   _isNotificationEnabled = value;
+                        //                 });
+                        //                 SecureStroageService.savePushPermission(
+                        //                     value.toString());
+                        //                 // 여기에 알림 설정 변경에 대한 추가 로직을 넣을 수 있습니다.
+                        //               },
+                        //               activeColor: Colors.blue, // 활성화되었을 때의 색상
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                         InkWell(
                           onTap: () {
                             SecureStroageService.deleteNickname();
                             SecureStroageService.deleteTokens();
                             Navigator.pushNamedAndRemoveUntil(
-                                context, '/login', (route) => false);
+                                context, '/agreement', (route) => false);
                           },
                           child: SizedBox(
                               width: screenWidth,

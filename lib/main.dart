@@ -1,4 +1,5 @@
 import 'package:campride/Constants.dart';
+import 'package:campride/agreement.dart';
 import 'package:campride/chat_rooms.dart';
 import 'package:campride/main_list.dart';
 import 'package:campride/mypage.dart';
@@ -33,12 +34,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
-
-
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(  options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
@@ -79,11 +78,6 @@ void main() async {
   });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-
-
-
-
 
   AuthRepository.initialize(appKey: key!);
 
@@ -126,6 +120,7 @@ class MyApp extends ConsumerWidget {
                   '/nickname': (context) => const NicknameUpdatePage(),
                   '/main': (context) => const MainPage(),
                   '/chatRooms': (context) => const ChatRoomsPage(),
+                  '/agreement': (context) => AgreementScreen(),
                 }),
           ),
         );
@@ -133,8 +128,6 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-
-
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
