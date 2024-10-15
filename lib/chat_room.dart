@@ -798,29 +798,55 @@ class _ChatRoomPageState extends ConsumerState<ChatRoomPage> {
 
         case ChatMessageType.LEAVE:
           return Padding(
-              padding: EdgeInsets.only(top: 5).h,
-              child: Center(
-                  child: Text(
-                "${message.userNickname}님이 채팅방을 떠나셨습니다.",
-                style: TextStyle(color: Colors.black54),
-              )));
+            padding: EdgeInsets.only(top: 5).h,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.h, vertical: 4.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  "${message.userNickname}님이 채팅방을 떠나셨습니다.",
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+            ),
+          );
         case ChatMessageType.JOIN:
           return Padding(
-              padding: EdgeInsets.only(top: 5).h,
-              child: Center(
-                  child: Text(
-                "${message.userNickname}님이 채팅방에 입장하였습니다.",
-                style: TextStyle(color: Colors.black54),
-              )));
-
+            padding: EdgeInsets.only(top: 5).h,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.h, vertical: 4.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  "${message.userNickname}님이 채팅방에 입장하였습니다.",
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+            ),
+          );
         case ChatMessageType.KICK:
           return Padding(
-              padding: EdgeInsets.only(top: 5).h,
-              child: Center(
-                  child: Text(
-                "${message.userNickname}님이 채팅방에서 강제 퇴장당하였습니다.",
-                style: TextStyle(color: Colors.black54),
-              )));
+            padding: EdgeInsets.only(top: 5).h,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.h, vertical: 4.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  "${message.userNickname}님이 채팅방에서 강제 퇴장당하였습니다.",
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+            ),
+          );
         default:
           return Container();
       }
