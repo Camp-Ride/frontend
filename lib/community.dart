@@ -158,7 +158,7 @@ class _CommunityPageState extends State<CommunityPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(message, style: TextStyle(fontSize: 15.sp)),
+          title: Text(message, style: TextStyle(fontSize: 15)),
           actions: <Widget>[
             TextButton(
               child: Text('확인'),
@@ -206,7 +206,7 @@ class _CommunityPageState extends State<CommunityPage>
                       borderSide:
                           const BorderSide(color: Colors.green, width: 3.0),
                       insets: EdgeInsets.symmetric(
-                          horizontal: 30.0.w), // 밑줄 길이를 늘리기 위한 인셋 조정
+                          horizontal: 30.0), // 밑줄 길이를 늘리기 위한 인셋 조정
                     ),
                     tabAlignment: TabAlignment.start,
                     indicatorPadding: EdgeInsets.zero,
@@ -261,7 +261,7 @@ class _CommunityPageState extends State<CommunityPage>
                                               })),
                                         },
                                         child: Container(
-                                          height: 150.h,
+                                          height: 150,
                                           decoration: const BoxDecoration(
                                             color: Colors.white,
                                             border: Border(
@@ -274,7 +274,7 @@ class _CommunityPageState extends State<CommunityPage>
                                           child: Padding(
                                             padding: const EdgeInsets.only(
                                                     left: 8.0, top: 8.0)
-                                                .r,
+                                                ,
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -287,13 +287,13 @@ class _CommunityPageState extends State<CommunityPage>
                                                     Text(
                                                       posts[index].name,
                                                       style: TextStyle(
-                                                          fontSize: 12.sp,
+                                                          fontSize: 12,
                                                           color:
                                                               Colors.black54),
                                                     ),
                                                     SizedBox(
-                                                      width: 30.w,
-                                                      height: 15.h,
+                                                      width: 30,
+                                                      height: 15,
                                                       child:
                                                           PopupMenuButton<int>(
                                                         padding:
@@ -301,7 +301,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                         color: Colors.white,
                                                         child: Icon(
                                                             Icons.more_vert,
-                                                            size: 20.r),
+                                                            size: 20),
                                                         onSelected:
                                                             (value) async {
                                                           switch (value) {
@@ -417,7 +417,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                   flex: 1,
                                                   child: Text(
                                                     style: TextStyle(
-                                                        fontSize: 15.sp),
+                                                        fontSize: 15),
                                                     posts[index].title,
                                                   ),
                                                 ),
@@ -429,7 +429,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                         child: Text(
                                                           style: TextStyle(
                                                             height: 16 / 11,
-                                                            fontSize: 13.sp,
+                                                            fontSize: 13,
                                                             color:
                                                                 Colors.black54,
                                                           ),
@@ -437,11 +437,11 @@ class _CommunityPageState extends State<CommunityPage>
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                        width: 10.w,
+                                                        width: 10,
                                                       ),
                                                       Container(
-                                                        width: 65.w,
-                                                        height: 65.h,
+                                                        width: 65,
+                                                        height: 65,
                                                         decoration:
                                                             BoxDecoration(
                                                           color: posts[index]
@@ -454,7 +454,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                               BorderRadius
                                                                       .circular(
                                                                           10)
-                                                                  .r,
+                                                                  ,
                                                         ),
                                                         child:
                                                             posts[index]
@@ -463,7 +463,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 ? ClipRRect(
                                                                     borderRadius:
                                                                         BorderRadius.circular(10)
-                                                                            .r,
+                                                                            ,
                                                                     child:
                                                                         CachedNetworkImage(
                                                                       fit: BoxFit
@@ -487,7 +487,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 : null,
                                                       ),
                                                       SizedBox(
-                                                        width: 10.w,
+                                                        width: 10,
                                                       ),
                                                     ],
                                                   ),
@@ -500,17 +500,17 @@ class _CommunityPageState extends State<CommunityPage>
                                                         children: [
                                                           Padding(
                                                             padding:
-                                                                const EdgeInsets
+                                                                 EdgeInsets
                                                                         .only(
                                                                         right:
                                                                             5.0)
-                                                                    .w,
-                                                            child: const Icon(
+                                                                    ,
+                                                            child:  Icon(
                                                                 Icons.comment),
                                                           ),
                                                           Text(
                                                             style: TextStyle(
-                                                              fontSize: 12.sp,
+                                                              fontSize: 12,
                                                               color: Colors
                                                                   .black54,
                                                             ),
@@ -525,7 +525,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                             const EdgeInsets
                                                                     .only(
                                                                     left: 8.0)
-                                                                .w,
+                                                                ,
                                                         child: Row(
                                                           children: [
                                                             Padding(
@@ -534,7 +534,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                           .only(
                                                                           right:
                                                                               5.0)
-                                                                      .w,
+                                                              ,
                                                               child: InkWell(
                                                                 onTap: () {
                                                                   if (posts[
@@ -568,7 +568,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                             ),
                                                             Text(
                                                               style: TextStyle(
-                                                                fontSize: 12.sp,
+                                                                fontSize: 12,
                                                                 color: Colors
                                                                     .black54,
                                                               ),
@@ -584,10 +584,10 @@ class _CommunityPageState extends State<CommunityPage>
                                                             const EdgeInsets
                                                                     .only(
                                                                     left: 8.0)
-                                                                .w,
+                                                                ,
                                                         child: Text(
                                                           style: TextStyle(
-                                                            fontSize: 12.sp,
+                                                            fontSize: 12,
                                                             color:
                                                                 Colors.black54,
                                                           ),
@@ -647,7 +647,7 @@ class _CommunityPageState extends State<CommunityPage>
                                               })),
                                         },
                                         child: Container(
-                                          height: 150.h,
+                                          height: 150,
                                           decoration: const BoxDecoration(
                                             color: Colors.white,
                                             border: Border(
@@ -660,7 +660,7 @@ class _CommunityPageState extends State<CommunityPage>
                                           child: Padding(
                                             padding: const EdgeInsets.only(
                                                     left: 8.0, top: 8.0)
-                                                .r,
+                                                ,
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -673,7 +673,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                     Text(
                                                       posts[index].name,
                                                       style: TextStyle(
-                                                          fontSize: 12.sp,
+                                                          fontSize: 12,
                                                           color:
                                                               Colors.black54),
                                                     ),
@@ -682,7 +682,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                       color: Colors.white,
                                                       child: Icon(
                                                           Icons.more_vert,
-                                                          size: 15.r),
+                                                          size: 15),
                                                       onSelected:
                                                           (value) async {
                                                         switch (value) {
@@ -796,7 +796,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                   flex: 1,
                                                   child: Text(
                                                     style: TextStyle(
-                                                        fontSize: 15.sp),
+                                                        fontSize: 15),
                                                     posts[index].title,
                                                   ),
                                                 ),
@@ -808,7 +808,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                         child: Text(
                                                           style: TextStyle(
                                                             height: 16 / 11,
-                                                            fontSize: 13.sp,
+                                                            fontSize: 13,
                                                             color:
                                                                 Colors.black54,
                                                           ),
@@ -816,11 +816,11 @@ class _CommunityPageState extends State<CommunityPage>
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                        width: 10.w,
+                                                        width: 10,
                                                       ),
                                                       Container(
-                                                        width: 65.w,
-                                                        height: 65.h,
+                                                        width: 65,
+                                                        height: 65,
                                                         decoration:
                                                             BoxDecoration(
                                                           color: posts[index]
@@ -833,7 +833,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                               BorderRadius
                                                                       .circular(
                                                                           10)
-                                                                  .r,
+                                                                  ,
                                                         ),
                                                         child:
                                                             posts[index]
@@ -842,7 +842,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 ? ClipRRect(
                                                                     borderRadius:
                                                                         BorderRadius.circular(10)
-                                                                            .r,
+                                                                            ,
                                                                     child:
                                                                         CachedNetworkImage(
                                                                       fit: BoxFit
@@ -864,7 +864,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 : null,
                                                       ),
                                                       SizedBox(
-                                                        width: 10.w,
+                                                        width: 10,
                                                       ),
                                                     ],
                                                   ),
@@ -881,7 +881,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                         .only(
                                                                         right:
                                                                             5.0)
-                                                                    .w,
+                                                                    ,
                                                             child: const Icon(
                                                                 Icons.comment),
                                                           ),
@@ -902,7 +902,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                             const EdgeInsets
                                                                     .only(
                                                                     left: 8.0)
-                                                                .w,
+                                                                ,
                                                         child: Row(
                                                           children: [
                                                             Padding(
@@ -911,7 +911,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                                           .only(
                                                                           right:
                                                                               5.0)
-                                                                      .w,
+                                                                      ,
                                                               child: InkWell(
                                                                 onTap: () {
                                                                   if (posts[
@@ -945,7 +945,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                             ),
                                                             Text(
                                                               style: TextStyle(
-                                                                fontSize: 12.sp,
+                                                                fontSize: 12,
                                                                 color: Colors
                                                                     .black54,
                                                               ),
@@ -961,10 +961,10 @@ class _CommunityPageState extends State<CommunityPage>
                                                             const EdgeInsets
                                                                     .only(
                                                                     left: 8.0)
-                                                                .w,
+                                                                ,
                                                         child: Text(
                                                           style: TextStyle(
-                                                            fontSize: 12.sp,
+                                                            fontSize: 12,
                                                             color:
                                                                 Colors.black54,
                                                           ),
@@ -997,8 +997,8 @@ class _CommunityPageState extends State<CommunityPage>
         ),
         floatingActionButton: Container(
           child: SizedBox(
-            width: 95.w,
-            height: 40.h,
+            width: 95,
+            height: 40,
             child: FloatingActionButton(
               backgroundColor: const Color(0xff154236),
               onPressed: () {
@@ -1011,13 +1011,13 @@ class _CommunityPageState extends State<CommunityPage>
                         }));
               },
               child: Padding(
-                padding: const EdgeInsets.all(8.0).r,
+                padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
                       "글쓰기",
-                      style: TextStyle(fontSize: 15.sp, color: Colors.white),
+                      style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
                     const Icon(
                       Icons.edit,

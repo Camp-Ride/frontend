@@ -82,10 +82,10 @@ void main() async {
   AuthRepository.initialize(appKey: key!);
 
   runApp(
+
     ProviderScope(
       child: DevicePreview(
-        // enabled: !kReleaseMode,
-        enabled: false,
+        enabled: !kReleaseMode,
         builder: (context) => MyApp(secureStroageService), // Wrap your app
       ),
     ),
@@ -100,6 +100,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     return ScreenUtilInit(
       designSize: const Size(393, 852),
       minTextAdapt: true,
@@ -111,6 +112,7 @@ class MyApp extends ConsumerWidget {
               FocusManager.instance.primaryFocus?.unfocus();
             },
             child: MaterialApp(
+                debugShowCheckedModeBanner: false,
                 navigatorKey: navigatorKey,
                 home: SplashScreen(
                   secureStroageService: secureStroageService,

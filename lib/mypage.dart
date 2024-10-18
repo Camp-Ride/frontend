@@ -31,6 +31,20 @@ class _MyPageState extends State<MyPage> {
 
   final TextEditingController _controller = TextEditingController();
 
+  Future<void> deleteUser() async {
+    var dio = await authDio(context);
+
+    dio.delete('/user').then((response) {
+      if (response.statusCode == 200) {
+        print("User deleted");
+      } else {
+        print("Failed to delete user: ${response.statusCode}");
+      }
+    }).catchError((e) {
+      print("Error: $e");
+    });
+  }
+
   Future<void> _loadNotificationSettings() async {
     String? pushPermission = await SecureStroageService.readPushPermission();
     setState(() {
@@ -383,6 +397,71 @@ class _MyPageState extends State<MyPage> {
                         //     ),
                         //   ),
                         // ),
+                        InkWell(
+                          onTap: () async {
+                            final response = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("정말 탈퇴하시겠습니까?"),
+                                  content: Text("탈퇴 시 모든 정보가 삭제됩니다."),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text("확인"),
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(true); // Yes 선택 시 true 반환
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text("취소"),
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(false); // No 선택 시 false 반환
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (response == true) {
+                              await deleteUser();
+                              await SecureStroageService.deleteNickname();
+                              await SecureStroageService.deleteTokens();
+
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context, '/agreement', (route) => false);
+                            }
+
+
+                          },
+                          child: SizedBox(
+                              width: screenWidth,
+                              child: ElevatedButton(
+                                onPressed: null,
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                      Colors.transparent),
+                                  elevation:
+                                      WidgetStateProperty.all(0), // 그림자 없애기
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "회원탈퇴",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Colors.black54,
+                                    )
+                                  ],
+                                ),
+                              )),
+                        ),
                         InkWell(
                           onTap: () {
                             SecureStroageService.deleteNickname();
