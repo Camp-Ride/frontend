@@ -79,6 +79,30 @@ class _CommunityPageState extends State<CommunityPage>
     });
   }
 
+  Future<void> blockUser(int authorId) async {
+
+    if (authorId == int.parse(await SecureStroageService.readUserId() as String)) {
+      _showFailureDialog(context, '자신을 차단할 수 없습니다.');
+      return;
+    }
+
+    var dio = await authDio(context);
+
+    dio
+        .post('/block',
+            data: jsonEncode({
+              'targetUserId': authorId,
+            }))
+        .then((response) {
+      print('User blocked successfully');
+      setState(() {
+        futurePosts = fetchPosts();
+      });
+    }).catchError((e) {
+      print('Failed to block user: ${e.response?.statusCode}');
+    });
+  }
+
   Future<void> deletePost(
     int postId,
   ) async {
@@ -273,8 +297,7 @@ class _CommunityPageState extends State<CommunityPage>
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.only(
-                                                    left: 8.0, top: 8.0)
-                                                ,
+                                                left: 8.0, top: 8.0),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -377,6 +400,49 @@ class _CommunityPageState extends State<CommunityPage>
                                                                   "Report selected");
                                                               // Handle report action
                                                               break;
+                                                            case 3:
+                                                              print(
+                                                                  "Block selected");
+
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                        '차단'),
+                                                                    content: Text(
+                                                                        '해당 사용자를 차단하시겠습니까?'),
+                                                                    actions: <Widget>[
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+                                                                        },
+                                                                        child: Text(
+                                                                            '취소'),
+                                                                      ),
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () async {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+
+                                                                          await blockUser(
+                                                                              posts[index].authorId);
+                                                                        },
+                                                                        child: Text(
+                                                                            '확인'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+
+                                                              break;
                                                           }
                                                         },
                                                         itemBuilder:
@@ -398,6 +464,11 @@ class _CommunityPageState extends State<CommunityPage>
                                                             ),
                                                             const PopupMenuItem<
                                                                 int>(
+                                                              value: 3,
+                                                              child: Text('차단'),
+                                                            ),
+                                                            const PopupMenuItem<
+                                                                int>(
                                                               value: 0,
                                                               child: Text('수정'),
                                                             ),
@@ -416,8 +487,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                 Expanded(
                                                   flex: 1,
                                                   child: Text(
-                                                    style: TextStyle(
-                                                        fontSize: 15),
+                                                    style:
+                                                        TextStyle(fontSize: 15),
                                                     posts[index].title,
                                                   ),
                                                 ),
@@ -452,9 +523,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                               : Colors.black12,
                                                           borderRadius:
                                                               BorderRadius
-                                                                      .circular(
-                                                                          10)
-                                                                  ,
+                                                                  .circular(10),
                                                         ),
                                                         child:
                                                             posts[index]
@@ -462,8 +531,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                                     .isNotEmpty
                                                                 ? ClipRRect(
                                                                     borderRadius:
-                                                                        BorderRadius.circular(10)
-                                                                            ,
+                                                                        BorderRadius.circular(
+                                                                            10),
                                                                     child:
                                                                         CachedNetworkImage(
                                                                       fit: BoxFit
@@ -500,12 +569,9 @@ class _CommunityPageState extends State<CommunityPage>
                                                         children: [
                                                           Padding(
                                                             padding:
-                                                                 EdgeInsets
-                                                                        .only(
-                                                                        right:
-                                                                            5.0)
-                                                                    ,
-                                                            child:  Icon(
+                                                                EdgeInsets.only(
+                                                                    right: 5.0),
+                                                            child: Icon(
                                                                 Icons.comment),
                                                           ),
                                                           Text(
@@ -523,18 +589,16 @@ class _CommunityPageState extends State<CommunityPage>
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0)
-                                                                ,
+                                                                .only(
+                                                                left: 8.0),
                                                         child: Row(
                                                           children: [
                                                             Padding(
                                                               padding:
                                                                   const EdgeInsets
-                                                                          .only(
-                                                                          right:
-                                                                              5.0)
-                                                              ,
+                                                                      .only(
+                                                                      right:
+                                                                          5.0),
                                                               child: InkWell(
                                                                 onTap: () {
                                                                   if (posts[
@@ -582,9 +646,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0)
-                                                                ,
+                                                                .only(
+                                                                left: 8.0),
                                                         child: Text(
                                                           style: TextStyle(
                                                             fontSize: 12,
@@ -659,8 +722,7 @@ class _CommunityPageState extends State<CommunityPage>
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.only(
-                                                    left: 8.0, top: 8.0)
-                                                ,
+                                                left: 8.0, top: 8.0),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -758,6 +820,48 @@ class _CommunityPageState extends State<CommunityPage>
                                                                 "Report selected");
                                                             // Handle report action
                                                             break;
+                                                          case 3:
+                                                            print(
+                                                                "Block selected");
+
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return AlertDialog(
+                                                                  title: Text(
+                                                                      '차단'),
+                                                                  content: Text(
+                                                                      '해당 사용자를 차단하시겠습니까?'),
+                                                                  actions: <Widget>[
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      },
+                                                                      child: Text(
+                                                                          '취소'),
+                                                                    ),
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () async {
+                                                                        Navigator.of(context)
+                                                                            .pop();
+
+                                                                        await blockUser(
+                                                                            posts[index].authorId);
+                                                                      },
+                                                                      child: Text(
+                                                                          '확인'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            );
+
+                                                            break;
                                                         }
                                                       },
                                                       itemBuilder: (BuildContext
@@ -778,6 +882,11 @@ class _CommunityPageState extends State<CommunityPage>
                                                           ),
                                                           const PopupMenuItem<
                                                               int>(
+                                                            value: 3,
+                                                            child: Text('차단'),
+                                                          ),
+                                                          const PopupMenuItem<
+                                                              int>(
                                                             value: 0,
                                                             child: Text('수정'),
                                                           ),
@@ -795,8 +904,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                 Expanded(
                                                   flex: 1,
                                                   child: Text(
-                                                    style: TextStyle(
-                                                        fontSize: 15),
+                                                    style:
+                                                        TextStyle(fontSize: 15),
                                                     posts[index].title,
                                                   ),
                                                 ),
@@ -831,9 +940,7 @@ class _CommunityPageState extends State<CommunityPage>
                                                               : Colors.black12,
                                                           borderRadius:
                                                               BorderRadius
-                                                                      .circular(
-                                                                          10)
-                                                                  ,
+                                                                  .circular(10),
                                                         ),
                                                         child:
                                                             posts[index]
@@ -841,8 +948,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                                     .isNotEmpty
                                                                 ? ClipRRect(
                                                                     borderRadius:
-                                                                        BorderRadius.circular(10)
-                                                                            ,
+                                                                        BorderRadius.circular(
+                                                                            10),
                                                                     child:
                                                                         CachedNetworkImage(
                                                                       fit: BoxFit
@@ -878,10 +985,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .only(
-                                                                        right:
-                                                                            5.0)
-                                                                    ,
+                                                                    .only(
+                                                                    right: 5.0),
                                                             child: const Icon(
                                                                 Icons.comment),
                                                           ),
@@ -900,18 +1005,16 @@ class _CommunityPageState extends State<CommunityPage>
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0)
-                                                                ,
+                                                                .only(
+                                                                left: 8.0),
                                                         child: Row(
                                                           children: [
                                                             Padding(
                                                               padding:
                                                                   const EdgeInsets
-                                                                          .only(
-                                                                          right:
-                                                                              5.0)
-                                                                      ,
+                                                                      .only(
+                                                                      right:
+                                                                          5.0),
                                                               child: InkWell(
                                                                 onTap: () {
                                                                   if (posts[
@@ -959,9 +1062,8 @@ class _CommunityPageState extends State<CommunityPage>
                                                       Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0)
-                                                                ,
+                                                                .only(
+                                                                left: 8.0),
                                                         child: Text(
                                                           style: TextStyle(
                                                             fontSize: 12,
@@ -987,7 +1089,6 @@ class _CommunityPageState extends State<CommunityPage>
                           )
                         ],
                       ),
-
                     ],
                   ),
                 ),

@@ -59,6 +59,36 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
+  Future<void> blockUser(int authorId, int postId, CommunityType type) async {
+    if (authorId ==
+        int.parse(await SecureStroageService.readUserId() as String)) {
+      _showFailureDialog(context, '자신을 차단할 수 없습니다.');
+      return;
+    }
+
+    var dio = await authDio(context);
+
+    print("authorId : "+ authorId.toString());
+
+    dio
+        .post('/block',
+            data: jsonEncode({
+              'targetUserId': authorId,
+            }))
+        .then((response) {
+      print('User blocked successfully');
+
+      if (type == CommunityType.COMMENT) {
+        setState(() {
+          futureComments = fetchComments(postId);
+          widget.post.commentCount--;
+        });
+      }
+    }).catchError((e) {
+      print('Failed to block user: ${e.response?.statusCode}');
+    });
+  }
+
   Future<void> deleteComment(int commentId, int postId) async {
     var dio = await authDio(context);
 
@@ -412,6 +442,43 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                 print("Report selected");
                                                 // Handle report action
                                                 break;
+                                              case 3:
+                                                print("Block selected");
+
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text('차단'),
+                                                      content: Text(
+                                                          '해당 사용자를 차단하시겠습니까?'),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: Text('취소'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () async {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+
+                                                            await blockUser(
+                                                                post.authorId, widget.post.id, CommunityType.POST);
+                                                          },
+                                                          child: Text('확인'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+
+                                                break;
                                             }
                                           },
                                           itemBuilder: (BuildContext context) {
@@ -427,6 +494,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                               const PopupMenuItem<int>(
                                                 value: 2,
                                                 child: Text('신고'),
+                                              ),
+                                              const PopupMenuItem<int>(
+                                                value: 3,
+                                                child: Text('차단'),
                                               ),
                                             ];
                                           },
@@ -660,6 +731,44 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                     print("Report selected");
                                                     // Handle report action
                                                     break;
+                                                  case 3:
+                                                    print("Block selected");
+
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          title: Text('차단'),
+                                                          content: Text(
+                                                              '해당 사용자를 차단하시겠습니까?'),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                              child: Text('취소'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+
+                                                                await blockUser(
+                                                                    comments[index].authorId, widget.post.id, CommunityType.COMMENT);
+                                                              },
+                                                              child: Text('확인'),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+
+                                                    break;
                                                 }
                                               },
                                               itemBuilder:
@@ -673,6 +782,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                                   const PopupMenuItem<int>(
                                                     value: 2,
                                                     child: Text('신고'),
+                                                  ),
+                                                  const PopupMenuItem<int>(
+                                                    value: 3,
+                                                    child: Text('차단'),
                                                   ),
                                                 ];
 
