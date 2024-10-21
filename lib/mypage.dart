@@ -429,12 +429,10 @@ class _MyPageState extends State<MyPage> {
                               await deleteUser();
                               await SecureStroageService.deleteNickname();
                               await SecureStroageService.deleteTokens();
-
-                              Navigator.pushNamedAndRemoveUntil(
+                              await Navigator.pushNamedAndRemoveUntil(
                                   context, '/agreement', (route) => false);
+
                             }
-
-
                           },
                           child: SizedBox(
                               width: screenWidth,

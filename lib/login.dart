@@ -281,12 +281,14 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: () => {signIn("google")},
                               icon: Image.asset("assets/images/google.png")),
                         ),
-                        SizedBox(
+                        Platform.isAndroid
+                            ? SizedBox()
+                            : SizedBox(
                           width: 200,
                           child: IconButton(
                               onPressed: () async {
                                 final credential =
-                                    await SignInWithApple.getAppleIDCredential(
+                                await SignInWithApple.getAppleIDCredential(
                                   scopes: [
                                     AppleIDAuthorizationScopes.email,
                                     AppleIDAuthorizationScopes.fullName,

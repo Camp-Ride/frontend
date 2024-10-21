@@ -27,10 +27,8 @@ Future authDio(BuildContext context) async {
     print(error);
     print(error.response);
     print(error.response?.statusCode);
+    print(error.response?.data);
     final accessToken = await storage.read(key: 'access_token');
-
-
-
 
     if(error.response?.data['code'] == 3016){
       showDialog(
@@ -53,7 +51,7 @@ Future authDio(BuildContext context) async {
     }
 
 
-    if(error.response?.data['code']==3001 || error.response == null || error.response?.statusCode == 502 || accessToken == null){
+    if(error.response?.data['code']==3001 || error.response == null || error.response?.statusCode == 502 || accessToken == null || error.response?.statusCode == 302){
 
 
       await SecureStroageService.deleteNickname();
